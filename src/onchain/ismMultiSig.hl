@@ -1,0 +1,71 @@
+minting ism_multi_sig
+
+// Constants
+const TOKEN_NAME_AUTH: ByteArray = #61757468 // auth
+
+// Parameters
+// The public keys whose signatures are acknowledged.
+const PK_OWNERS: []PubKey = []PubKey{}
+
+// The number of signatures needed to pass a transaction.
+const NUM_SIGNATURES_REQUIRED: Int = 0
+
+// The recipient address where messages are posted to.
+// Owners must decide to post inbound messages to a pre-defined address
+// to prevent bad guys stealing auth tokens from an authentic message
+// then post it with a malicious message to a dApp address, since tokens
+// and datums are not directly tied together.
+const ADDR_MESSAGE: Address = Address::new(
+  Credential::new_pubkey(PubKeyHash::new(#)), Option[StakingCredential]::None
+)
+// End of Parameters
+
+// Datum
+struct DatumMessage {
+  // The inbound message
+  message: ByteArray
+}
+
+// Redeemer
+struct RedeemerIsmMultiSig {
+  // The inbound message
+  message: ByteArray
+  // The signatures signed on the message
+  signatures: []ByteArray
+}
+
+// (1) & (2) are strict and make it easier to reason about the ISM.
+// We can loosen them as there are demands from dApp developers
+// for more advanced integrations.
+func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
+  // (1) Must mint only a single auth token.
+  asset_class_auth_token: AssetClass = AssetClass::new(
+    ctx.get_current_minting_policy_hash(),
+    TOKEN_NAME_AUTH
+  );
+  value_single_auth_token: Value = Value::new(asset_class_auth_token, 1);
+  assert(ctx.tx.minted == value_single_auth_token, "invalid minting");
+
+  // (2) Must produce a single valid message UTxO, which is the only
+  // output that can hold an authentic token.
+  authentic_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
+    output.value.get_safe(asset_class_auth_token) > 0
+  });
+  assert(authentic_outputs.length == 1, "invalid outputs");
+  output: TxOutput = authentic_outputs.head;
+  assert(
+    output.address == ADDR_MESSAGE &&
+    output.value.get_assets() == value_single_auth_token &&
+    output.datum == OutputDatum::new_inline(DatumMessage { redeemer.message }),
+    "invalid output"
+  );
+
+  // (3) The submitted message is signed by the required number of "owners".
+  // NOTE: We can look up faster by adding the public key to each redeemer signature.
+  valid_signatures: []ByteArray = redeemer.signatures.filter((signature: ByteArray) -> {
+    PK_OWNERS.any((pk: PubKey) -> {
+      pk.verify(redeemer.message, signature)
+    })
+  });
+  valid_signatures.length >= NUM_SIGNATURES_REQUIRED
+}
