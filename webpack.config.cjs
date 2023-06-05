@@ -4,12 +4,20 @@ module.exports = {
   output: {
     path: __dirname + "/dist/",
   },
+  resolve: {
+    extensions: [".ts"],
+  },
   module: {
     rules: [
       {
+        test: /\.ts/,
+        exclude: /node_modules/,
+        loader: "ts-loader",
+      },
+      {
         test: /\.hl/,
         exclude: /node_modules/,
-        use: ["@hyperionbt/helios-loader"],
+        loader: "@hyperionbt/helios-loader",
       },
     ],
   },
