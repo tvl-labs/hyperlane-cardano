@@ -2,8 +2,7 @@ import * as helios from "@hyperionbt/helios";
 
 declare class MintingPolicyIsmMultiSig {
   constructor(params: {
-    // TODO: Add a clean interface for a list of PubKey as parameter.
-    // PK_OWNERS: PubKey[];
+    PK_OWNERS: helios.PubKey[];
     NUM_SIGNATURES_REQUIRED: bigint;
     ADDR_MESSAGE: helios.Address;
   });
