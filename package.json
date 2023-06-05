@@ -8,7 +8,7 @@
     "test": "npx webpack build && node dist/main.js"
   },
   "dependencies": {
-    "@hyperionbt/helios": "https://github.com/kreate-community/Helios#3c389d4b2c2201e6acc8a7fd59698a03ffe02040"
+    "@hyperionbt/helios": "https://github.com/kreate-community/Helios#f14d510d9d551f51708c96e97a551fe38b52da8e"
   },
   "devDependencies": {
     "@hyperionbt/helios-loader": "^0.1.5",

@@ -8,10 +8,16 @@ export default async function createMessage(
   ADDR_MESSAGE: helios.Address,
   message: helios.UplcData,
   signatures: helios.ListData,
-  relayerWallet: helios.Wallet
+  relayerWallet: helios.Wallet,
+  blockfrost?: helios.BlockfrostV0
 ) {
   const tx = new helios.Tx();
-  const utxos = await relayerWallet.utxos;
+
+  let baseAddress = (await relayerWallet.usedAddresses)[0];
+  if (!baseAddress) baseAddress = (await relayerWallet.unusedAddresses)[0];
+  const utxos = await (blockfrost
+    ? blockfrost.getUtxos(baseAddress)
+    : relayerWallet.utxos);
   tx.addInputs(utxos);
 
   const ismMultiSig = new MintingPolicyIsmMultiSig({
@@ -43,12 +49,11 @@ export default async function createMessage(
     )
   );
 
-  await tx.finalize(
-    new helios.NetworkParams(paramsPreview),
-    utxos[0].origOutput.address
-  );
+  await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
-  const txId = await relayerWallet.submitTx(tx);
+  const txId = await (blockfrost
+    ? blockfrost.submitTx(tx)
+    : relayerWallet.submitTx(tx));
   console.log(txId.hex);
 }
