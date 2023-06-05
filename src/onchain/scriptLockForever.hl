@@ -1,0 +1,5 @@
+spending lock_forever
+
+func main(_, _, _) -> Bool {
+  false
+}

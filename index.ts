@@ -1,9 +1,9 @@
 import * as helios from "@hyperionbt/helios";
 import createMessage from "./src/offchain/tx/createMessage";
+import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
 
 const network = new helios.NetworkEmulator();
 const wallets = [1, 2, 3].map((_) => network.createWallet(10_000_000n));
-const messageAddress = network.createWallet().address;
 
 await network.tick(1n);
 
@@ -13,10 +13,15 @@ const signatures = wallets.map((w) =>
     helios.Crypto.Ed25519.sign(message, w.privateKey.bytes)
   )._toUplcData()
 );
+// TODO: Stake on an actual network
+const addressMessage = helios.Address.fromValidatorHash(
+  new ScriptLockForever().compile(true).validatorHash
+);
+
 await createMessage(
   wallets.map((w) => w.pubKey),
   BigInt(Math.floor(wallets.length / 2) + 1),
-  messageAddress,
+  addressMessage,
   new helios.ByteArray(message)._toUplcData(),
   new helios.ListData(signatures),
   wallets[0]
