@@ -2,6 +2,7 @@ minting ism_multi_sig
 
 // Constants
 const TOKEN_NAME_AUTH: ByteArray = #61757468 // auth
+const LABEL_HYPERLANE: ByteArray = #48595045524c414e45 // HYPERLANE
 
 // Parameters
 // The verification keys whose signatures are acknowledged.
@@ -27,7 +28,17 @@ struct DatumMessage {
 }
 
 // Redeemer
+// "Int" is unbounded in Plutus so we use "ByteArray" for "origin"
+// and "checkpointIndex" to easier handle padding.
 struct RedeemerIsmMultiSig {
+  // The origin domain of the checkpoint
+  origin: ByteArray
+  // The address of the origin mailbox
+  originMailbox: ByteArray
+  // The root of the checkpoint
+  checkpointRoot: ByteArray
+  // The index of the checkpoint
+  checkpointIndex: ByteArray
   // The inbound message
   message: ByteArray
   // The signatures signed on the message
@@ -38,6 +49,12 @@ struct RedeemerIsmMultiSig {
 // We can loosen them as there are demands from dApp developers
 // for more advanced integrations.
 func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
+  // (0) Validate redeemers
+  assert(redeemer.origin.length == 32, "invalid origin");
+  assert(redeemer.originMailbox.length == 32, "invalid originMailbox");
+  assert(redeemer.checkpointRoot.length == 32, "invalid checkpointRoot");
+  assert(redeemer.checkpointIndex.length == 32, "invalid checkpointIndex");
+
   // (1) Must mint only a single auth token.
   asset_class_auth_token: AssetClass = AssetClass::new(
     ctx.get_current_minting_policy_hash(),
@@ -62,7 +79,12 @@ func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
 
   // (3) The submitted message is signed by the required number of "owners".
   // NOTE: We can look up faster by adding the public key to each redeemer signature.
-  message_hash: ByteArray = redeemer.message.blake2b();
+  message_hash: ByteArray = (
+    (redeemer.origin + redeemer.originMailbox + LABEL_HYPERLANE).blake2b() +
+    redeemer.checkpointRoot +
+    redeemer.checkpointIndex +
+    redeemer.message.blake2b()
+  ).blake2b();
   valid_signatures: []ByteArray = redeemer.signatures.filter((signature: ByteArray) -> {
     VK_OWNERS.any((vkey: ByteArray) -> {
       vkey.verify_ecdsa_secp256k1_signature(message_hash, signature)

@@ -4,6 +4,8 @@ import secp256k1 from "secp256k1";
 import createMessage from "./src/offchain/tx/createMessage";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
 
+const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
+
 function genPrivateKey() {
   let privateKey;
   do {
@@ -15,6 +17,11 @@ const ownerPrivateKeys = [genPrivateKey(), genPrivateKey(), genPrivateKey()];
 const ownerPublicKeys = ownerPrivateKeys.map(
   (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
 );
+
+const origin = Array(32).fill(0);
+const originMailbox = Array(32).fill(1);
+const checkpointRoot = Array(32).fill(2);
+const checkpointIndex = Array(32).fill(3);
 
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
@@ -28,18 +35,32 @@ const addressMessage = helios.Address.fromValidatorHash(
 // TODO: Better interface & names here...
 function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
   const message = helios.textToBytes(msg);
-  const messageHash = new Uint8Array(helios.Crypto.blake2b(message));
-  const signatures = ownerPrivateKeys.map((k) =>
-    new helios.ByteArray(
-      Array.from(secp256k1.ecdsaSign(messageHash, k).signature)
-    )._toUplcData()
+  const messageHash = new Uint8Array(
+    helios.Crypto.blake2b(
+      helios.Crypto.blake2b(
+        origin.concat(originMailbox).concat(LABEL_HYPERLANE)
+      )
+        .concat(checkpointRoot)
+        .concat(checkpointIndex)
+        .concat(helios.Crypto.blake2b(message))
+    )
+  );
+  const signatures = ownerPrivateKeys.map(
+    (k) =>
+      new helios.ByteArray(
+        Array.from(secp256k1.ecdsaSign(messageHash, k).signature)
+      )
   );
   return createMessage(
     ownerPublicKeys,
     2n,
     addressMessage,
-    new helios.ByteArray(message)._toUplcData(),
-    new helios.ListData(signatures),
+    new helios.ByteArray(origin),
+    new helios.ByteArray(originMailbox),
+    new helios.ByteArray(checkpointRoot),
+    new helios.ByteArray(checkpointIndex),
+    new helios.ByteArray(message),
+    signatures,
     wallet,
     blockfrost
   );

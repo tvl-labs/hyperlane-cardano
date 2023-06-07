@@ -6,8 +6,12 @@ export default async function createMessage(
   VK_OWNERS: helios.ByteArray[],
   NUM_SIGNATURES_REQUIRED: bigint,
   ADDR_MESSAGE: helios.Address,
-  message: helios.UplcData,
-  signatures: helios.ListData,
+  origin: helios.ByteArray,
+  originMailbox: helios.ByteArray,
+  checkpointRoot: helios.ByteArray,
+  checkpointIndex: helios.ByteArray,
+  message: helios.ByteArray,
+  signatures: helios.ByteArray[],
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
 ) {
@@ -30,7 +34,14 @@ export default async function createMessage(
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
     [[helios.textToBytes("auth"), BigInt(1)]],
-    new helios.ListData([message, signatures])
+    new helios.ListData([
+      origin._toUplcData(),
+      originMailbox._toUplcData(),
+      checkpointRoot._toUplcData(),
+      checkpointIndex._toUplcData(),
+      message._toUplcData(),
+      new helios.ListData(signatures.map(s => s._toUplcData())),
+    ])
   );
 
   tx.addOutput(
