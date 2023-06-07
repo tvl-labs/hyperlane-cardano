@@ -4,8 +4,8 @@ minting ism_multi_sig
 const TOKEN_NAME_AUTH: ByteArray = #61757468 // auth
 
 // Parameters
-// The public keys whose signatures are acknowledged.
-const PK_OWNERS: []PubKey = []PubKey{}
+// The verification keys whose signatures are acknowledged.
+const VK_OWNERS: []ByteArray = []ByteArray{}
 
 // The number of signatures needed to pass a transaction.
 const NUM_SIGNATURES_REQUIRED: Int = 0
@@ -62,9 +62,10 @@ func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
 
   // (3) The submitted message is signed by the required number of "owners".
   // NOTE: We can look up faster by adding the public key to each redeemer signature.
+  message_hash: ByteArray = redeemer.message.blake2b();
   valid_signatures: []ByteArray = redeemer.signatures.filter((signature: ByteArray) -> {
-    PK_OWNERS.any((pk: PubKey) -> {
-      pk.verify(redeemer.message, signature)
+    VK_OWNERS.any((vkey: ByteArray) -> {
+      vkey.verify_ecdsa_secp256k1_signature(message_hash, signature)
     })
   });
   valid_signatures.length >= NUM_SIGNATURES_REQUIRED

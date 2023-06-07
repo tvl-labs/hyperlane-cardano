@@ -3,7 +3,7 @@ import paramsPreview from "../../../data/cardano-preview-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 
 export default async function createMessage(
-  PK_OWNERS: helios.PubKey[],
+  VK_OWNERS: helios.ByteArray[],
   NUM_SIGNATURES_REQUIRED: bigint,
   ADDR_MESSAGE: helios.Address,
   message: helios.UplcData,
@@ -21,7 +21,7 @@ export default async function createMessage(
   tx.addInputs(utxos);
 
   const ismMultiSig = new MintingPolicyIsmMultiSig({
-    PK_OWNERS,
+    VK_OWNERS,
     NUM_SIGNATURES_REQUIRED,
     ADDR_MESSAGE,
   }).compile(true);

@@ -1,14 +1,15 @@
 {
   "name": "hyperlane-cardano",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
   "repository": "https://github.com/tvl-labs/hyperlane-cardano",
   "scripts": {
     "test": "npx webpack build && node dist/main.js"
   },
   "dependencies": {
-    "@hyperionbt/helios": "https://github.com/kreate-community/Helios#f14d510d9d551f51708c96e97a551fe38b52da8e"
+    "@hyperionbt/helios": "https://github.com/kreate-community/Helios#b726ee2ff322c3b591d133b5196d2d100e324e3b",
+    "node-fetch": "^3.3.1",
+    "secp256k1": "^5.0.0"
   },
   "devDependencies": {
     "@hyperionbt/helios-loader": "^0.1.5",
