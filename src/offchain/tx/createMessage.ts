@@ -1,6 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
+import { TOKEN_NAME_AUTH } from "../common";
 
 export default async function createMessage(
   VK_OWNERS: helios.ByteArray[],
@@ -14,7 +15,7 @@ export default async function createMessage(
   signatures: helios.ByteArray[],
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
-) {
+): Promise<helios.TxId> {
   const tx = new helios.Tx();
 
   let baseAddress = (await relayerWallet.usedAddresses)[0];
@@ -33,14 +34,14 @@ export default async function createMessage(
   tx.attachScript(ismMultiSig);
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
-    [[helios.textToBytes("auth"), BigInt(1)]],
+    [[TOKEN_NAME_AUTH, BigInt(1)]],
     new helios.ListData([
       origin._toUplcData(),
       originMailbox._toUplcData(),
       checkpointRoot._toUplcData(),
       checkpointIndex._toUplcData(),
       message._toUplcData(),
-      new helios.ListData(signatures.map(s => s._toUplcData())),
+      new helios.ListData(signatures.map((s) => s._toUplcData())),
     ])
   );
 
@@ -50,10 +51,7 @@ export default async function createMessage(
       new helios.Value(
         BigInt(0), // Let Helios calculate the min ADA!
         new helios.Assets([
-          [
-            ismMultiSig.mintingPolicyHash,
-            [[helios.textToBytes("auth"), BigInt(1)]],
-          ],
+          [ismMultiSig.mintingPolicyHash, [[TOKEN_NAME_AUTH, BigInt(1)]]],
         ])
       ),
       helios.Datum.inline(message)
@@ -63,8 +61,5 @@ export default async function createMessage(
   await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
-  const txId = await (blockfrost
-    ? blockfrost.submitTx(tx)
-    : relayerWallet.submitTx(tx));
-  console.log(txId.hex);
+  return blockfrost ? blockfrost.submitTx(tx) : relayerWallet.submitTx(tx);
 }

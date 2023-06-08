@@ -1,6 +1,8 @@
 import * as helios from "@hyperionbt/helios";
+import fetch from "node-fetch";
 const { randomBytes } = require("crypto");
 import secp256k1 from "secp256k1";
+import { getMessages } from "./src/offchain/indexer/getMessages";
 import createMessage from "./src/offchain/tx/createMessage";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
 
@@ -69,9 +71,33 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
 await createMsg("Hello world, Emulated Network!");
 
 // TODO: Let's do .env next
-await createMsg(
+const txId = await createMsg(
   "Hello world, Preview Network!",
   new helios.BlockfrostV0("preview", "previewYsVVUeDDNVGdZ86B5olBg5OYEyl6Zmjy")
+);
+console.log(`Submitted ${txId.hex}!`);
+
+// TODO: Give up after a certain number of tries
+await (async function waitForConfirmation() {
+  console.log("Waiting for confirmation...");
+  const r = await fetch(
+    `https://cardano-preview.blockfrost.io/api/v0/txs/${txId.hex}`,
+    {
+      headers: {
+        project_id: "previewYsVVUeDDNVGdZ86B5olBg5OYEyl6Zmjy",
+      },
+    }
+  );
+  if (r.status === 404) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return waitForConfirmation();
+  }
+})();
+
+const messages = await getMessages(ownerPublicKeys, 2n, addressMessage);
+console.log(
+  "Onchain Authentic Messages:", // Note: Not all messages are "text".
+  messages.map((m) => helios.bytesToText(m.bytes))
 );
 
 // TODO: Build several edge cases.
