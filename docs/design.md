@@ -21,14 +21,16 @@ Transaction {
 validate(transaction: Transaction) -> true | false
 
 EUTxO {
+    // Address that can spend this UTXO
+    address
     // Hash of the transaction in which this EUTxO was produced 
     txHash
     // Index of EUTxO inside the producing transaction
     txIndex
-    // Tokens minted in this transaction
-    tokens
+    // Value carried on in this transaction (ADA or tokens)
+    value
     // Payload attached to the EUTxO
-    datum: Datum = <arbitrary data>
+    datum = <arbitrary data to be used in the next transactions>
 }
 ```
 
@@ -112,7 +114,7 @@ To deliver a message sent from an EVM chain, the relayer builds a transaction:
 - the output EUTxO is posted to the `RECIPIENT_ADDR` for later processing by a DApp
 
 The `MultisigIsm` minting policy is parameterized by:
-- `VK_OWNERS: Pubkey[]` — public keys of the expected validators
+- `VK_OWNERS` — public keys of the expected validators
 - `THRESHOLD` — the validators' quorum threshold
 - `RECIPIENT_ADDRESS` — the recipient of output (message) EUTxO
 
