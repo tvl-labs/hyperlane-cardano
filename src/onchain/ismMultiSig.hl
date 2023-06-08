@@ -41,7 +41,7 @@ struct RedeemerIsmMultiSig {
   checkpointIndex: ByteArray
   // The inbound message
   message: ByteArray
-  // The signatures signed on the message
+  // The signatures signed on the hash
   signatures: []ByteArray
 }
 

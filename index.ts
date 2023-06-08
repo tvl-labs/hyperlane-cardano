@@ -1,7 +1,6 @@
 import * as helios from "@hyperionbt/helios";
 import "dotenv/config";
 import fetch from "node-fetch";
-const { randomBytes } = require("crypto");
 import secp256k1 from "secp256k1";
 
 import { BLOCKFROST_PREFIX } from "./src/offchain/common";
@@ -71,7 +70,7 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
 await createMsg("Hello world, Emulated Network!");
 
 const txId = await createMsg(
-  "Hello world, Preview Network!",
+  `[${Date.now()}] Hello world, Preview Network!`,
   new helios.BlockfrostV0("preview", process.env.BLOCKFROST_PROJECT_ID)
 );
 console.log(`Submitted ${txId.hex}!`);
