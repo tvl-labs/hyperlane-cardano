@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH } from "../common";
+import { TOKEN_NAME_AUTH, BLOCKFROST_PREFIX } from "../common";
 import { AppParams } from "../../typing";
 
 // Note: we can provide another interface that takes in a
@@ -13,12 +13,12 @@ export async function getMessages(
     .mintingPolicyHash.hex;
 
   const utxos: any = await fetch(
-    `https://cardano-preview.blockfrost.io/api/v0/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
+    `${BLOCKFROST_PREFIX}/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
       authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
     }`,
     {
       headers: {
-        project_id: "previewYsVVUeDDNVGdZ86B5olBg5OYEyl6Zmjy",
+        project_id: process.env.BLOCKFROST_PROJECT_ID,
       },
     }
   ).then((r) => r.json());

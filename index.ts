@@ -1,11 +1,13 @@
 import * as helios from "@hyperionbt/helios";
+import "dotenv/config";
 import fetch from "node-fetch";
 const { randomBytes } = require("crypto");
 import secp256k1 from "secp256k1";
+
+import { BLOCKFROST_PREFIX } from "./src/offchain/common";
 import { getMessages } from "./src/offchain/indexer/getMessages";
 import createMessage from "./src/offchain/tx/createMessage";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
-import { AppParams } from "./src/typing";
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
@@ -14,14 +16,9 @@ const addressMessage = helios.Address.fromValidatorHash(
   new ScriptLockForever().compile(true).validatorHash
 );
 
-function genPrivateKey() {
-  let privateKey;
-  do {
-    privateKey = randomBytes(32);
-  } while (!secp256k1.privateKeyVerify(privateKey));
-  return privateKey;
-}
-const ownerPrivateKeys = [genPrivateKey(), genPrivateKey(), genPrivateKey()];
+const ownerPrivateKeys = [1, 2, 3].map((i) =>
+  Uint8Array.from(Buffer.from(process.env[`PRIVATE_KEY_OWNER_${i}`], "hex"))
+);
 const appParams = {
   VK_OWNERS: ownerPrivateKeys.map(
     (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
@@ -73,24 +70,20 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
 
 await createMsg("Hello world, Emulated Network!");
 
-// TODO: Let's do .env next
 const txId = await createMsg(
   "Hello world, Preview Network!",
-  new helios.BlockfrostV0("preview", "previewYsVVUeDDNVGdZ86B5olBg5OYEyl6Zmjy")
+  new helios.BlockfrostV0("preview", process.env.BLOCKFROST_PROJECT_ID)
 );
 console.log(`Submitted ${txId.hex}!`);
 
 // TODO: Give up after a certain number of tries
 await (async function waitForConfirmation() {
   console.log("Waiting for confirmation...");
-  const r = await fetch(
-    `https://cardano-preview.blockfrost.io/api/v0/txs/${txId.hex}`,
-    {
-      headers: {
-        project_id: "previewYsVVUeDDNVGdZ86B5olBg5OYEyl6Zmjy",
-      },
-    }
-  );
+  const r = await fetch(`${BLOCKFROST_PREFIX}/txs/${txId.hex}`, {
+    headers: {
+      project_id: process.env.BLOCKFROST_PROJECT_ID,
+    },
+  });
   if (r.status === 404) {
     await new Promise((resolve) => setTimeout(resolve, 3000));
     return waitForConfirmation();
