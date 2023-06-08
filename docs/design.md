@@ -70,9 +70,17 @@ dispatch(message*) {
 ```
 
 ### Outbox Indexer
-This off-chain component indexes the consumption/production of `Outbox EUTxO`s. The existing indexing solutions, such as [Ogmios](https://ogmios.dev/) and [Oura](https://github.com/txpipe/oura) are implemented using non-Rust languages. For initial versions, we'll likely have a standalone indexing component running near the Hyperlane relayer agent. These two components will communicate via RPC.
+This off-chain component indexes the consumption/production of `Outbox EUTxO`s
+and provides an API to query the `Outbox` state at specific previous blocks.
 
-The indexer (RPC) API for the Hyperlane relayer should minimally implement:
+Hyperlane relayer works ("indexes") on top of the "Outbox Indexer" and relays the dispatches messages when they achieve consensus.
+
+> Note: the Hyperlane integration with Ethereum (and Solana) implements indexing using commonly known RPC providers API (`eth_getLogs` etc).
+> Because of the EUTxO model, the Cardano node does not provide a similar API, and we need to build a custom indexer,
+> using a solution like [Ogmios](https://ogmios.dev/) or [Oura](https://github.com/txpipe/oura).
+> Cardano tooling is mostly non-Rust, so we'll run them close to the Hyperlane agents.
+
+The indexer (RPC) API for the Hyperlane relayer should minimally implement the following interface.
 ```
 // Returns the latest finalized Cardano block
 last_finalized_block_number() -> number
