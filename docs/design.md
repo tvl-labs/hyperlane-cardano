@@ -44,25 +44,25 @@ Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailbox):
 > and found out that `process` and `dispatch` do not share a common state, therefore, they can be separated:
 > - `process` maintains a `mapping(bytes32 => bool) delivered` map to deduplicate delivered messages. 
 > In Cardano, this is implemented by checking the existence (or the spending) of a corresponding "process"-ed EUTxO.
-> - `dispatch` maintains an MPT to sign message checkpoints. Cardano stores MPT in EUTxOs (see below).
+> - `dispatch` maintains a Merkle Tree to sign message checkpoints. Cardano stores MT in EUTxOs (see below).
 
 ### Outbox (Cardano -> EVM chains)
-The Outbox constructs an on-chain proof of messages by incorporating them into an incremental (compressed) Merkle-Patricia-Tree (MPT).
+The Outbox constructs an on-chain proof of messages by incorporating them into an incremental (compressed) Merkle Tree (MT).
 
-At any point, there is only one `Outbox EUTxO` containing the most recent MPT and message. When a DApp (user) wants to dispatch a message, they build a transaction that consumes the `Outbox EUTxO` and produces a new `Outbox EUTxO` with the updated MPT and latest message.
+At any point, there is only one `Outbox EUTxO` containing the most recent MerkleTree and message. When a DApp (user) wants to dispatch a message, they build a transaction that consumes the `Outbox EUTxO` and produces a new `Outbox EUTxO` with the updated MerkleTree and latest message.
 
-The `Outbox Mailbox (Validator Script)` on-chain script validates the MPT transition 
-(by ingesting the message leaf to MPT on-chain).
+The `Outbox Mailbox (Validator Script)` on-chain script validates the MerkleTree transition 
+(by ingesting the message leaf to MerkleTree on-chain).
 
 Pseudocode of building a dispatch transaction by a DApp:
 ```
 dispatch(message*) {
   input = wallet.utxo       // to pay fee
   input.utxo = last_utxo()  // from indexer 
-  mpt* = input.utxo.mpt.ingest(message*) 
+  merkleTree* = input.utxo.merkleTree.ingest(message*) 
   output.utxo = {
     address: outbox_validator,
-    mpt*,
+    merkleTree*,
     message*
   }
 }
@@ -84,8 +84,8 @@ The indexer (RPC) API for the Hyperlane relayer should minimally implement the f
 // Returns the latest finalized Cardano block
 last_finalized_block_number() -> number
 
-// Returns the MPT at blockNumber 
-tree(blockNumber) -> MPT
+// Returns the MerkleTree at blockNumber 
+tree(blockNumber) -> MerkleTree
 
 // Get messages fromBlock to toBlock
 messages(fromBlock, toBlock): [IndexedMessage]
@@ -125,18 +125,18 @@ We're going to file a `keccak256` support [CIP](https://github.com/cardano-found
 >, so there is a good chance it will be included in a future hard-fork.
 
 Hyperlane extensively depends on the `keccak256`:
-- `MPT` implementation uses `keccak256` both [on-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/libs/Merkle.sol#L39) and [off-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/e5e794eda42d906563a4929a4c39bbf2c6993ba3/rust/hyperlane-core/src/accumulator/mod.rs#L20)
+- `MerkleTree` implementation uses `keccak256` both [on-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/libs/Merkle.sol#L39) and [off-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/e5e794eda42d906563a4929a4c39bbf2c6993ba3/rust/hyperlane-core/src/accumulator/mod.rs#L20)
 - validator agent [uses](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/d57ae5f628bcf3bc0ebcac2c832ad2821a4a5cbb/rust/agents/validator/src/validator.rs#L63) ETH-specific (EIP-155) [keccak256](https://github.com/hyperlane-xyz/ethers-rs/blob/fe5d88220fc15d99ed19ae20e80ef7985673fa9a/ethers-core/src/utils/hash.rs#LL21C13-L21C13) hashing
 
 ### Solution: use `blake2b` instead of `keccak256`
-As a workaround, Cardano's on-chain MPT can use `blake2b` for leaf ingestion and root calculation.
+As a workaround, Cardano's on-chain MerkleTree can use `blake2b` for leaf ingestion and root calculation.
 
 
 #### Flow `Cardano -> EVM`
-The Cardano validator needs to validate the MPT using `blake2b`.
+The Cardano validator needs to validate the MerkleTree using `blake2b`.
 
 On EVM side, there are two options:
-- Have the Cardano validator sign the checkpoint using EVM's `keccak256` and use [MessageIdMultisigIsm]([MessageIdMultisigIsm](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/isms/multisig/AbstractMessageIdMultisigIsm.sol#L16)), which doesn't validate the MPT root.
+- Have the Cardano validator sign the checkpoint using EVM's `keccak256` and use [MessageIdMultisigIsm]([MessageIdMultisigIsm](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/isms/multisig/AbstractMessageIdMultisigIsm.sol#L16)), which doesn't validate the MerkleTree root.
 - Implement a Solidity `Blake2bMultisigIsm` for messages originating from Cardano.
 
 #### Flow `EVM -> Cardano`
