@@ -1,11 +1,8 @@
 import * as helios from "@hyperionbt/helios";
+import { AppParams } from "../typing";
 
 declare class MintingPolicyIsmMultiSig {
-  constructor(params: {
-    VK_OWNERS: helios.ByteArray[];
-    NUM_SIGNATURES_REQUIRED: bigint;
-    ADDR_MESSAGE: helios.Address;
-  });
+  constructor(params: AppParams);
   compile(optimize: boolean): helios.UplcProgram;
 }
 

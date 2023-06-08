@@ -5,8 +5,14 @@ import secp256k1 from "secp256k1";
 import { getMessages } from "./src/offchain/indexer/getMessages";
 import createMessage from "./src/offchain/tx/createMessage";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
+import { AppParams } from "./src/typing";
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
+
+// TODO: Stake on real networks
+const addressMessage = helios.Address.fromValidatorHash(
+  new ScriptLockForever().compile(true).validatorHash
+);
 
 function genPrivateKey() {
   let privateKey;
@@ -16,9 +22,13 @@ function genPrivateKey() {
   return privateKey;
 }
 const ownerPrivateKeys = [genPrivateKey(), genPrivateKey(), genPrivateKey()];
-const ownerPublicKeys = ownerPrivateKeys.map(
-  (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
-);
+const appParams = {
+  VK_OWNERS: ownerPrivateKeys.map(
+    (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
+  ),
+  NUM_SIGNATURES_REQUIRED: 2n,
+  ADDR_MESSAGE: addressMessage,
+};
 
 const origin = Array(32).fill(0);
 const originMailbox = Array(32).fill(1);
@@ -28,11 +38,6 @@ const checkpointIndex = Array(32).fill(3);
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
 await emulatedNetwork.tick(1n);
-
-// TODO: Stake on real networks
-const addressMessage = helios.Address.fromValidatorHash(
-  new ScriptLockForever().compile(true).validatorHash
-);
 
 // TODO: Better interface & names here...
 function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
@@ -54,9 +59,7 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
       )
   );
   return createMessage(
-    ownerPublicKeys,
-    2n,
-    addressMessage,
+    appParams,
     new helios.ByteArray(origin),
     new helios.ByteArray(originMailbox),
     new helios.ByteArray(checkpointRoot),
@@ -94,7 +97,7 @@ await (async function waitForConfirmation() {
   }
 })();
 
-const messages = await getMessages(ownerPublicKeys, 2n, addressMessage);
+const messages = await getMessages(appParams);
 console.log(
   "Onchain Authentic Messages:", // Note: Not all messages are "text".
   messages.map((m) => helios.bytesToText(m.bytes))

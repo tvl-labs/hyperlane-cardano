@@ -2,11 +2,10 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH } from "../common";
+import { AppParams } from "../../typing";
 
 export default async function createMessage(
-  VK_OWNERS: helios.ByteArray[],
-  NUM_SIGNATURES_REQUIRED: bigint,
-  ADDR_MESSAGE: helios.Address,
+  appParams: AppParams,
   origin: helios.ByteArray,
   originMailbox: helios.ByteArray,
   checkpointRoot: helios.ByteArray,
@@ -25,12 +24,7 @@ export default async function createMessage(
     : relayerWallet.utxos);
   tx.addInputs(utxos);
 
-  const ismMultiSig = new MintingPolicyIsmMultiSig({
-    VK_OWNERS,
-    NUM_SIGNATURES_REQUIRED,
-    ADDR_MESSAGE,
-  }).compile(true);
-
+  const ismMultiSig = new MintingPolicyIsmMultiSig(appParams).compile(true);
   tx.attachScript(ismMultiSig);
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
@@ -47,7 +41,7 @@ export default async function createMessage(
 
   tx.addOutput(
     new helios.TxOutput(
-      ADDR_MESSAGE,
+      appParams.ADDR_MESSAGE,
       new helios.Value(
         BigInt(0), // Let Helios calculate the min ADA!
         new helios.Assets([

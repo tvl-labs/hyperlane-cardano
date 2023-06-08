@@ -2,22 +2,18 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH } from "../common";
+import { AppParams } from "../../typing";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
 export async function getMessages(
-  VK_OWNERS: helios.ByteArray[],
-  NUM_SIGNATURES_REQUIRED: bigint,
-  ADDR_MESSAGE: helios.Address
+  appParams: AppParams
 ): Promise<helios.ByteArray[]> {
-  const authenticMPH = new MintingPolicyIsmMultiSig({
-    VK_OWNERS,
-    NUM_SIGNATURES_REQUIRED,
-    ADDR_MESSAGE,
-  }).compile(true).mintingPolicyHash.hex;
+  const authenticMPH = new MintingPolicyIsmMultiSig(appParams).compile(true)
+    .mintingPolicyHash.hex;
 
   const utxos: any = await fetch(
-    `https://cardano-preview.blockfrost.io/api/v0/addresses/${ADDR_MESSAGE.toBech32()}/utxos/${
+    `https://cardano-preview.blockfrost.io/api/v0/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
       authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
     }`,
     {
