@@ -36,16 +36,15 @@ EUTxO {
 
 ![Khalani _ Hyperlane.png](design.png)
 
-Cardano's integration with Hyperlane consists of Inbox and Outbox (Mailboxes): 
+Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailbox): 
 - Inbox — to receive and validate messages from other chains (we call them EVM-compatible, but they can be any)
 - Outbox — to dispatch messages from Cardano to other chains
 
 > Note: we analyzed Mailbox [Solidity implementation](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/55f40ad7602e616367b2483b5ce57eaf7db5420d/solidity/contracts/Mailbox.sol#L18) 
-> and found out that `process` and `dispatch` do not share a common state:
+> and found out that `process` and `dispatch` do not share a common state, therefore, they can be separated:
 > - `process` maintains a `mapping(bytes32 => bool) delivered` map to deduplicate delivered messages. 
 > In Cardano, this is implemented by checking the existence (or the spending) of a corresponding "process"-ed EUTxO.
-> - `dispatch` maintains an MPT to sign message checkpoints.
-> Cardano stores MPT in EUTxOs (see below)
+> - `dispatch` maintains an MPT to sign message checkpoints. Cardano stores MPT in EUTxOs (see below).
 
 ### Outbox (Cardano -> EVM chains)
 The Outbox constructs an on-chain proof of messages by incorporating them into an incremental (compressed) Merkle-Patricia-Tree (MPT).
