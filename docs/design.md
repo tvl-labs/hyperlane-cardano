@@ -171,7 +171,7 @@ As a workaround, Cardano's on-chain Merkle Tree can use `blake2b` for leaf inges
 The Cardano validators need to validate the `blake2b` Merkle Tree.
 
 On EVM side, there are two options:
-- Use [MessageIdMultisigIsm]([MessageIdMultisigIsm](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/isms/multisig/AbstractMessageIdMultisigIsm.sol#L16)), which doesn't validate the Merkle Tree root.
+- Have the Cardano validator sign the `keccak256`-hashed checkpoint, and use [MessageIdMultisigIsm]([MessageIdMultisigIsm](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/isms/multisig/AbstractMessageIdMultisigIsm.sol#L16)), which doesn't validate the Merkle Tree root.
 - Implement a Solidity `Blake2bMultisigIsm` for messages originating from Cardano.
 
 #### Flow `EVM -> Cardano`
