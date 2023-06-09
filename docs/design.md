@@ -153,32 +153,33 @@ The `MultisigIsm` minting policy is parameterized by:
 > Note: for each validators/threshold configuration there will be a dedicated minting policy deployed by DApps.
 
 ### Challenge: Cardano does not support `keccak256` (but supports `ECDSA.recover`)
-The Cardano team has supported the ECDSA to allow for the EVM-compatibility, but without `keccak256` many use cases are still impossible.
-We're going to file a `keccak256` support [CIP](https://github.com/cardano-foundation/CIPs).
-> Note: `keccak256` is already available in the Cardano [codebase](https://github.com/input-output-hk/cardano-base/blob/master/cardano-crypto-class/src/Cardano/Crypto/Hash/Keccak256.hs)
->, so there is a good chance it will be included in a future hard-fork.
 
-Hyperlane extensively depends on the `keccak256`:
-- `MerkleTree` implementation uses `keccak256` both [on-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/libs/Merkle.sol#L39) and [off-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/e5e794eda42d906563a4929a4c39bbf2c6993ba3/rust/hyperlane-core/src/accumulator/mod.rs#L20)
-- validator agent [uses](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/d57ae5f628bcf3bc0ebcac2c832ad2821a4a5cbb/rust/agents/validator/src/validator.rs#L63) ETH-specific (EIP-155) [keccak256](https://github.com/hyperlane-xyz/ethers-rs/blob/fe5d88220fc15d99ed19ae20e80ef7985673fa9a/ethers-core/src/utils/hash.rs#LL21C13-L21C13) hashing
+Cardano has ECDSA but does not have `keccak256` on-chain, so many direct EVM integrations are still impossible.
+We're going to file a `keccak256` support [CIP](https://github.com/cardano-foundation/CIPs).
+> Note: `keccak256` is already available in the Cardano Node [codebase](https://github.com/input-output-hk/cardano-base/blob/master/cardano-crypto-class/src/Cardano/Crypto/Hash/Keccak256.hs).
+>There is a good chance it will be included in a future hard-fork.
+
+Hyperlane extensively depends on `keccak256`:
+- `MerkleTree` implementation uses `keccak256` both [on-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/libs/Merkle.sol#L39) and [off-chain](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/e5e794eda42d906563a4929a4c39bbf2c6993ba3/rust/hyperlane-core/src/accumulator/mod.rs#L20).
+- validator agent [uses](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/d57ae5f628bcf3bc0ebcac2c832ad2821a4a5cbb/rust/agents/validator/src/validator.rs#L63) ETH-specific (EIP-155) [keccak256](https://github.com/hyperlane-xyz/ethers-rs/blob/fe5d88220fc15d99ed19ae20e80ef7985673fa9a/ethers-core/src/utils/hash.rs#LL21C13-L21C13) hashing.
 
 ### Solution: use `blake2b` instead of `keccak256`
-As a workaround, Cardano's on-chain MerkleTree can use `blake2b` for leaf ingestion and root calculation.
+As a workaround, Cardano's on-chain Merkle Tree can use `blake2b` for leaf ingestion and root calculation.
 
 
 #### Flow `Cardano -> EVM`
-The Cardano validator needs to validate the MerkleTree using `blake2b`.
+The Cardano validators need to validate the `blake2b` Merkle Tree.
 
 On EVM side, there are two options:
-- Have the Cardano validator sign the checkpoint using EVM's `keccak256` and use [MessageIdMultisigIsm]([MessageIdMultisigIsm](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/isms/multisig/AbstractMessageIdMultisigIsm.sol#L16)), which doesn't validate the MerkleTree root.
+- Use [MessageIdMultisigIsm]([MessageIdMultisigIsm](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/isms/multisig/AbstractMessageIdMultisigIsm.sol#L16)), which doesn't validate the Merkle Tree root.
 - Implement a Solidity `Blake2bMultisigIsm` for messages originating from Cardano.
 
 #### Flow `EVM -> Cardano`
 Cardano `MultisigIsm` cannot recover the signatures signed by EVM-only validators, because the digest of the signatures [depends](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-core/src/types/checkpoint.rs#L39) on `keccak256`.
 
-The solution is to make the validator sign a digest using `blake2b` and [save](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-base/src/types/s3_storage.rs#L127) blake2b checkpoints to S3: `checkpoint_blake2b_{index}.json`.
+The solution is to make the validator sign a `blake2b` digest and [save](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-base/src/types/s3_storage.rs#L127) `blake2b` checkpoints to S3: `checkpoint_blake2b_{index}.json`.
 
 ### Status
-- We've implemented a simple `MultisigIsm` minting policy and Typescript SDK to disptach messages.
+- We've implemented a `MultisigIsm` minting policy and Typescript SDK to disptach messages from EVM to Cardano.
 - We started [cardano](https://github.com/tvl-labs/hyperlane-monorepo/tree/cardano) Git branch in our `hyperlane-monorepo` fork based off Sealevel's feature branch.
-- We're going to implement `Outbox` and a TypeScript SDK to `dispatch` messages.
+- We're going to implement `Outbox` and a TypeScript SDK to `dispatch` messages from Cardano to EVM.
