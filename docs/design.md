@@ -107,15 +107,12 @@ dispatch(message*) {
 ```
 
 ### Outbox Indexer
-This off-chain component indexes the consumption/production of `Outbox EUTxO`s
-and provides an API to query the `Outbox` state at specific previous blocks.
+This off-chain component indexes the consumption/production of `Outbox EUTxO`s and provides an API to query the `Outbox` state at specific previous blocks, and a message history.
 
 Hyperlane relayer works ("indexes") on top of the "Outbox Indexer" and relays the dispatches messages when they achieve consensus.
 
-> Note: the Hyperlane integration with Ethereum (and Solana) implements indexing using commonly known RPC providers API (`eth_getLogs` etc).
-> Because of the EUTxO model, the Cardano node does not provide a similar API, and we need to build a custom indexer,
-> using a solution like [Ogmios](https://ogmios.dev/) or [Oura](https://github.com/txpipe/oura).
-> Cardano tooling is mostly non-Rust, so we'll run them close to the Hyperlane agents.
+> Note: the Hyperlane integration with Ethereum (and Solana) implements indexing using commonly known RPC providers API (`eth_getLogs` etc). The alternative on Cardano is Blockfrost with HTTP requests.
+> Nevertheless, it is advised to build a custom indexer with [Ogmios](https://ogmios.dev/) or [Oura](https://github.com/txpipe/oura), to index directly from a local Cardano node to scale.
 
 The indexer (RPC) API for the Hyperlane relayer should minimally implement the following interface.
 ```
@@ -129,7 +126,7 @@ tree(blockNumber) -> MerkleTree
 messages(fromBlock, toBlock): [IndexedMessage]
 ```
 
-> Note (implementation): Hyperlane agent codebase defines [count()](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-core/src/traits/mailbox.rs#L32) and [latest_checkpoint()](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-core/src/traits/mailbox.rs#L41) functions of `Mailbox` interace, but they can be trivially implemented via `tree().count()` or `tree().root()`
+> Note (implementation): Hyperlane agent codebase defines [count()](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-core/src/traits/mailbox.rs#L32) and [latest_checkpoint()](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/rust/hyperlane-core/src/traits/mailbox.rs#L41) functions of `Mailbox` interace, but they can be trivially implemented via `tree().count()` or `tree().root()`.
 
 ### Inbox (EVM -> Cardano): MultisigIsm minting policy
 Minting policy in Cardano is a subset of "validator scripts" that determines the rules for minting/burning of tokens.
