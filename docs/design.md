@@ -5,17 +5,17 @@ Hyperlane is a permissionless interoperability layer that allows smart contracts
 Currently, Hyperlane natively supports all EVM-compatible chains, and the team is working hard to support Sealevel (Solana) and Fuel blockchains.
 This document outlines a proposed design for integration with Cardano.
 
-In the Cardano, the latest state is stored in `Datum` of Unspent Transaction Outputs (UTXOs). UTXOs can be spent by addresses building _valid_ transactions. These addresses can either be a standard private-key wallet or a _validator script_. A validator script is a predicate that validates a transaction and only returns `true` if the inputs/outputs are properly constructed by the off-chain transaction builder. 
+In the Cardano, the latest state is stored in `Datum` of Unspent Transaction Outputs (UTXOs). UTXOs can be spent by addresses building _valid_ transactions. These addresses can either be a standard private-key wallet or a _validator script_. A validator script is a predicate that validates a transaction and only returns `true` if the inputs/outputs are properly constructed by the off-chain transaction builder.
 
 Redeemer serves as an additional input to the predicate. All input EUTxOs are _spent_ in this transaction and cannot be spent again.
 
 ```
 Redeemer = <validator specific input>
 
-Transaction { 
-  input_utxos: EUTxO[], 
-  redeemer: Redeemer, 
-  output_utxos: EUTxO 
+Transaction {
+  input_utxos: EUTxO[],
+  redeemer: Redeemer,
+  output_utxos: EUTxO
 }
 
 validate(transaction: Transaction) -> true | false
@@ -23,7 +23,7 @@ validate(transaction: Transaction) -> true | false
 EUTxO {
     // Address that can spend this UTXO
     address
-    // Hash of the transaction in which this EUTxO was produced 
+    // Hash of the transaction in which this EUTxO was produced
     txHash
     // Index of EUTxO inside the producing transaction
     txIndex
@@ -38,13 +38,13 @@ EUTxO {
 
 ![Khalani _ Hyperlane.png](design.png)
 
-Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailbox): 
+Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailbox):
 - Inbox — to receive and validate messages from other chains (we call them EVM-compatible, but they can be any)
 - Outbox — to dispatch messages from Cardano to other chains
 
-> Note: we analyzed Mailbox [Solidity implementation](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/55f40ad7602e616367b2483b5ce57eaf7db5420d/solidity/contracts/Mailbox.sol#L18) 
+> Note: we analyzed Mailbox [Solidity implementation](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/55f40ad7602e616367b2483b5ce57eaf7db5420d/solidity/contracts/Mailbox.sol#L18)
 > and found out that `process` and `dispatch` do not share a common state, therefore, they can be separated:
-> - `process` maintains a `mapping(bytes32 => bool) delivered` map to deduplicate delivered messages. 
+> - `process` maintains a `mapping(bytes32 => bool) delivered` map to deduplicate delivered messages.
 > In Cardano, this is implemented by checking the existence (or the spending) of a corresponding "process"-ed EUTxO.
 > - `dispatch` maintains a Merkle Tree to sign message checkpoints. Cardano stores MT in EUTxOs (see below).
 
@@ -53,15 +53,15 @@ The Outbox constructs an on-chain proof of messages by incorporating them into a
 
 At any point, there is only one `Outbox EUTxO` containing the most recent MerkleTree and message. When a DApp (user) wants to dispatch a message, they build a transaction that consumes the `Outbox EUTxO` and produces a new `Outbox EUTxO` with the updated MerkleTree and latest message.
 
-The `Outbox Mailbox (Validator Script)` on-chain script validates the MerkleTree transition 
+The `Outbox Mailbox (Validator Script)` on-chain script validates the MerkleTree transition
 (by ingesting the message leaf to MerkleTree on-chain).
 
 Pseudocode of building a dispatch transaction by a DApp:
 ```
 dispatch(message*) {
   input = wallet.utxo       // to pay fee
-  input.utxo = last_utxo()  // from indexer 
-  merkleTree* = input.utxo.merkleTree.ingest(message*) 
+  input.utxo = last_utxo()  // from indexer
+  merkleTree* = input.utxo.merkleTree.ingest(message*)
   output.utxo = {
     address: outbox_validator,
     merkleTree*,
@@ -86,7 +86,7 @@ The indexer (RPC) API for the Hyperlane relayer should minimally implement the f
 // Returns the latest finalized Cardano block
 last_finalized_block_number() -> number
 
-// Returns the MerkleTree at blockNumber 
+// Returns the MerkleTree at blockNumber
 tree(blockNumber) -> MerkleTree
 
 // Get messages fromBlock to toBlock
@@ -102,13 +102,13 @@ The minting policy is a predicate returning `true | false` to allow a transactio
 We leverage a minting policy for the `MultisigIsm` implementation: if N/M provided signatures are valid,
 a custom 1 "auth" token is minted and attached to the "message" EUTxO, proving the authenticity of the message.
 That EUTxO is posted to a predefined DApp's `RECIPIENT_ADDR` (most likely a validator script)
-that can "spend" the authenticated message with a DApp-specific processing logic. 
+that can "spend" the authenticated message with a DApp-specific processing logic.
 
 To deliver a message sent from an EVM chain, the relayer builds a transaction:
 - the only input UTXO of the transaction is the relayer's wallet to pay for the delivery fee
 - the _minting script hash_ of the transaction is `hash(MultisigIsm minting policy)`
 - the transaction attaches the MultisigIsm minting policy compiled Plutus code (this is how smart contracts work on Cardano)
-- the `RedeemerMultisigIsm` of the `MultisigIsm` minting policy contains N/M validators' signatures, and message metadata to calculate a _digest_ of the signatures 
+- the `RedeemerMultisigIsm` of the `MultisigIsm` minting policy contains N/M validators' signatures, and message metadata to calculate a _digest_ of the signatures
 - the transaction mints 1 "auth" token and attaches it to the only output EUTxO — this is validated by the minting policy
 - the transaction sets `Datum = message` to the only output EUTxO
 - the output EUTxO is posted to the `RECIPIENT_ADDR` for later processing by a DApp
@@ -120,7 +120,7 @@ The `MultisigIsm` minting policy is parameterized by:
 
 > Note: for each validators/threshold configuration there will be a dedicated minting policy deployed by DApps.
 
-### Challenge: Cardano does not support `keccak256` (but supports `ECDSA.recover`) 
+### Challenge: Cardano does not support `keccak256` (but supports `ECDSA.recover`)
 The Cardano team has supported the ECDSA to allow for the EVM-compatibility, but without `keccak256` many use cases are still impossible.
 We're going to file a `keccak256` support [CIP](https://github.com/cardano-foundation/CIPs).
 > Note: `keccak256` is already available in the Cardano [codebase](https://github.com/input-output-hk/cardano-base/blob/master/cardano-crypto-class/src/Cardano/Crypto/Hash/Keccak256.hs)
