@@ -1,37 +1,66 @@
 ## [Hyperlane](https://hyperlane.xyz/) x [Cardano](https://cardano.org/) integration
 
 ### Overview
+
 Hyperlane is a permissionless interoperability layer that allows smart contracts to communicate arbitrary data between blockchains.
 Currently, Hyperlane natively supports all EVM-compatible chains, and the team is working hard to support Sealevel (Solana) and Fuel blockchains.
+
 This document outlines a proposed design for integration with Cardano.
 
-In the Cardano, the latest state is stored in `Datum` of Unspent Transaction Outputs (UTXOs). UTXOs can be spent by addresses building _valid_ transactions. These addresses can either be a standard private-key wallet or a _validator script_. A validator script is a predicate that validates a transaction and only returns `true` if the inputs/outputs are properly constructed by the off-chain transaction builder.
+In Cardano, the latest state is stored in the `Datum` of Unspent Transaction Outputs (UTXOs). UTXOs can be spent by satisfying the validator of its address. User addresses simply check for the signature of the address, while script addresses check arbitrary logic defined by the dApps.
 
-Redeemer serves as an additional input to the predicate. All input EUTxOs are _spent_ in this transaction and cannot be spent again.
+A validator script is a predicate that validates a transaction and only returns `true` if the transaction is properly constructed by the off-chain transaction builder. `Redeemer` serves as additional input to the predicate. All input EUTxOs are _spent_ in this transaction and cannot be spent again.
+
+In summary, a state progress transaction on Cardano consumes a UTxO with the state in `Datum`, and creates a new UTxO with the new state in `Datum`. The validator checks that the new `Datum` is valid given the business logic and input `Redeemer`.
 
 ```
-Redeemer = <validator specific input>
+EUTxO {
+  // The id of the transaction that produces this UTxO
+  tx_id
+  // The index of the UTxO in the output list of the producing transaction
+  tx_ix
+
+  // The address that locks this UTxO
+  address
+  // The value stored in this UTxO (ADA and native tokens)
+  value
+  // Arbitrary data stored in this UTxO
+  // Datums can be inlined or a hash (the spending tx must provide the value)
+  datum
+}
+
+Redeemer = <arbitrary data used as validator input>
 
 Transaction {
-  input_utxos: EUTxO[],
-  redeemer: Redeemer,
-  output_utxos: EUTxO
+  // The UTxOs spent in this transaction
+  inputs
+  // The UTxOs referenced in this transaction
+  ref_inputs
+  // The UTxOs produced in this transaction
+  outputs
+  // The ADA fee of the transaction
+  fee
+  // The tokens minted and burned in the transaction
+  minted
+  // Stake certificates included in the transaction
+  dcerts
+  // Stake reward withdraws in the transaction
+  withdrawals
+  // The valid time range of the transaction
+  time_range
+  // The signatures signed on the transaction
+  signatories
+  // The redeemers passed to validators
+  redeemers
+  // The hash-to-value datum map for lookup
+  datums
 }
 
-validate(transaction: Transaction) -> true | false
-
-EUTxO {
-    // Address that can spend this UTXO
-    address
-    // Hash of the transaction in which this EUTxO was produced
-    txHash
-    // Index of EUTxO inside the producing transaction
-    txIndex
-    // Value carried on in this transaction (ADA or tokens)
-    value
-    // Payload attached to the EUTxO
-    datum = <arbitrary data to be used in the next transactions>
-}
+Validator(
+  datum,         // The datum of the UTxO being spent
+  redeemer,      // The redeemer to the spending of the UTxO
+  script_context // The context built from the transaction
+) -> true | false
 ```
 
 ### Design [overview](https://www.figma.com/file/0N905WOhyF7HZkbLzWhgyH/Khalani-%2F-Hyperlane?type=whiteboard&node-id=1069-2246&t=UFrhL33SXJpXFuxz-0)
