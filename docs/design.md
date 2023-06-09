@@ -138,18 +138,17 @@ That EUTxO is posted to a predefined DApp's `RECIPIENT_ADDR` (most likely a vali
 that can "spend" the authenticated message with a DApp-specific processing logic.
 
 To deliver a message sent from an EVM chain, the relayer builds a transaction:
-- the only input UTXO of the transaction is the relayer's wallet to pay for the delivery fee
-- the _minting script hash_ of the transaction is `hash(MultisigIsm minting policy)`
-- the transaction attaches the MultisigIsm minting policy compiled Plutus code (this is how smart contracts work on Cardano)
-- the `RedeemerMultisigIsm` of the `MultisigIsm` minting policy contains N/M validators' signatures, and message metadata to calculate a _digest_ of the signatures
-- the transaction mints 1 "auth" token and attaches it to the only output EUTxO — this is validated by the minting policy
-- the transaction sets `Datum = message` to the only output EUTxO
-- the output EUTxO is posted to the `RECIPIENT_ADDR` for later processing by a DApp
+- the only input UTXO of the transaction is the relayer's wallet to pay fee.
+- the transaction attaches the MultisigIsm minting policy compiled Plutus code (this is how smart contracts work on Cardano).
+- the `RedeemerMultisigIsm` of the `MultisigIsm` minting policy contains N/M validators' signatures, and message metadata to calculate a _digest_ of the signatures.
+- the transaction mints 1 "auth" token and attaches it to the message EUTxO — this is validated by the minting policy.
+- the transaction sets `Datum = message` to the message EUTxO.
+- the output EUTxO is posted to the `RECIPIENT_ADDR` for post-processing by a DApp.
 
 The `MultisigIsm` minting policy is parameterized by:
-- `VK_OWNERS` — public keys of the expected validators
-- `THRESHOLD` — the validators' quorum threshold
-- `RECIPIENT_ADDRESS` — the recipient of output (message) EUTxO
+- `VK_OWNERS` — public keys of the expected validators.
+- `THRESHOLD` — the validators' quorum threshold.
+- `RECIPIENT_ADDRESS` — the recipient of output (message) EUTxO.
 
 > Note: for each validators/threshold configuration there will be a dedicated minting policy deployed by DApps.
 
