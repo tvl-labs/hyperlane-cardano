@@ -67,9 +67,9 @@ Validator(
 
 ![Khalani _ Hyperlane.png](design.png)
 
-Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailbox):
-- Inbox — to receive and validate messages from other chains (we call them EVM-compatible, but they can be any)
-- Outbox — to dispatch messages from Cardano to other chains
+Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailboxes):
+- Inbox — to receive and validate messages from other chains (we call them EVM-compatible, but they can be any).
+- Outbox — to dispatch messages from Cardano to other chains.
 
 > Note: we analyzed Mailbox [Solidity implementation](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/55f40ad7602e616367b2483b5ce57eaf7db5420d/solidity/contracts/Mailbox.sol#L18)
 > and found out that `process` and `dispatch` do not share a common state, therefore, they can be separated:
@@ -78,6 +78,7 @@ Cardano's integration with Hyperlane consists of `Inbox` and `Outbox` (Mailbox):
 > - `dispatch` maintains a Merkle Tree to sign message checkpoints. Cardano stores MT in EUTxOs (see below).
 
 ### Outbox (Cardano -> EVM chains)
+
 The Outbox constructs an on-chain proof of messages by incorporating them into an incremental (compressed) Merkle Tree (MT).
 
 At any point, there is only one `Outbox EUTxO` containing the most recent MerkleTree and message. When a DApp (user) wants to dispatch a message, they build a transaction that consumes the `Outbox EUTxO` and produces a new `Outbox EUTxO` with the updated MerkleTree and latest message.
@@ -88,14 +89,20 @@ The `Outbox Mailbox (Validator Script)` on-chain script validates the MerkleTree
 Pseudocode of building a dispatch transaction by a DApp:
 ```
 dispatch(message*) {
-  input = wallet.utxo       // to pay fee
-  input.utxo = last_utxo()  // from indexer
-  merkleTree* = input.utxo.merkleTree.ingest(message*)
-  output.utxo = {
-    address: outbox_validator,
-    merkleTree*,
-    message*
-  }
+  // Fetch indexed UTxOs
+  (relayer_utxos, outbox_utxo) = fetch_utxos()
+
+  tx.inputs.add(relayer_utxos) // to pay fee
+  tx.inputs.add(outbox_utxo)   // consume the latest outbox UTxO
+
+  merkleTree* = outbox_utxo.datum.merkle_tree.ingest(message*)
+
+  // produce a new outbox UTxO
+  tx.outputs.add({
+    address: outbox_utxo.address,
+    value: outbox_utxo.value,
+    datum: inline({ merkleTree*, message* }),
+  })
 }
 ```
 
