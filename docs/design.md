@@ -63,7 +63,7 @@ Validator(
 ) -> true | false
 ```
 
-### Design [overview](https://www.figma.com/file/0N905WOhyF7HZkbLzWhgyH/Khalani-%2F-Hyperlane?type=whiteboard&node-id=1069-2246&t=UFrhL33SXJpXFuxz-0)
+### Design ([Figma](https://www.figma.com/file/wz04t6HI5FbKlx87kkUciw/Hyperlane-x-Cardano))
 
 ![Khalani _ Hyperlane.png](design.png)
 
