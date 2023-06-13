@@ -7,6 +7,9 @@ import { BLOCKFROST_PREFIX } from "./src/offchain/common";
 import { getMessages } from "./src/offchain/indexer/getMessages";
 import createMessage from "./src/offchain/tx/createMessage";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
+import ScriptOutbox from "./src/onchain/scriptOutbox.hl";
+
+// TODO: Build several edge cases.
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
@@ -34,6 +37,10 @@ const checkpointIndex = Array(32).fill(3);
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
 await emulatedNetwork.tick(1n);
+
+//
+// Inbound
+//
 
 // TODO: Better interface & names here...
 function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
@@ -95,4 +102,11 @@ console.log(
   messages.map((m) => helios.bytesToText(m.bytes))
 );
 
-// TODO: Build several edge cases.
+//
+// Outbound
+//
+
+const addressOutbox = helios.Address.fromValidatorHash(
+  new ScriptOutbox().compile(true).validatorHash
+);
+console.log("outbox address:", addressOutbox.toBech32())

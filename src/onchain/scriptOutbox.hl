@@ -1,0 +1,62 @@
+spending outbox
+
+const TREE_DEPTH: Int = 32
+const MAX_LEAVES: Int = 4294967295 // 2 ^ TREE_DEPTH - 1
+
+// Trying to stay close to the Hyperlane implementation.
+// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Merkle.sol
+struct MerkleTree {
+  branches: []ByteArray
+  count: Int
+
+  func update_branches(self, i: Int, size: Int, node: ByteArray) -> []ByteArray {
+    assert(i < TREE_DEPTH, "Max tree depth exceeded");
+    if (size % 2 == 1) {
+      self.branches.take(i) + self.branches.drop(i + 1).prepend(node)
+    } else {
+      update_branches(i + 1, size / 2, (self.branches.get(i) + node).blake2b())
+    }
+  }
+
+  func insert(self, node: ByteArray) -> MerkleTree {
+    assert(self.count < MAX_LEAVES, "The merkle tree is full");
+    MerkleTree {
+      branches: self.update_branches(0, self.count + 1, node),
+      count: self.count + 1
+    }
+  }
+}
+
+struct DatumOutbox {
+  merkle_tree: MerkleTree
+  latest_message: ByteArray
+}
+
+struct RedeemerOutbox {
+  new_message: ByteArray
+}
+
+// TODO: Authentic outboxes with clearer identities.
+func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> Bool {
+  outbox_address: Address = ctx.get_current_input().output.address;
+
+  outbox_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
+    input.output.address == outbox_address
+  });
+  assert(outbox_inputs.length == 1, "Can only consume one outbox");
+
+  outbox_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
+    output.address == outbox_address
+  });
+  assert(outbox_inputs.length == 1, "Can only produce one outbox");
+
+  // TODO: Add value checks here?
+  // Like prevent ADA withdrawals from outboxes.
+  next_datum: DatumOutbox = outbox_outputs.head.datum.switch {
+    i: Inline => DatumOutbox::from_data(i.data),
+    else => error("Invalid outbox output: missing inline datum")
+  };
+
+  next_datum.latest_message == redeemer.new_message &&
+  next_datum.merkle_tree == datum.merkle_tree.insert(redeemer.new_message)
+}
