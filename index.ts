@@ -6,8 +6,8 @@ import secp256k1 from "secp256k1";
 import { BLOCKFROST_PREFIX } from "./src/offchain/common";
 import { getMessages } from "./src/offchain/indexer/getMessages";
 import createMessage from "./src/offchain/tx/createMessage";
+import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
-import ScriptOutbox from "./src/onchain/scriptOutbox.hl";
 
 // TODO: Build several edge cases.
 
@@ -37,6 +37,11 @@ const checkpointIndex = Array(32).fill(3);
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
 await emulatedNetwork.tick(1n);
+
+const blockfrost = new helios.BlockfrostV0(
+  "preview",
+  process.env.BLOCKFROST_PROJECT_ID
+);
 
 //
 // Inbound
@@ -74,16 +79,8 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
   );
 }
 
-await createMsg("Hello world, Emulated Network!");
-
-const txId = await createMsg(
-  `[${Date.now()}] Hello world, Preview Network!`,
-  new helios.BlockfrostV0("preview", process.env.BLOCKFROST_PROJECT_ID)
-);
-console.log(`Submitted ${txId.hex}!`);
-
 // TODO: Give up after a certain number of tries
-await (async function waitForConfirmation() {
+async function waitForConfirmation(txId) {
   console.log("Waiting for confirmation...");
   const r = await fetch(`${BLOCKFROST_PREFIX}/txs/${txId.hex}`, {
     headers: {
@@ -92,9 +89,18 @@ await (async function waitForConfirmation() {
   });
   if (r.status === 404) {
     await new Promise((resolve) => setTimeout(resolve, 3000));
-    return waitForConfirmation();
+    return waitForConfirmation(txId);
   }
-})();
+}
+
+await createMsg("Hello world, Emulated Network!");
+
+const txIdInbound = await createMsg(
+  `[${Date.now()}] Hello world, Preview Network!`,
+  blockfrost
+);
+console.log(`Submitted ${txIdInbound.hex}!`);
+await waitForConfirmation(txIdInbound);
 
 const messages = await getMessages(appParams);
 console.log(
@@ -102,11 +108,15 @@ console.log(
   messages.map((m) => helios.bytesToText(m.bytes))
 );
 
+await emulatedNetwork.tick(1n);
+// Blockfrost needs time to sync even after the previous confirmation...
+await new Promise((resolve) => setTimeout(resolve, 3000));
+
 //
 // Outbound
 //
 
-const addressOutbox = helios.Address.fromValidatorHash(
-  new ScriptOutbox().compile(true).validatorHash
-);
-console.log("outbox address:", addressOutbox.toBech32())
+await createOutbox(wallet);
+const txIdOutbound = await createOutbox(wallet, blockfrost);
+console.log(`Submitted ${txIdOutbound.hex}!`);
+await waitForConfirmation(txIdOutbound);

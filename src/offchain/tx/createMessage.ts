@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH } from "../common";
+import { TOKEN_NAME_AUTH, getWalletInfo } from "../common";
 import { AppParams } from "../../typing";
 
 export default async function createMessage(
@@ -17,11 +17,7 @@ export default async function createMessage(
 ): Promise<helios.TxId> {
   const tx = new helios.Tx();
 
-  let baseAddress = (await relayerWallet.usedAddresses)[0];
-  if (!baseAddress) baseAddress = (await relayerWallet.unusedAddresses)[0];
-  const utxos = await (blockfrost
-    ? blockfrost.getUtxos(baseAddress)
-    : relayerWallet.utxos);
+  const { baseAddress, utxos } = await getWalletInfo(relayerWallet, blockfrost);
   tx.addInputs(utxos);
 
   const ismMultiSig = new MintingPolicyIsmMultiSig(appParams).compile(true);
@@ -43,7 +39,7 @@ export default async function createMessage(
     new helios.TxOutput(
       appParams.ADDR_MESSAGE,
       new helios.Value(
-        BigInt(0), // Let Helios calculate the min ADA!
+        0n, // Let Helios calculate the min ADA!
         new helios.Assets([
           [ismMultiSig.mintingPolicyHash, [[TOKEN_NAME_AUTH, BigInt(1)]]],
         ])
