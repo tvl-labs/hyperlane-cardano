@@ -4,7 +4,7 @@ import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH, getWalletInfo } from "../common";
 import { AppParams } from "../../typing";
 
-export default async function createMessage(
+export default async function createInboundMessage(
   appParams: AppParams,
   origin: helios.ByteArray,
   originMailbox: helios.ByteArray,

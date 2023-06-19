@@ -5,7 +5,7 @@ import secp256k1 from "secp256k1";
 
 import { BLOCKFROST_PREFIX } from "./src/offchain/common";
 import { getMessages } from "./src/offchain/indexer/getMessages";
-import createMessage from "./src/offchain/tx/createMessage";
+import createInboundMessage from "./src/offchain/tx/createInboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
 
@@ -66,7 +66,7 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
         Array.from(secp256k1.ecdsaSign(messageHash, k).signature)
       )
   );
-  return createMessage(
+  return createInboundMessage(
     appParams,
     new helios.ByteArray(origin),
     new helios.ByteArray(originMailbox),
