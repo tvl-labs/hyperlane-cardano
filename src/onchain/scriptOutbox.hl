@@ -32,12 +32,8 @@ struct DatumOutbox {
   latest_message: ByteArray
 }
 
-struct RedeemerOutbox {
-  new_message: ByteArray
-}
-
 // TODO: Authentic outboxes with clearer identities.
-func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> Bool {
+func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
   outbox_address: Address = ctx.get_current_input().output.address;
 
   outbox_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
@@ -57,6 +53,5 @@ func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> B
     else => error("Invalid outbox output: missing inline datum")
   };
 
-  next_datum.latest_message == redeemer.new_message &&
-  next_datum.merkle_tree == datum.merkle_tree.insert(redeemer.new_message)
+  next_datum.merkle_tree == datum.merkle_tree.insert(next_datum.latest_message)
 }
