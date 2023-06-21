@@ -4,13 +4,17 @@ import fetch from "node-fetch";
 import secp256k1 from "secp256k1";
 
 import { BLOCKFROST_PREFIX } from "./src/offchain/common";
-import { getMessages } from "./src/offchain/indexer/getMessages";
+import { getInboundMessages } from "./src/offchain/indexer/getInboundMessages";
+import { getOutboundMessages } from "./src/offchain/indexer/getOutboundMessages";
 import createInboundMessage from "./src/offchain/tx/createInboundMessage";
 import createOutboundMessage from "./src/offchain/tx/createOutboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
 
 // TODO: Build several edge cases.
+
+// This is close to random, depending on how stable the Preview network is.
+const BLOCKFROST_WAIT_TIME = 25000;
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
@@ -88,29 +92,30 @@ async function waitForConfirmation(txIdHex: string) {
     },
   });
   if (r.status === 404) {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     return waitForConfirmation(txIdHex);
   }
 }
 
 await emulatedNetwork.tick(1n);
-await createMsg("Hello world, Emulated Network!");
+const inboundMsg = `[${Date.now()}] Inbound Message!`;
+await createMsg(inboundMsg);
 
-const txIdInbound = await createMsg(
-  `[${Date.now()}] Inbound Message!`,
-  blockfrost
-);
-console.log(`Submitted ${txIdInbound.hex}!`);
+const txIdInbound = await createMsg(inboundMsg, blockfrost);
+console.log(`Submitted inbound message ${txIdInbound.hex}!`);
 await waitForConfirmation(txIdInbound.hex);
 
-const messages = await getMessages(appParams);
-console.log(
-  "Onchain Authentic Messages:", // Note: Not all messages are "text".
-  messages.map((m) => helios.bytesToText(m.bytes))
+// Note: Not all messages are "text".
+const inboundMessages = (await getInboundMessages(appParams)).map((m) =>
+  helios.bytesToText(m.bytes)
 );
+console.log("Inbound Messages:", inboundMessages);
+if (inboundMessages[inboundMessages.length - 1] !== inboundMsg) {
+  throw new Error("Inbound message not found");
+}
 
 // Blockfrost needs time to sync even after the previous confirmation...
-await new Promise((resolve) => setTimeout(resolve, 25000));
+await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
 //
 // Outbound
@@ -119,23 +124,38 @@ await new Promise((resolve) => setTimeout(resolve, 25000));
 await emulatedNetwork.tick(1n);
 const emulatedUtxoOutbox = await createOutbox(wallet);
 await emulatedNetwork.tick(1n);
+
+const outboundMsg = `[${Date.now()}] Outbound message!`;
 await createOutboundMessage(
   emulatedUtxoOutbox,
-  new helios.ByteArray(helios.textToBytes(`[${Date.now()}] Outbound message!`)),
+  new helios.ByteArray(helios.textToBytes(outboundMsg)),
   wallet
 );
 
 const previewUtxoOutbox = await createOutbox(wallet, blockfrost);
-console.log(`Submitted ${previewUtxoOutbox.txId.hex}!`);
+console.log(`Submitted outbox ${previewUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(previewUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
-await new Promise((resolve) => setTimeout(resolve, 25000));
+await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
 const txId = await createOutboundMessage(
   previewUtxoOutbox,
-  new helios.ByteArray(helios.textToBytes(`[${Date.now()}] Outbound message!`)),
+  new helios.ByteArray(helios.textToBytes(outboundMsg)),
   wallet,
   blockfrost
 );
+console.log(`Submitted outbound message ${txId.hex}!`);
 await waitForConfirmation(txId.hex);
+
+// Blockfrost needs time to sync even after the previous confirmation...
+await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
+
+// Note: Not all messages are "text".
+const outboundMessages = (await getOutboundMessages()).map((m) =>
+  helios.bytesToText(m.bytes)
+);
+console.log("(Latest) Outbound Messages:", outboundMessages);
+if (outboundMessages[outboundMessages.length - 1] !== outboundMsg) {
+  throw new Error("Outbound message not found");
+}

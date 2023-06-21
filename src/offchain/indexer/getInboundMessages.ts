@@ -6,7 +6,7 @@ import { AppParams } from "../../typing";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
-export async function getMessages(
+export async function getInboundMessages(
   appParams: AppParams
 ): Promise<helios.ByteArray[]> {
   const authenticMPH = new MintingPolicyIsmMultiSig(appParams).compile(true)
