@@ -19,8 +19,12 @@ export class H256 {
     return copy;
   }
 
+  toByteArray(): number[] {
+    return [...this.buffer.values()];
+  }
+
   static from(buffer: Buffer) {
-    assert(buffer.length === 32);
+    assert(buffer.length === 32, `Buffer size must be 32 bytes but was ${buffer.length}`);
     return new H256(buffer);
   }
 

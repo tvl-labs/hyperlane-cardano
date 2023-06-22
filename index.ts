@@ -133,7 +133,7 @@ await createOutboundMessage(
 );
 
 const previewUtxoOutbox = await createOutbox(wallet, blockfrost);
-console.log(`Submitted outbox ${previewUtxoOutbox.txId.hex}!`);
+console.log(`Created outbox UTXO in transaction ${previewUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(previewUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...

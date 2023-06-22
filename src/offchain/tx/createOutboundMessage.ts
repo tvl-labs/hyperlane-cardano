@@ -2,26 +2,16 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import { getWalletInfo } from "../common";
+import { HeliosMerkleTree } from '../../merkle/helios.merkle';
+import { blake2bHasher } from '../../merkle/hasher';
+import { parseMerkleTree, serializeMerkleTree } from '../outbox/outboxMerkle';
 
-// TODO: Share code with on-chain?
-function merkleTreeUpdateBranches(
-  branches: helios.ByteArray[],
-  i: number,
-  size: number,
-  node: helios.ByteArray
-): helios.ByteArray[] {
-  if (size % 2 === 1) {
-    branches[i] = node;
-    return branches;
-  }
-  return merkleTreeUpdateBranches(
-    branches,
-    i + 1,
-    size / 2,
-    new helios.ByteArray(
-      helios.Crypto.blake2b(branches[i].bytes.concat(node.bytes))
-    )
+function parseOutboxDatum(utxoOutbox: helios.UTxO): { merkleTree: HeliosMerkleTree } {
+  const currentDatum = JSON.parse(
+    utxoOutbox.origOutput.datum.data.toSchemaJson()
   );
+  const merkleTree = parseMerkleTree(currentDatum.list[0].list);
+  return { merkleTree };
 }
 
 export default async function createMessage(
@@ -30,12 +20,11 @@ export default async function createMessage(
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
 ): Promise<helios.TxId> {
-  const currentDatum = JSON.parse(
-    utxoOutbox.origOutput.datum.data.toSchemaJson()
-  );
-  const merkleTree = currentDatum.list[0].list;
-  const branches = merkleTree[0].list.map((b) => new helios.ByteArray(b.bytes));
-  const count = merkleTree[1].int;
+  const { merkleTree } = parseOutboxDatum(utxoOutbox);
+
+  // TODO: calculate message ID according to the Hyperlane spec.
+  const messageId = blake2bHasher(Buffer.from(message.bytes));
+  merkleTree.ingest(messageId);
 
   const tx = new helios.Tx();
 
@@ -57,16 +46,7 @@ export default async function createMessage(
       new helios.Value(),
       helios.Datum.inline(
         new helios.ListData([
-          new helios.ListData([
-            // Merkle tree
-            new helios.ListData(
-              merkleTreeUpdateBranches(branches, 0, count + 1, message).map(
-                (ba) => ba._toUplcData()
-              )
-            ),
-            // Count
-            new helios.IntData(count + 1),
-          ]),
+          serializeMerkleTree(merkleTree),
           // Latest message
           message._toUplcData(),
         ])

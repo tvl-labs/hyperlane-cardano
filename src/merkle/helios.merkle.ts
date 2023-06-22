@@ -19,6 +19,13 @@ export class HeliosMerkleTree {
     this.hasher = hasher;
   }
 
+  static createFrom(hasher: Hasher, count: number, branches: H256[]): HeliosMerkleTree {
+    const merkleTree = new HeliosMerkleTree(hasher);
+    merkleTree.count = count;
+    merkleTree.branches = branches;
+    return merkleTree;
+  }
+
   updateBranches(
     i: number,
     size: number,
@@ -37,6 +44,14 @@ export class HeliosMerkleTree {
     assert(this.count < MAX_LEAVES);
     this.branches = this.updateBranches(0, this.count + 1, node);
     this.count++;
+  }
+
+  getCount(): number {
+    return this.count;
+  }
+
+  getBranches(): H256[] {
+    return [...this.branches];
   }
 
   root(): H256 {

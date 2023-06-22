@@ -3,8 +3,9 @@ import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 
 import { getWalletInfo } from "../common";
-
-const TREE_DEPTH = 32;
+import { HeliosMerkleTree } from '../../merkle/helios.merkle';
+import { blake2bHasher } from '../../merkle/hasher';
+import { serializeMerkleTree } from '../outbox/outboxMerkle';
 
 export default async function createOutbox(
   relayerWallet: helios.Wallet,
@@ -19,11 +20,7 @@ export default async function createOutbox(
     new ScriptOutbox().compile(true).validatorHash
   );
 
-  // TODO: Dynamic size?
-  const branches = [];
-  for (let i = 0; i < TREE_DEPTH; i++) {
-    branches.push(new helios.ByteArray([])._toUplcData());
-  }
+  const merkleTree = new HeliosMerkleTree(blake2bHasher);
 
   tx.addOutput(
     new helios.TxOutput(
@@ -32,12 +29,7 @@ export default async function createOutbox(
       helios.Datum.inline(
         new helios.ListData([
           // Merkle tree
-          new helios.ListData([
-            // Branches
-            new helios.ListData(branches),
-            // Count
-            new helios.IntData(0n),
-          ]),
+          serializeMerkleTree(merkleTree),
           // Latest message
           new helios.ByteArray([])._toUplcData(),
         ])
