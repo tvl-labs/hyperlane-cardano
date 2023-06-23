@@ -34,10 +34,19 @@ const appParams = {
   ADDR_MESSAGE: addressMessage,
 };
 
+// Mock inbound message
 const origin = Array(32).fill(0);
 const originMailbox = Array(32).fill(1);
 const checkpointRoot = Array(32).fill(2);
 const checkpointIndex = Array(32).fill(3);
+
+// Mock outbound message
+const version = Array(8).fill(4);
+const nonce = Array(32).fill(5);
+const originDomain = Array(32).fill(6);
+const sender = Array(32).fill(7);
+const destinationDomain = Array(32).fill(8);
+const recipient = Array(32).fill(9);
 
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
@@ -47,13 +56,29 @@ const blockfrost = new helios.BlockfrostV0(
   process.env.BLOCKFROST_PROJECT_ID
 );
 
+// TODO: Give up after a certain number of tries
+async function waitForConfirmation(txIdHex: string) {
+  console.log("Waiting for confirmation...");
+  const r = await fetch(`${BLOCKFROST_PREFIX}/txs/${txIdHex}`, {
+    headers: {
+      project_id: process.env.BLOCKFROST_PROJECT_ID,
+    },
+  });
+  if (r.status === 404) {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    return waitForConfirmation(txIdHex);
+  }
+}
+
 //
 // Inbound
 //
 
+await emulatedNetwork.tick(1n);
+const inboundMsg = `[${Date.now()}] Inbound Message!`;
 // TODO: Better interface & names here...
-function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
-  const message = helios.textToBytes(msg);
+function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
+  const message = helios.textToBytes(inboundMsg);
   const messageHash = new Uint8Array(
     helios.Crypto.blake2b(
       helios.Crypto.blake2b(
@@ -82,26 +107,9 @@ function createMsg(msg: string, blockfrost?: helios.BlockfrostV0) {
     blockfrost
   );
 }
+await createInboundMsg();
 
-// TODO: Give up after a certain number of tries
-async function waitForConfirmation(txIdHex: string) {
-  console.log("Waiting for confirmation...");
-  const r = await fetch(`${BLOCKFROST_PREFIX}/txs/${txIdHex}`, {
-    headers: {
-      project_id: process.env.BLOCKFROST_PROJECT_ID,
-    },
-  });
-  if (r.status === 404) {
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    return waitForConfirmation(txIdHex);
-  }
-}
-
-await emulatedNetwork.tick(1n);
-const inboundMsg = `[${Date.now()}] Inbound Message!`;
-await createMsg(inboundMsg);
-
-const txIdInbound = await createMsg(inboundMsg, blockfrost);
+const txIdInbound = await createInboundMsg(blockfrost);
 console.log(`Submitted inbound message ${txIdInbound.hex}!`);
 await waitForConfirmation(txIdInbound.hex);
 
@@ -126,11 +134,24 @@ const emulatedUtxoOutbox = await createOutbox(wallet);
 await emulatedNetwork.tick(1n);
 
 const outboundMsg = `[${Date.now()}] Outbound message!`;
-await createOutboundMessage(
-  emulatedUtxoOutbox,
-  new helios.ByteArray(helios.textToBytes(outboundMsg)),
-  wallet
-);
+async function createOutboundMsg(
+  utxo: helios.UTxO,
+  blockfrost?: helios.BlockfrostV0
+) {
+  return createOutboundMessage(
+    utxo,
+    new helios.ByteArray(version),
+    new helios.ByteArray(nonce),
+    new helios.ByteArray(originDomain),
+    new helios.ByteArray(sender),
+    new helios.ByteArray(destinationDomain),
+    new helios.ByteArray(recipient),
+    new helios.ByteArray(helios.textToBytes(outboundMsg)),
+    wallet,
+    blockfrost
+  );
+}
+await createOutboundMsg(emulatedUtxoOutbox);
 
 const previewUtxoOutbox = await createOutbox(wallet, blockfrost);
 console.log(`Submitted outbox ${previewUtxoOutbox.txId.hex}!`);
@@ -139,12 +160,7 @@ await waitForConfirmation(previewUtxoOutbox.txId.hex);
 // Blockfrost needs time to sync even after the previous confirmation...
 await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
-const txId = await createOutboundMessage(
-  previewUtxoOutbox,
-  new helios.ByteArray(helios.textToBytes(outboundMsg)),
-  wallet,
-  blockfrost
-);
+const txId = await createOutboundMsg(previewUtxoOutbox, blockfrost);
 console.log(`Submitted outbound message ${txId.hex}!`);
 await waitForConfirmation(txId.hex);
 
