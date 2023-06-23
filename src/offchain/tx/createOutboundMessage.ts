@@ -24,8 +24,15 @@ function merkleTreeUpdateBranches(
   );
 }
 
+// TODO: More specific types here?
 export default async function createMessage(
   utxoOutbox: helios.UTxO,
+  version: helios.ByteArray,
+  nonce: helios.ByteArray,
+  originDomain: helios.ByteArray,
+  sender: helios.ByteArray,
+  destinationDomain: helios.ByteArray,
+  recipient: helios.ByteArray,
   message: helios.ByteArray,
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
@@ -46,10 +53,32 @@ export default async function createMessage(
     tx.addCollateral(utxos[i]);
   }
 
-  tx.addInput(utxoOutbox, new helios.ConstrData(0, []));
+  tx.addInput(
+    utxoOutbox,
+    new helios.ListData([
+      version._toUplcData(),
+      nonce._toUplcData(),
+      originDomain._toUplcData(),
+      sender._toUplcData(),
+      destinationDomain._toUplcData(),
+      recipient._toUplcData(),
+    ])
+  );
 
   const scriptOutbox = new ScriptOutbox().compile(true);
   tx.attachScript(scriptOutbox);
+
+  const messageId: helios.ByteArray = new helios.ByteArray(
+    helios.Crypto.blake2b(
+      version.bytes
+        .concat(nonce.bytes)
+        .concat(originDomain.bytes)
+        .concat(sender.bytes)
+        .concat(destinationDomain.bytes)
+        .concat(recipient.bytes)
+        .concat(message.bytes)
+    )
+  );
 
   tx.addOutput(
     new helios.TxOutput(
@@ -60,7 +89,7 @@ export default async function createMessage(
           new helios.ListData([
             // Merkle tree
             new helios.ListData(
-              merkleTreeUpdateBranches(branches, 0, count + 1, message).map(
+              merkleTreeUpdateBranches(branches, 0, count + 1, messageId).map(
                 (ba) => ba._toUplcData()
               )
             ),
