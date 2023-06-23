@@ -44,7 +44,7 @@ func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
   outbox_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
     output.address == outbox_address
   });
-  assert(outbox_inputs.length == 1, "Can only produce one outbox");
+  assert(outbox_outputs.length == 1, "Can only produce one outbox");
 
   // TODO: Add value checks here?
   // Like prevent ADA withdrawals from outboxes.
