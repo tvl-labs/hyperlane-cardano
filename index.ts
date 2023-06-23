@@ -133,7 +133,7 @@ await createOutboundMessage(
 );
 
 const previewUtxoOutbox = await createOutbox(wallet, blockfrost);
-console.log(`Created outbox UTXO in transaction ${previewUtxoOutbox.txId.hex}!`);
+console.log(`Created outbox UTXO in transaction ${previewUtxoOutbox.txId.hex}`);
 await waitForConfirmation(previewUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
@@ -145,7 +145,7 @@ const txId = await createOutboundMessage(
   wallet,
   blockfrost
 );
-console.log(`Submitted outbound message ${txId.hex}!`);
+console.log(`Submitted outbound message '${outboundMsg}' in transaction ${txId.hex}`);
 await waitForConfirmation(txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...

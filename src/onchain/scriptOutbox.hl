@@ -53,5 +53,6 @@ func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
     else => error("Invalid outbox output: missing inline datum")
   };
 
-  next_datum.merkle_tree == datum.merkle_tree.insert(next_datum.latest_message)
+  message_id: ByteArray = (next_datum.latest_message).blake2b();
+  next_datum.merkle_tree == datum.merkle_tree.insert(message_id)
 }

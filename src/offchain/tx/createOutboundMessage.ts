@@ -4,13 +4,12 @@ import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import { getWalletInfo } from "../common";
 import { HeliosMerkleTree } from '../../merkle/helios.merkle';
 import { blake2bHasher } from '../../merkle/hasher';
-import { parseMerkleTree, serializeMerkleTree } from '../outbox/outboxMerkle';
+import { deserializeMerkleTree, serializeMerkleTree } from '../outbox/outboxMerkle';
 
 function parseOutboxDatum(utxoOutbox: helios.UTxO): { merkleTree: HeliosMerkleTree } {
-  const currentDatum = JSON.parse(
-    utxoOutbox.origOutput.datum.data.toSchemaJson()
-  );
-  const merkleTree = parseMerkleTree(currentDatum.list[0].list);
+  const datumOutbox = utxoOutbox.origOutput.datum.data;
+  const datumMerkleTree = datumOutbox.list[0];
+  const merkleTree = deserializeMerkleTree(datumMerkleTree);
   return { merkleTree };
 }
 
