@@ -13,7 +13,7 @@ struct MerkleTree {
   func update_branches(self, i: Int, size: Int, node: ByteArray) -> []ByteArray {
     assert(i < TREE_DEPTH, "Max tree depth exceeded");
     if (size % 2 == 1) {
-      self.branches.take(i) + self.branches.drop(i + 1).prepend(node)
+      self.branches.set(i, node)
     } else {
       update_branches(i + 1, size / 2, (self.branches.get(i) + node).blake2b())
     }
