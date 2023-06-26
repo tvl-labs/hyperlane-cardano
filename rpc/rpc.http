@@ -1,0 +1,11 @@
+###
+GET http://127.0.0.1:4010/api/outbox/messages
+Prefer: example=empty
+
+###
+GET http://127.0.0.1:4010/api/outbox/messages
+Prefer: example=oneMessage
+
+###
+GET http://127.0.0.1:4010/api/outbox/messages
+Prefer: example=multipleMessages

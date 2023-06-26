@@ -1,0 +1,12 @@
+{
+  "name": "rpc",
+  "private": true,
+  "scripts": {
+    "generate-openapi-rust-client": "rm -rf generated-sources/ && openapi-generator-cli generate",
+    "mock-outbox-rpc": "npx prism mock openapi.yaml"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.6.0",
+    "@stoplight/prism-cli": "^5.0.1"
+  }
+}
