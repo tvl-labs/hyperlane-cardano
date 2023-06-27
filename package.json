@@ -4,17 +4,25 @@
   "private": true,
   "repository": "https://github.com/tvl-labs/hyperlane-cardano",
   "scripts": {
-    "test": "npx webpack build && node dist/main.js"
+    "test": "npx webpack build && node dist/main.js",
+    "start": "ts-node src/merkle/solidity.merkle.ts",
+    "jest": "jest"
   },
   "dependencies": {
     "@hyperionbt/helios": "https://github.com/kreate-community/Helios#0be4f66189f0943ba802cd2a33cc6001b4a76ef3",
+    "blakejs": "^1.2.1",
+    "keccak256": "^1.0.6",
     "node-fetch": "^3.3.1",
     "secp256k1": "^5.0.0"
   },
   "devDependencies": {
     "@hyperionbt/helios-loader": "^0.1.5",
+    "@types/jest": "^29.1.0",
     "dotenv": "^16.1.4",
+    "jest": "^29.1.0",
+    "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
+    "ts-node": "^10.9.1",
     "typescript": "^5.1.3",
     "webpack": "^5.85.0",
     "webpack-cli": "^5.1.1"
