@@ -4,9 +4,9 @@
   "generator-cli": {
     "version": "6.3.0",
     "generators": {
-      "explorer-api-generator": {
+      "rust-client-generator": {
         "generatorName": "rust",
-        "output": "generated-sources/openapi",
+        "output": "generated-sources/cardano-rpc-rust-client",
         "inputSpec": "./openapi.yaml",
         "additionalProperties": {
           "packageName": "cardano-rpc"

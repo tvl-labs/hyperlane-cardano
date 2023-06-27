@@ -34,6 +34,114 @@ paths:
                       content: "Fourth custom message"
                     - id: 5
                       content: "Fifth custom message"
+  /api/indexer/lastFinalizedBlock:
+    get:
+      summary: "Get the last finalized block"
+      operationId: "lastFinalizedBlock"
+      responses:
+        '200':
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lastFinalizedBlock:
+                    type: integer
+                    example: 10
+  /api/indexer/merkleTree/{blockNumber}:
+    get:
+      summary: "Get the MerkleTree that was in the OutboxUtxo at the given blockNumber"
+      operationId: "merkleTreeByBlockNumber"
+      parameters:
+        - name: "blockNumber"
+          in: "path"
+          required: true
+          description: "Block number to retrieve the MerkleTree"
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blockNumber:
+                    type: integer
+                    example: 5
+                  merkleTree:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                        example: 2
+                      branches:
+                        type: array
+                        items:
+                          type: string
+                        example: ["0x12345..."]
+  /api/indexer/messages/{fromBlock}/{toBlock}:
+    get:
+      summary: "Get messages from fromBlock to toBlock"
+      operationId: "messagesByBlockRange"
+      parameters:
+        - name: "fromBlock"
+          in: "path"
+          required: true
+          description: "Start block number"
+          schema:
+            type: integer
+            example: 123
+        - name: "toBlock"
+          in: "path"
+          required: true
+          description: "End block number"
+          schema:
+            type: integer
+            example: 185
+      responses:
+        '200':
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        block:
+                          type: integer
+                          example: 123
+                        message:
+                          type: object
+                          properties:
+                            version:
+                              type: integer
+                              example: 0
+                            nonce:
+                              type: integer
+                              example: 3
+                            origin:
+                              type: string
+                              example: "0x12"
+                            sender:
+                              type: string
+                              example: "addr1..."
+                            destination:
+                              type: string
+                              example: "0x1"
+                            recipient:
+                              type: string
+                              example: "0xaede"
+                            body:
+                              type: string
+                              example: "0xada"
 components:
   schemas:
     Message:
