@@ -4,8 +4,6 @@ pub mod merkle_tree_by_block_number_200_response;
 pub use self::merkle_tree_by_block_number_200_response::MerkleTreeByBlockNumber200Response;
 pub mod merkle_tree_by_block_number_200_response_merkle_tree;
 pub use self::merkle_tree_by_block_number_200_response_merkle_tree::MerkleTreeByBlockNumber200ResponseMerkleTree;
-pub mod message;
-pub use self::message::Message;
 pub mod messages_by_block_range_200_response;
 pub use self::messages_by_block_range_200_response::MessagesByBlockRange200Response;
 pub mod messages_by_block_range_200_response_messages_inner;

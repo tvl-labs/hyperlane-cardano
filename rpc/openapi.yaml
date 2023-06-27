@@ -3,37 +3,6 @@ info:
   title: Outbox RPC API
   version: 1.0.0
 paths:
-  /api/outbox/messages:
-    get:
-      summary: Get all messages from the outbox
-      responses:
-        200:
-          description: An array of messages
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Message'
-              examples:
-                empty:
-                  value: []
-                oneMessage:
-                  value:
-                    - id: 1
-                      content: "First message"
-                multipleMessages:
-                  value:
-                    - id: 1
-                      content: "First custom message"
-                    - id: 2
-                      content: "Second custom message"
-                    - id: 3
-                      content: "Third custom message"
-                    - id: 4
-                      content: "Fourth custom message"
-                    - id: 5
-                      content: "Fifth custom message"
   /api/indexer/lastFinalizedBlock:
     get:
       summary: "Get the last finalized block"
@@ -77,12 +46,45 @@ paths:
                     properties:
                       count:
                         type: integer
-                        example: 2
+                        example: 1
                       branches:
                         type: array
                         items:
                           type: string
-                        example: ["0x12345..."]
+                        example: [
+                          "0x3b3153b5b2c1c50efca4b92a3804a037ceb79769545f8f4f85dec3bdbbaa7df5",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000",
+                          "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        ]
   /api/indexer/messages/{fromBlock}/{toBlock}:
     get:
       summary: "Get messages from fromBlock to toBlock"
@@ -94,14 +96,14 @@ paths:
           description: "Start block number"
           schema:
             type: integer
-            example: 123
+            example: 0
         - name: "toBlock"
           in: "path"
           required: true
           description: "End block number"
           schema:
             type: integer
-            example: 185
+            example: 10
       responses:
         '200':
           description: "Successful operation"
@@ -117,7 +119,7 @@ paths:
                       properties:
                         block:
                           type: integer
-                          example: 123
+                          example: 3
                         message:
                           type: object
                           properties:
@@ -126,29 +128,19 @@ paths:
                               example: 0
                             nonce:
                               type: integer
-                              example: 3
+                              example: 0
                             origin:
                               type: string
-                              example: "0x12"
+                              example: "0xEF"
                             sender:
                               type: string
-                              example: "addr1..."
+                              example: "0x0000000000000000000000000000000000000CA1"
                             destination:
                               type: string
-                              example: "0x1"
+                              example: "0xCA"
                             recipient:
                               type: string
-                              example: "0xaede"
+                              example: "0x0000000000000000000000000000000000000EA1"
                             body:
                               type: string
-                              example: "0xada"
-components:
-  schemas:
-    Message:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        content:
-          type: string
+                              example: "0xADA"

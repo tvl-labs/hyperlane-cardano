@@ -25,7 +25,6 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*DefaultApi* | [**api_outbox_messages_get**](docs/DefaultApi.md#api_outbox_messages_get) | **GET** /api/outbox/messages | Get all messages from the outbox
 *DefaultApi* | [**last_finalized_block**](docs/DefaultApi.md#last_finalized_block) | **GET** /api/indexer/lastFinalizedBlock | Get the last finalized block
 *DefaultApi* | [**merkle_tree_by_block_number**](docs/DefaultApi.md#merkle_tree_by_block_number) | **GET** /api/indexer/merkleTree/{blockNumber} | Get the MerkleTree that was in the OutboxUtxo at the given blockNumber
 *DefaultApi* | [**messages_by_block_range**](docs/DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock
@@ -36,7 +35,6 @@ Class | Method | HTTP request | Description
  - [LastFinalizedBlock200Response](docs/LastFinalizedBlock200Response.md)
  - [MerkleTreeByBlockNumber200Response](docs/MerkleTreeByBlockNumber200Response.md)
  - [MerkleTreeByBlockNumber200ResponseMerkleTree](docs/MerkleTreeByBlockNumber200ResponseMerkleTree.md)
- - [Message](docs/Message.md)
  - [MessagesByBlockRange200Response](docs/MessagesByBlockRange200Response.md)
  - [MessagesByBlockRange200ResponseMessagesInner](docs/MessagesByBlockRange200ResponseMessagesInner.md)
  - [MessagesByBlockRange200ResponseMessagesInnerMessage](docs/MessagesByBlockRange200ResponseMessagesInnerMessage.md)
