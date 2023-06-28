@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH, getWalletInfo } from "../common";
+import { TOKEN_NAME_AUTH, getWalletInfo } from "../wallet";
 import { AppParams } from "../../typing";
 
 export default async function createInboundMessage(

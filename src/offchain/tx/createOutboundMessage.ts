@@ -1,26 +1,23 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
-import { getWalletInfo } from "../common";
+import { getWalletInfo } from "../wallet";
 import { deserializeOutboxDatum, serializeOutboxDatum } from '../outbox/outboxDatum'
-import { calculateMessageId, serializeOutboxRedeemer } from '../outbox/outboxMessage'
+import {
+  calculateMessageId,
+  OutboxMessage,
+  serializeOutboxRedeemer
+} from '../outbox/outboxMessage'
 
-// TODO: More specific types here?
-export default async function createMessage(
+export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
-  version: helios.ByteArray,
-  nonce: helios.ByteArray,
-  originDomain: helios.ByteArray,
-  sender: helios.ByteArray,
-  destinationDomain: helios.ByteArray,
-  recipient: helios.ByteArray,
-  message: helios.ByteArray,
+  outboxMessage: OutboxMessage,
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
 ): Promise<helios.TxId> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
-  const messageId = calculateMessageId(version, nonce, originDomain, sender, destinationDomain, recipient, message)
+  const messageId = calculateMessageId(outboxMessage)
   merkleTree.ingest(messageId);
 
   const tx = new helios.Tx();
@@ -34,7 +31,7 @@ export default async function createMessage(
 
   tx.addInput(
     utxoOutbox,
-    serializeOutboxRedeemer(version, nonce, originDomain, sender, destinationDomain, recipient)
+    serializeOutboxRedeemer(outboxMessage)
   );
 
   const scriptOutbox = new ScriptOutbox().compile(true);
@@ -45,7 +42,7 @@ export default async function createMessage(
       helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
       new helios.Value(),
       helios.Datum.inline(
-        serializeOutboxDatum(merkleTree, message)
+        serializeOutboxDatum(merkleTree, outboxMessage.message)
       )
     )
   );

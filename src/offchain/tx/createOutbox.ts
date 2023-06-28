@@ -2,10 +2,10 @@ import * as helios from "@hyperionbt/helios";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 
-import { getWalletInfo } from "../common";
+import { getWalletInfo } from "../wallet";
 import { blake2bHasher } from '../../merkle/hasher'
 import { HeliosMerkleTree } from '../../merkle/helios.merkle'
-import { serializeMerkleTree } from '../outbox/outboxMerkle'
+import { serializeOutboxDatum } from '../outbox/outboxDatum'
 
 export default async function createOutbox(
   relayerWallet: helios.Wallet,
@@ -27,12 +27,7 @@ export default async function createOutbox(
       addressOutbox,
       new helios.Value(),
       helios.Datum.inline(
-        new helios.ListData([
-          // Merkle tree
-          serializeMerkleTree(merkleTree),
-          // Latest message
-          new helios.ByteArray([])._toUplcData(),
-        ])
+        serializeOutboxDatum(merkleTree, Buffer.alloc(0))
       )
     )
   );

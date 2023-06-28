@@ -1,18 +1,18 @@
 import * as helios from '@hyperionbt/helios'
-import { ByteArray } from '@hyperionbt/helios'
 import { HeliosMerkleTree } from '../../merkle/helios.merkle'
 import { deserializeMerkleTree, serializeMerkleTree } from './outboxMerkle'
-import { serializeMessage } from './outboxMessage'
+import { bufferToHeliosByteArray } from './heliosByteArrayUtils'
+import { Buffer } from 'buffer'
 
 export function serializeOutboxDatum(
   merkleTree: HeliosMerkleTree,
-  message: ByteArray
+  outboxMessage: Buffer
 ) {
   return new helios.ListData([
     // Merkle tree
     serializeMerkleTree(merkleTree),
     // Latest message
-    serializeMessage(message),
+    bufferToHeliosByteArray(outboxMessage)._toUplcData()
   ])
 }
 

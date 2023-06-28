@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH, BLOCKFROST_PREFIX } from "../common";
+import { TOKEN_NAME_AUTH, BLOCKFROST_PREFIX } from "../wallet";
 import { AppParams } from "../../typing";
 
 // Note: we can provide another interface that takes in a
