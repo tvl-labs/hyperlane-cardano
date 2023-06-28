@@ -39,14 +39,16 @@ const origin = Array(32).fill(0);
 const originMailbox = Array(32).fill(1);
 const checkpointRoot = Array(32).fill(2);
 const checkpointIndex = Array(32).fill(3);
+const inboundMsg = `[${Date.now()}] Inbound Message!`;
 
 // Mock outbound message
-const version = Array(8).fill(4);
-const nonce = Array(32).fill(5);
-const originDomain = Array(32).fill(6);
+const version = Array(1).fill(4);
+const nonce = Array(4).fill(5);
+const originDomain = Array(4).fill(6);
 const sender = Array(32).fill(7);
-const destinationDomain = Array(32).fill(8);
+const destinationDomain = Array(4).fill(8);
 const recipient = Array(32).fill(9);
+const outboundMsg = `[${Date.now()}] Outbound message!`;
 
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
@@ -75,7 +77,6 @@ async function waitForConfirmation(txIdHex: string) {
 //
 
 await emulatedNetwork.tick(1n);
-const inboundMsg = `[${Date.now()}] Inbound Message!`;
 // TODO: Better interface & names here...
 function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
   const message = helios.textToBytes(inboundMsg);
@@ -133,7 +134,6 @@ await emulatedNetwork.tick(1n);
 const emulatedUtxoOutbox = await createOutbox(wallet);
 await emulatedNetwork.tick(1n);
 
-const outboundMsg = `[${Date.now()}] Outbound message!`;
 async function createOutboundMsg(
   utxo: helios.UTxO,
   blockfrost?: helios.BlockfrostV0
