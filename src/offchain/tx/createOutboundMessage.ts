@@ -2,9 +2,8 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import { getWalletInfo } from "../common";
-import { serializeMerkleTree } from '../outbox/outboxMerkle'
-import { blake2bHasher } from '../../merkle/hasher'
-import { deserializeOutboxDatum } from '../outbox/outboxDatum'
+import { deserializeOutboxDatum, serializeOutboxDatum } from '../outbox/outboxDatum'
+import { calculateMessageId, serializeOutboxRedeemer } from '../outbox/outboxMessage'
 
 // TODO: More specific types here?
 export default async function createMessage(
@@ -21,16 +20,7 @@ export default async function createMessage(
 ): Promise<helios.TxId> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
-  const messageId = blake2bHasher(Buffer.concat([
-    Buffer.from(version.bytes),
-    Buffer.from(nonce.bytes),
-    Buffer.from(originDomain.bytes),
-    Buffer.from(sender.bytes),
-    Buffer.from(destinationDomain.bytes),
-    Buffer.from(recipient.bytes),
-    Buffer.from(message.bytes),
-  ]))
-
+  const messageId = calculateMessageId(version, nonce, originDomain, sender, destinationDomain, recipient, message)
   merkleTree.ingest(messageId);
 
   const tx = new helios.Tx();
@@ -44,14 +34,7 @@ export default async function createMessage(
 
   tx.addInput(
     utxoOutbox,
-    new helios.ListData([
-      version._toUplcData(),
-      nonce._toUplcData(),
-      originDomain._toUplcData(),
-      sender._toUplcData(),
-      destinationDomain._toUplcData(),
-      recipient._toUplcData(),
-    ])
+    serializeOutboxRedeemer(version, nonce, originDomain, sender, destinationDomain, recipient)
   );
 
   const scriptOutbox = new ScriptOutbox().compile(true);
@@ -62,12 +45,7 @@ export default async function createMessage(
       helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
       new helios.Value(),
       helios.Datum.inline(
-        new helios.ListData([
-          // Merkle tree
-          serializeMerkleTree(merkleTree),
-          // Latest message
-          message._toUplcData(),
-        ])
+        serializeOutboxDatum(merkleTree, message)
       )
     )
   );
