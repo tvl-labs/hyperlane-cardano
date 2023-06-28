@@ -111,7 +111,7 @@ function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
 await createInboundMsg();
 
 const txIdInbound = await createInboundMsg(blockfrost);
-console.log(`Submitted inbound message ${txIdInbound.hex}!`);
+console.log(`Submitted inbound message at transaction ${txIdInbound.hex}!`);
 await waitForConfirmation(txIdInbound.hex);
 
 // Note: Not all messages are "text".
@@ -154,14 +154,14 @@ async function createOutboundMsg(
 await createOutboundMsg(emulatedUtxoOutbox);
 
 const previewUtxoOutbox = await createOutbox(wallet, blockfrost);
-console.log(`Submitted outbox ${previewUtxoOutbox.txId.hex}!`);
+console.log(`Create outbox message at transaction ${previewUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(previewUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
 await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
 const txId = await createOutboundMsg(previewUtxoOutbox, blockfrost);
-console.log(`Submitted outbound message ${txId.hex}!`);
+console.log(`Submitted outbound message at transaction ${txId.hex}!`);
 await waitForConfirmation(txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
