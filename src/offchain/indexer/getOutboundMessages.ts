@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
-import { BLOCKFROST_PREFIX } from "../common";
+import { BLOCKFROST_PREFIX } from "../wallet";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
