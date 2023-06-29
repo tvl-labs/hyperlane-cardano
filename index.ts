@@ -11,12 +11,12 @@ import createInboundMessage from "./src/offchain/tx/createInboundMessage";
 import createOutboundMessage from "./src/offchain/tx/createOutboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
-import { OutboxMessage } from './src/offchain/outbox/outboxMessage'
+import { OutboxMessage } from "./src/offchain/outbox/outboxMessage";
 
 // TODO: Build several edge cases.
 
 // This is close to random, depending on how stable the Preview network is.
-const BLOCKFROST_WAIT_TIME = 25000;
+const BLOCKFROST_WAIT_TIME = 30000;
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
@@ -44,18 +44,22 @@ const checkpointIndex = Array(32).fill(3);
 const inboundMsg = `[${Date.now()}] Inbound Message!`;
 
 // Mock outbound message
-const DOMAIN_CARDANO = 112233
-const DOMAIN_ETHEREUM = 1
+const DOMAIN_CARDANO = 112233;
+const DOMAIN_ETHEREUM = 1;
 const outboundMsg = `[${Date.now()}] Outbound message!`;
 const outboxMessage: OutboxMessage = {
   version: 0,
   nonce: 0,
   originDomain: DOMAIN_CARDANO,
-  sender: Address.fromHex('0x0000000000000000000000000000000000000000000000000000000000000CA1'),
+  sender: Address.fromHex(
+    "0x0000000000000000000000000000000000000000000000000000000000000CA1"
+  ),
   destinationDomain: DOMAIN_ETHEREUM,
-  recipient: Address.fromHex('0x0000000000000000000000000000000000000000000000000000000000000EF1'),
-  message: Buffer.from(`[${Date.now()}] Outbound message!`, 'utf-8')
-}
+  recipient: Address.fromHex(
+    "0x0000000000000000000000000000000000000000000000000000000000000EF1"
+  ),
+  message: Buffer.from(outboundMsg, "utf-8"),
+};
 
 const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
@@ -141,16 +145,21 @@ await emulatedNetwork.tick(1n);
 const emulatedUtxoOutbox = await createOutbox(wallet);
 await emulatedNetwork.tick(1n);
 
-await createOutboundMessage(emulatedUtxoOutbox, outboxMessage, wallet, blockfrost)
+await createOutboundMessage(emulatedUtxoOutbox, outboxMessage, wallet);
 
 const previewUtxoOutbox = await createOutbox(wallet, blockfrost);
-console.log(`Create outbox message at transaction ${previewUtxoOutbox.txId.hex}!`);
+console.log(`Create outbox at transaction ${previewUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(previewUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
 await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
-const txId = await createOutboundMessage(previewUtxoOutbox, outboxMessage, wallet, blockfrost);
+const txId = await createOutboundMessage(
+  previewUtxoOutbox,
+  outboxMessage,
+  wallet,
+  blockfrost
+);
 console.log(`Submitted outbound message at transaction ${txId.hex}!`);
 await waitForConfirmation(txId.hex);
 
