@@ -13,17 +13,17 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MerkleTreeByBlockNumber200ResponseMerkleTree {
-    #[serde(rename = "count", skip_serializing_if = "Option::is_none")]
-    pub count: Option<i32>,
-    #[serde(rename = "branches", skip_serializing_if = "Option::is_none")]
-    pub branches: Option<Vec<String>>,
+    #[serde(rename = "count")]
+    pub count: i32,
+    #[serde(rename = "branches")]
+    pub branches: Vec<String>,
 }
 
 impl MerkleTreeByBlockNumber200ResponseMerkleTree {
-    pub fn new() -> MerkleTreeByBlockNumber200ResponseMerkleTree {
+    pub fn new(count: i32, branches: Vec<String>) -> MerkleTreeByBlockNumber200ResponseMerkleTree {
         MerkleTreeByBlockNumber200ResponseMerkleTree {
-            count: None,
-            branches: None,
+            count,
+            branches,
         }
     }
 }

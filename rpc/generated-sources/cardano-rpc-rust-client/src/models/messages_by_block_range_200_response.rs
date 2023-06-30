@@ -13,14 +13,14 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MessagesByBlockRange200Response {
-    #[serde(rename = "messages", skip_serializing_if = "Option::is_none")]
-    pub messages: Option<Vec<crate::models::MessagesByBlockRange200ResponseMessagesInner>>,
+    #[serde(rename = "messages")]
+    pub messages: Vec<crate::models::MessagesByBlockRange200ResponseMessagesInner>,
 }
 
 impl MessagesByBlockRange200Response {
-    pub fn new() -> MessagesByBlockRange200Response {
+    pub fn new(messages: Vec<crate::models::MessagesByBlockRange200ResponseMessagesInner>) -> MessagesByBlockRange200Response {
         MessagesByBlockRange200Response {
-            messages: None,
+            messages,
         }
     }
 }

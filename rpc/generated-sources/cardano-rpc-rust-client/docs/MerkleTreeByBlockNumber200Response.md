@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**block_number** | Option<**i32**> |  | [optional]
-**merkle_tree** | Option<[**crate::models::MerkleTreeByBlockNumber200ResponseMerkleTree**](merkleTreeByBlockNumber_200_response_merkleTree.md)> |  | [optional]
+**block_number** | **i32** |  | 
+**merkle_tree** | [**crate::models::MerkleTreeByBlockNumber200ResponseMerkleTree**](merkleTreeByBlockNumber_200_response_merkleTree.md) |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

@@ -11,6 +11,13 @@
         "additionalProperties": {
           "packageName": "cardano-rpc"
         }
+      },
+      "rpc-server-generator": {
+        "generatorName": "nodejs-express-server",
+        "output": "generated-sources/cardano-rpc-server",
+        "inputSpec": "./openapi.yaml",
+        "additionalProperties": {
+        }
       }
     }
   }

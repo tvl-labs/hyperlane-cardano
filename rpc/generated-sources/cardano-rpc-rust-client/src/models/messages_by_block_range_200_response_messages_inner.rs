@@ -13,17 +13,17 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MessagesByBlockRange200ResponseMessagesInner {
-    #[serde(rename = "block", skip_serializing_if = "Option::is_none")]
-    pub block: Option<i32>,
-    #[serde(rename = "message", skip_serializing_if = "Option::is_none")]
-    pub message: Option<Box<crate::models::MessagesByBlockRange200ResponseMessagesInnerMessage>>,
+    #[serde(rename = "block")]
+    pub block: i32,
+    #[serde(rename = "message")]
+    pub message: Box<crate::models::MessagesByBlockRange200ResponseMessagesInnerMessage>,
 }
 
 impl MessagesByBlockRange200ResponseMessagesInner {
-    pub fn new() -> MessagesByBlockRange200ResponseMessagesInner {
+    pub fn new(block: i32, message: crate::models::MessagesByBlockRange200ResponseMessagesInnerMessage) -> MessagesByBlockRange200ResponseMessagesInner {
         MessagesByBlockRange200ResponseMessagesInner {
-            block: None,
-            message: None,
+            block,
+            message: Box::new(message),
         }
     }
 }

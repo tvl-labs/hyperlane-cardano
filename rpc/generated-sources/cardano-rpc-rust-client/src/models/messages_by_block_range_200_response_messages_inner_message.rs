@@ -13,32 +13,32 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MessagesByBlockRange200ResponseMessagesInnerMessage {
-    #[serde(rename = "version", skip_serializing_if = "Option::is_none")]
-    pub version: Option<i32>,
-    #[serde(rename = "nonce", skip_serializing_if = "Option::is_none")]
-    pub nonce: Option<i32>,
-    #[serde(rename = "origin", skip_serializing_if = "Option::is_none")]
-    pub origin: Option<String>,
-    #[serde(rename = "sender", skip_serializing_if = "Option::is_none")]
-    pub sender: Option<String>,
-    #[serde(rename = "destination", skip_serializing_if = "Option::is_none")]
-    pub destination: Option<String>,
-    #[serde(rename = "recipient", skip_serializing_if = "Option::is_none")]
-    pub recipient: Option<String>,
-    #[serde(rename = "body", skip_serializing_if = "Option::is_none")]
-    pub body: Option<String>,
+    #[serde(rename = "version")]
+    pub version: i32,
+    #[serde(rename = "nonce")]
+    pub nonce: i32,
+    #[serde(rename = "originDomain")]
+    pub origin_domain: String,
+    #[serde(rename = "sender")]
+    pub sender: String,
+    #[serde(rename = "destinationDomain")]
+    pub destination_domain: String,
+    #[serde(rename = "recipient")]
+    pub recipient: String,
+    #[serde(rename = "body")]
+    pub body: String,
 }
 
 impl MessagesByBlockRange200ResponseMessagesInnerMessage {
-    pub fn new() -> MessagesByBlockRange200ResponseMessagesInnerMessage {
+    pub fn new(version: i32, nonce: i32, origin_domain: String, sender: String, destination_domain: String, recipient: String, body: String) -> MessagesByBlockRange200ResponseMessagesInnerMessage {
         MessagesByBlockRange200ResponseMessagesInnerMessage {
-            version: None,
-            nonce: None,
-            origin: None,
-            sender: None,
-            destination: None,
-            recipient: None,
-            body: None,
+            version,
+            nonce,
+            origin_domain,
+            sender,
+            destination_domain,
+            recipient,
+            body,
         }
     }
 }

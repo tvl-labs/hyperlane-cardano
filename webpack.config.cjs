@@ -1,9 +1,15 @@
+const {resolve} = require('path');
+
 module.exports = {
   target: 'node',
   mode: "development",
-  entry: "./index.ts",
+  entry: {
+    test: "./index.ts",
+    rpc: './src/rpc/index.ts'
+  },
   output: {
-    path: __dirname + "/dist/",
+    filename: "[name].js",
+    path: resolve(__dirname, "dist")
   },
   resolve: {
     extensions: [".ts", ".js"],

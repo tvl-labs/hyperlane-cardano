@@ -13,17 +13,17 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MerkleTreeByBlockNumber200Response {
-    #[serde(rename = "blockNumber", skip_serializing_if = "Option::is_none")]
-    pub block_number: Option<i32>,
-    #[serde(rename = "merkleTree", skip_serializing_if = "Option::is_none")]
-    pub merkle_tree: Option<Box<crate::models::MerkleTreeByBlockNumber200ResponseMerkleTree>>,
+    #[serde(rename = "blockNumber")]
+    pub block_number: i32,
+    #[serde(rename = "merkleTree")]
+    pub merkle_tree: Box<crate::models::MerkleTreeByBlockNumber200ResponseMerkleTree>,
 }
 
 impl MerkleTreeByBlockNumber200Response {
-    pub fn new() -> MerkleTreeByBlockNumber200Response {
+    pub fn new(block_number: i32, merkle_tree: crate::models::MerkleTreeByBlockNumber200ResponseMerkleTree) -> MerkleTreeByBlockNumber200Response {
         MerkleTreeByBlockNumber200Response {
-            block_number: None,
-            merkle_tree: None,
+            block_number,
+            merkle_tree: Box::new(merkle_tree),
         }
     }
 }

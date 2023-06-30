@@ -4,11 +4,17 @@
   "private": true,
   "repository": "https://github.com/tvl-labs/hyperlane-cardano",
   "scripts": {
-    "test": "npx webpack build && node dist/main.js",
-    "start": "ts-node src/merkle/solidity.merkle.ts",
+    "generate-openapi": "npx openapi-typescript rpc/openapi.yaml -o src/rpc/openapi.d.ts",
+    "build": "npm run generate-openapi && npx webpack build",
+    "test": "npm run build && node dist/test.js",
+    "start-rpc": "npm run build && node dist/rpc.js",
     "jest": "jest"
   },
   "dependencies": {
+    "express-openapi-validator": "^5.0.4",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0",
+
     "@hyperionbt/helios": "https://github.com/kreate-community/Helios#0be4f66189f0943ba802cd2a33cc6001b4a76ef3",
     "blakejs": "^1.2.1",
     "keccak256": "^1.0.6",

@@ -37,12 +37,20 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - blockNumber
+                  - merkleTree
                 properties:
                   blockNumber:
                     type: integer
                     example: 5
                   merkleTree:
                     type: object
+                    minItems: 32
+                    maxItems: 32
+                    required:
+                      - count
+                      - branches
                     properties:
                       count:
                         type: integer
@@ -111,17 +119,30 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - messages
                 properties:
                   messages:
                     type: array
                     items:
                       type: object
+                      required:
+                        - block
+                        - message
                       properties:
                         block:
                           type: integer
                           example: 3
                         message:
                           type: object
+                          required:
+                            - version
+                            - nonce
+                            - originDomain
+                            - sender
+                            - destinationDomain
+                            - recipient
+                            - body
                           properties:
                             version:
                               type: integer
@@ -129,13 +150,13 @@ paths:
                             nonce:
                               type: integer
                               example: 0
-                            origin:
+                            originDomain:
                               type: string
                               example: "0xEF"
                             sender:
                               type: string
                               example: "0x0000000000000000000000000000000000000CA1"
-                            destination:
+                            destinationDomain:
                               type: string
                               example: "0xCA"
                             recipient:

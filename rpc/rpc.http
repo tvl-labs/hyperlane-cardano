@@ -1,11 +1,8 @@
-###
-GET http://127.0.0.1:4010/api/outbox/messages
-Prefer: example=empty
+### Last finalized block
+GET http://127.0.0.1:3000/api/indexer/lastFinalizedBlock
 
-###
-GET http://127.0.0.1:4010/api/outbox/messages
-Prefer: example=oneMessage
+### MerkleTree
+GET http://127.0.0.1:3000/api/indexer/merkleTree/1
 
-###
-GET http://127.0.0.1:4010/api/outbox/messages
-Prefer: example=multipleMessages
+### Messages
+GET http://127.0.0.1:3000/api/indexer/messages/1/2
