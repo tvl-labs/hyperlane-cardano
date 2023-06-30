@@ -66,11 +66,9 @@ function convertMessageResponseType(outboxMessage: OutboxMessage): MessageRespon
   return {
     version: outboxMessage.version,
     nonce: outboxMessage.nonce,
-    // TODO: make number in OpenAPI.
-    originDomain: outboxMessage.originDomain.toString(),
+    originDomain: outboxMessage.originDomain,
     sender: outboxMessage.sender.toHex(),
-    // TODO: make number in OpenAPI.
-    destinationDomain: outboxMessage.destinationDomain.toString(),
+    destinationDomain: outboxMessage.destinationDomain,
     recipient: outboxMessage.recipient.toHex(),
     body: outboxMessage.message.toHex()
   }

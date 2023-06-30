@@ -18,11 +18,11 @@ pub struct MessagesByBlockRange200ResponseMessagesInnerMessage {
     #[serde(rename = "nonce")]
     pub nonce: i32,
     #[serde(rename = "originDomain")]
-    pub origin_domain: String,
+    pub origin_domain: i32,
     #[serde(rename = "sender")]
     pub sender: String,
     #[serde(rename = "destinationDomain")]
-    pub destination_domain: String,
+    pub destination_domain: i32,
     #[serde(rename = "recipient")]
     pub recipient: String,
     #[serde(rename = "body")]
@@ -30,7 +30,7 @@ pub struct MessagesByBlockRange200ResponseMessagesInnerMessage {
 }
 
 impl MessagesByBlockRange200ResponseMessagesInnerMessage {
-    pub fn new(version: i32, nonce: i32, origin_domain: String, sender: String, destination_domain: String, recipient: String, body: String) -> MessagesByBlockRange200ResponseMessagesInnerMessage {
+    pub fn new(version: i32, nonce: i32, origin_domain: i32, sender: String, destination_domain: i32, recipient: String, body: String) -> MessagesByBlockRange200ResponseMessagesInnerMessage {
         MessagesByBlockRange200ResponseMessagesInnerMessage {
             version,
             nonce,

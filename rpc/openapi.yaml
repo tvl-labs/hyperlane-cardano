@@ -122,11 +122,11 @@ paths:
                             nonce:
                               type: integer
                             originDomain:
-                              type: string
+                              type: integer
                             sender:
                               type: string
                             destinationDomain:
-                              type: string
+                              type: integer
                             recipient:
                               type: string
                             body:

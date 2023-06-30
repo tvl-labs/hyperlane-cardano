@@ -6,9 +6,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **version** | **i32** |  | 
 **nonce** | **i32** |  | 
-**origin_domain** | **String** |  | 
+**origin_domain** | **i32** |  | 
 **sender** | **String** |  | 
-**destination_domain** | **String** |  | 
+**destination_domain** | **i32** |  | 
 **recipient** | **String** |  | 
 **body** | **String** |  | 
 

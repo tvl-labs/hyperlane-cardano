@@ -87,9 +87,9 @@ export interface operations {
                 message: {
                   version: number;
                   nonce: number;
-                  originDomain: string;
+                  originDomain: number;
                   sender: string;
-                  destinationDomain: string;
+                  destinationDomain: number;
                   recipient: string;
                   body: string;
                 };

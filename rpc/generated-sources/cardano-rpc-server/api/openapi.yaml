@@ -109,22 +109,22 @@ components:
         messages:
         - block: 3
           message:
-            destinationDomain: destinationDomain
+            destinationDomain: 5
             sender: sender
             recipient: recipient
             body: body
             version: 0
             nonce: 6
-            originDomain: originDomain
+            originDomain: 1
         - block: 3
           message:
-            destinationDomain: destinationDomain
+            destinationDomain: 5
             sender: sender
             recipient: recipient
             body: body
             version: 0
             nonce: 6
-            originDomain: originDomain
+            originDomain: 1
       properties:
         messages:
           items:
@@ -137,13 +137,13 @@ components:
       example:
         block: 3
         message:
-          destinationDomain: destinationDomain
+          destinationDomain: 5
           sender: sender
           recipient: recipient
           body: body
           version: 0
           nonce: 6
-          originDomain: originDomain
+          originDomain: 1
       properties:
         block:
           example: 3
@@ -186,24 +186,24 @@ components:
       type: object
     messagesByBlockRange_200_response_messages_inner_message:
       example:
-        destinationDomain: destinationDomain
+        destinationDomain: 5
         sender: sender
         recipient: recipient
         body: body
         version: 0
         nonce: 6
-        originDomain: originDomain
+        originDomain: 1
       properties:
         version:
           type: integer
         nonce:
           type: integer
         originDomain:
-          type: string
+          type: integer
         sender:
           type: string
         destinationDomain:
-          type: string
+          type: integer
         recipient:
           type: string
         body:
