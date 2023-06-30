@@ -6,7 +6,7 @@ import http from 'http'
 import logger from 'morgan'
 import {
   LastFinalizedBlockResponseType,
-  MerkleTreeByBlockNumberResponseType,
+  MerkleTreesByBlockNumberResponseType,
   MessagesByBlockRangeResponseType
 } from './types'
 import { LastFinalizedBlockNumberService } from './services/lastFinalizedBlockNumber'
@@ -47,9 +47,9 @@ app.get('/api/indexer/lastFinalizedBlock', async function (req, res: Response<La
   res.status(200).json(response)
 });
 
-app.get('/api/indexer/merkleTree/:blockNumber', async function (req, res: Response<MerkleTreeByBlockNumberResponseType>, _) {
+app.get('/api/indexer/merkleTrees/:blockNumber', async function (req, res: Response<MerkleTreesByBlockNumberResponseType>, _) {
   const blockNumber = parseInt(req.params.blockNumber)
-  const response = await merkleTreeService.getMerkleTreeAtBlock(blockNumber)
+  const response = await merkleTreeService.getMerkleTreesByBlockNumber(blockNumber)
   res.json(response)
 })
 

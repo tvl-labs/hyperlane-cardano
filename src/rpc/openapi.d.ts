@@ -9,9 +9,9 @@ export interface paths {
     /** Get the last finalized block */
     get: operations["lastFinalizedBlock"];
   };
-  "/api/indexer/merkleTree/{blockNumber}": {
-    /** Get the MerkleTree that was in the OutboxUtxo at the given blockNumber */
-    get: operations["merkleTreeByBlockNumber"];
+  "/api/indexer/merkleTrees/{blockNumber}": {
+    /** Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block. - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist. - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message. - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing. */
+    get: operations["merkleTreesByBlockNumber"];
   };
   "/api/indexer/messages/{fromBlock}/{toBlock}": {
     /** Get messages from fromBlock to toBlock */
@@ -41,8 +41,8 @@ export interface operations {
       };
     };
   };
-  /** Get the MerkleTree that was in the OutboxUtxo at the given blockNumber */
-  merkleTreeByBlockNumber: {
+  /** Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block. - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist. - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message. - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing. */
+  merkleTreesByBlockNumber: {
     parameters: {
       path: {
         /** @description Block number to retrieve the MerkleTree */
@@ -56,47 +56,11 @@ export interface operations {
           "application/json": {
             /** @example 5 */
             blockNumber: number;
-            merkleTree: {
-              /** @example 1 */
-              count: number;
-              /**
-               * @example [
-               *   "0x3b3153b5b2c1c50efca4b92a3804a037ceb79769545f8f4f85dec3bdbbaa7df5",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000",
-               *   "0x0000000000000000000000000000000000000000000000000000000000000000"
-               * ]
-               */
-              branches: (string)[];
-            };
+            merkleTrees: ({
+                /** @example 1 */
+                count: number;
+                branches: (string)[];
+              })[];
           };
         };
       };
@@ -121,19 +85,12 @@ export interface operations {
                 /** @example 3 */
                 block: number;
                 message: {
-                  /** @example 0 */
                   version: number;
-                  /** @example 0 */
                   nonce: number;
-                  /** @example 0xEF */
                   originDomain: string;
-                  /** @example 0x0000000000000000000000000000000000000CA1 */
                   sender: string;
-                  /** @example 0xCA */
                   destinationDomain: string;
-                  /** @example 0x0000000000000000000000000000000000000EA1 */
                   recipient: string;
-                  /** @example 0xADA */
                   body: string;
                 };
               })[];

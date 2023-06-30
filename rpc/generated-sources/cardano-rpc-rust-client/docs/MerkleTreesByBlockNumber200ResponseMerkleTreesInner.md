@@ -1,11 +1,11 @@
-# MerkleTreeByBlockNumber200Response
+# MerkleTreesByBlockNumber200ResponseMerkleTreesInner
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**block_number** | **i32** |  | 
-**merkle_tree** | [**crate::models::MerkleTreeByBlockNumber200ResponseMerkleTree**](merkleTreeByBlockNumber_200_response_merkleTree.md) |  | 
+**count** | **i32** |  | 
+**branches** | **Vec<String>** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

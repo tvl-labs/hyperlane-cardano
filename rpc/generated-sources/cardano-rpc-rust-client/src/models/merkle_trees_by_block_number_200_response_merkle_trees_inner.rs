@@ -12,16 +12,16 @@
 
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct MerkleTreeByBlockNumber200ResponseMerkleTree {
+pub struct MerkleTreesByBlockNumber200ResponseMerkleTreesInner {
     #[serde(rename = "count")]
     pub count: i32,
     #[serde(rename = "branches")]
     pub branches: Vec<String>,
 }
 
-impl MerkleTreeByBlockNumber200ResponseMerkleTree {
-    pub fn new(count: i32, branches: Vec<String>) -> MerkleTreeByBlockNumber200ResponseMerkleTree {
-        MerkleTreeByBlockNumber200ResponseMerkleTree {
+impl MerkleTreesByBlockNumber200ResponseMerkleTreesInner {
+    pub fn new(count: i32, branches: Vec<String>) -> MerkleTreesByBlockNumber200ResponseMerkleTreesInner {
+        MerkleTreesByBlockNumber200ResponseMerkleTreesInner {
             count,
             branches,
         }

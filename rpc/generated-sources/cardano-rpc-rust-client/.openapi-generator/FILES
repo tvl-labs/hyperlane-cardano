@@ -5,8 +5,8 @@ Cargo.toml
 README.md
 docs/DefaultApi.md
 docs/LastFinalizedBlock200Response.md
-docs/MerkleTreeByBlockNumber200Response.md
-docs/MerkleTreeByBlockNumber200ResponseMerkleTree.md
+docs/MerkleTreesByBlockNumber200Response.md
+docs/MerkleTreesByBlockNumber200ResponseMerkleTreesInner.md
 docs/MessagesByBlockRange200Response.md
 docs/MessagesByBlockRange200ResponseMessagesInner.md
 docs/MessagesByBlockRange200ResponseMessagesInnerMessage.md
@@ -16,8 +16,8 @@ src/apis/default_api.rs
 src/apis/mod.rs
 src/lib.rs
 src/models/last_finalized_block_200_response.rs
-src/models/merkle_tree_by_block_number_200_response.rs
-src/models/merkle_tree_by_block_number_200_response_merkle_tree.rs
+src/models/merkle_trees_by_block_number_200_response.rs
+src/models/merkle_trees_by_block_number_200_response_merkle_trees_inner.rs
 src/models/messages_by_block_range_200_response.rs
 src/models/messages_by_block_range_200_response_messages_inner.rs
 src/models/messages_by_block_range_200_response_messages_inner_message.rs
