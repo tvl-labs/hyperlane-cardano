@@ -49,7 +49,7 @@ app.get('/api/indexer/lastFinalizedBlock', async function (req, res: Response<La
 
 app.get('/api/indexer/merkleTrees/:blockNumber', async function (req, res: Response<MerkleTreesByBlockNumberResponseType>, _) {
   const blockNumber = parseInt(req.params.blockNumber)
-  const response = await merkleTreeService.getMerkleTreesByBlockNumber(blockNumber)
+  const response = await merkleTreeService.getMerkleTreesAtBlockNumber(blockNumber)
   res.json(response)
 })
 
