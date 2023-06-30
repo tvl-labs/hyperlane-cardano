@@ -1,8 +1,7 @@
-import * as helios from '@hyperionbt/helios'
 import { blake2bHasher } from '../../merkle/hasher'
 import { Address } from '../address'
 import { Buffer } from 'buffer'
-import { bufferToHeliosByteArray, convertNumberToHeliosByteArray } from './heliosByteArrayUtils'
+import { OutboxMessagePayload } from './outboxMessagePayload'
 
 const VERSION_SIZE = 1
 const NONCE_SIZE = 4
@@ -39,20 +38,7 @@ export type OutboxMessage = {
   /**
    * Message payload, arbitrary size below ~1Kb.
    */
-  message: Buffer
-}
-
-export function serializeOutboxRedeemer(
-  outboxMessage: OutboxMessage
-) {
-  return new helios.ListData([
-    convertNumberToHeliosByteArray(outboxMessage.version, 1)._toUplcData(),
-    convertNumberToHeliosByteArray(outboxMessage.nonce, 4)._toUplcData(),
-    convertNumberToHeliosByteArray(outboxMessage.originDomain, 4)._toUplcData(),
-    bufferToHeliosByteArray(outboxMessage.sender.toBuffer())._toUplcData(),
-    convertNumberToHeliosByteArray(outboxMessage.destinationDomain, 4)._toUplcData(),
-    bufferToHeliosByteArray(outboxMessage.recipient.toBuffer())._toUplcData()
-  ])
+  message: OutboxMessagePayload
 }
 
 export function calculateMessageId(
@@ -65,7 +51,7 @@ export function calculateMessageId(
     SENDER_SIZE +
     DESTINATION_DOMAIN_SIZE +
     RECIPIENT_SIZE +
-    outboxMessage.message.length
+    outboxMessage.message.sizeInBytes()
   )
   let offset = 0
   buffer.writeUint8(outboxMessage.version, offset)
@@ -80,6 +66,6 @@ export function calculateMessageId(
   offset += DESTINATION_DOMAIN_SIZE
   outboxMessage.recipient.toBuffer().copy(buffer, offset)
   offset += RECIPIENT_SIZE
-  outboxMessage.message.copy(buffer, offset)
+  outboxMessage.message.toBuffer().copy(buffer, offset)
   return blake2bHasher(buffer)
 }

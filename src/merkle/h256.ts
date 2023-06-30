@@ -31,4 +31,12 @@ export class H256 {
   static zero(): H256 {
     return new H256(Buffer.alloc(32));
   }
+
+  toJSON() {
+    return this.hex()
+  }
+
+  toString() {
+    return this.hex()
+  }
 }

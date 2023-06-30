@@ -5,9 +5,9 @@ import { getWalletInfo } from "../wallet";
 import { deserializeOutboxDatum, serializeOutboxDatum } from '../outbox/outboxDatum'
 import {
   calculateMessageId,
-  OutboxMessage,
-  serializeOutboxRedeemer
+  OutboxMessage
 } from '../outbox/outboxMessage'
+import { serializeOutboxRedeemer } from '../outbox/outboxMessageSerialize'
 
 export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
@@ -42,7 +42,7 @@ export default async function createOutboundMessage(
       helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
       new helios.Value(),
       helios.Datum.inline(
-        serializeOutboxDatum(merkleTree, outboxMessage.message)
+        serializeOutboxDatum(merkleTree, outboxMessage.message.toBuffer())
       )
     )
   );

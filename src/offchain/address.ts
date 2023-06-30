@@ -26,4 +26,12 @@ export class Address {
   toBuffer(): Buffer {
     return Buffer.from(this.bytes)
   }
+
+  toJSON() {
+    return this.toHex()
+  }
+
+  toString() {
+    return this.toHex()
+  }
 }
