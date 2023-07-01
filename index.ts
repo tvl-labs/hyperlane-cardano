@@ -12,6 +12,7 @@ import createOutboundMessage from "./src/offchain/tx/createOutboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
 import { OutboxMessage } from "./src/offchain/outbox/outboxMessage";
+import { OutboxMessagePayload } from './src/offchain/outbox/outboxMessagePayload'
 
 // TODO: Build several edge cases.
 
@@ -58,7 +59,7 @@ const outboxMessage: OutboxMessage = {
   recipient: Address.fromHex(
     "0x0000000000000000000000000000000000000000000000000000000000000EF1"
   ),
-  message: Buffer.from(outboundMsg, "utf-8"),
+  message: OutboxMessagePayload.fromString(outboundMsg),
 };
 
 const emulatedNetwork = new helios.NetworkEmulator(644);

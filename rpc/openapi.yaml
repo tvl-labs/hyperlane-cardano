@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  title: Outbox RPC API
+  version: 1.0.0
+paths:
+  /api/indexer/lastFinalizedBlock:
+    get:
+      summary: "Get the last finalized block"
+      operationId: "lastFinalizedBlock"
+      responses:
+        '200':
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lastFinalizedBlock:
+                    type: integer
+                    example: 10
+  /api/indexer/merkleTrees/{blockNumber}:
+    get:
+      summary: "
+      Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block.
+      - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist.
+      - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message.
+      - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing.
+      "
+      operationId: "merkleTreesByBlockNumber"
+      parameters:
+        - name: "blockNumber"
+          in: "path"
+          required: true
+          description: "Block number to retrieve the MerkleTree"
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - blockNumber
+                  - merkleTrees
+                properties:
+                  blockNumber:
+                    type: integer
+                    example: 5
+                  merkleTrees:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - count
+                        - branches
+                      properties:
+                        count:
+                          type: integer
+                          example: 1
+                        branches:
+                          type: array
+                          minItems: 32
+                          maxItems: 32
+                          items:
+                            type: string
+  /api/indexer/messages/{fromBlock}/{toBlock}:
+    get:
+      summary: "Get messages from fromBlock to toBlock"
+      operationId: "messagesByBlockRange"
+      parameters:
+        - name: "fromBlock"
+          in: "path"
+          required: true
+          description: "Start block number"
+          schema:
+            type: integer
+            example: 0
+        - name: "toBlock"
+          in: "path"
+          required: true
+          description: "End block number"
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - messages
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - block
+                        - message
+                      properties:
+                        block:
+                          type: integer
+                          example: 3
+                        message:
+                          type: object
+                          required:
+                            - version
+                            - nonce
+                            - originDomain
+                            - sender
+                            - destinationDomain
+                            - recipient
+                            - body
+                          properties:
+                            version:
+                              type: integer
+                            nonce:
+                              type: integer
+                            originDomain:
+                              type: integer
+                            sender:
+                              type: string
+                            destinationDomain:
+                              type: integer
+                            recipient:
+                              type: string
+                            body:
+                              type: string

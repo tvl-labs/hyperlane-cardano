@@ -1,0 +1,8 @@
+### Last finalized block
+GET http://127.0.0.1:3000/api/indexer/lastFinalizedBlock
+
+### MerkleTree
+GET http://127.0.0.1:3000/api/indexer/merkleTrees/7
+
+### Messages
+GET http://127.0.0.1:3000/api/indexer/messages/1/9

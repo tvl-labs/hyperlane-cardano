@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "6.3.0",
+    "generators": {
+      "rust-client-generator": {
+        "generatorName": "rust",
+        "output": "generated-sources/cardano-rpc-rust-client",
+        "inputSpec": "./openapi.yaml",
+        "additionalProperties": {
+          "packageName": "cardano-rpc"
+        }
+      },
+      "rpc-server-generator": {
+        "generatorName": "nodejs-express-server",
+        "output": "generated-sources/cardano-rpc-server",
+        "inputSpec": "./openapi.yaml",
+        "additionalProperties": {
+        }
+      }
+    }
+  }
+}
