@@ -1,5 +1,5 @@
-import * as helios from "@hyperionbt/helios";
-import { AppParams } from "../typing";
+import type * as helios from "@hyperionbt/helios";
+import type { AppParams } from "../typing";
 
 declare class MintingPolicyIsmMultiSig {
   constructor(params: AppParams);

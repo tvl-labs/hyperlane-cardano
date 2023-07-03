@@ -1,16 +1,15 @@
-import { Buffer } from 'buffer';
-import assert from 'assert';
+import { Buffer } from "buffer";
+import assert from "assert";
 
 export class H256 {
-
-  private buffer: Buffer;
+  private readonly buffer: Buffer;
 
   private constructor(buffer: Buffer) {
     this.buffer = buffer;
   }
 
   hex(): string {
-    return '0x' + this.buffer.toString('hex');
+    return "0x" + this.buffer.toString("hex");
   }
 
   toBuffer(): Buffer {
@@ -24,7 +23,10 @@ export class H256 {
   }
 
   static from(buffer: Buffer) {
-    assert(buffer.length === 32, `Buffer size must be 32 bytes but was ${buffer.length}`);
+    assert(
+      buffer.length === 32,
+      `Buffer size must be 32 bytes but was ${buffer.length}`
+    );
     return new H256(buffer);
   }
 
@@ -33,10 +35,10 @@ export class H256 {
   }
 
   toJSON() {
-    return this.hex()
+    return this.hex();
   }
 
   toString() {
-    return this.hex()
+    return this.hex();
   }
 }

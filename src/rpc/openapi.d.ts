@@ -3,7 +3,6 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
   "/api/indexer/lastFinalizedBlock": {
     /** Get the last finalized block */
@@ -26,7 +25,6 @@ export type components = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
-
   /** Get the last finalized block */
   lastFinalizedBlock: {
     responses: {
@@ -56,11 +54,11 @@ export interface operations {
           "application/json": {
             /** @example 5 */
             blockNumber: number;
-            merkleTrees: ({
-                /** @example 1 */
-                count: number;
-                branches: (string)[];
-              })[];
+            merkleTrees: {
+              /** @example 1 */
+              count: number;
+              branches: string[];
+            }[];
           };
         };
       };
@@ -81,19 +79,19 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            messages: ({
-                /** @example 3 */
-                block: number;
-                message: {
-                  version: number;
-                  nonce: number;
-                  originDomain: number;
-                  sender: string;
-                  destinationDomain: number;
-                  recipient: string;
-                  body: string;
-                };
-              })[];
+            messages: {
+              /** @example 3 */
+              block: number;
+              message: {
+                version: number;
+                nonce: number;
+                originDomain: number;
+                sender: string;
+                destinationDomain: number;
+                recipient: string;
+                body: string;
+              };
+            }[];
           };
         };
       };

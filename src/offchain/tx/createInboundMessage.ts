@@ -2,7 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH, getWalletInfo } from "../wallet";
-import { AppParams } from "../../typing";
+import type { AppParams } from "../../typing";
 
 export default async function createInboundMessage(
   appParams: AppParams,
@@ -51,5 +51,7 @@ export default async function createInboundMessage(
   await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
-  return blockfrost ? blockfrost.submitTx(tx) : relayerWallet.submitTx(tx);
+  return await (blockfrost != null
+    ? blockfrost.submitTx(tx)
+    : relayerWallet.submitTx(tx));
 }

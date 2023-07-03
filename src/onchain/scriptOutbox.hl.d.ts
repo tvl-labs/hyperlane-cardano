@@ -1,4 +1,4 @@
-import * as helios from "@hyperionbt/helios";
+import type * as helios from "@hyperionbt/helios";
 
 declare class ScriptLockForever {
   constructor();

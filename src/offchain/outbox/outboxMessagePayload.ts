@@ -1,34 +1,33 @@
-import { Buffer } from 'buffer'
+import { Buffer } from "buffer";
 
 export class OutboxMessagePayload {
-
-  private readonly bytes: Buffer
+  private readonly bytes: Buffer;
 
   constructor(bytes: Buffer) {
-    this.bytes = bytes
+    this.bytes = bytes;
   }
 
   static fromString(string: string) {
-    return new OutboxMessagePayload(Buffer.from(string, 'utf-8'))
+    return new OutboxMessagePayload(Buffer.from(string, "utf-8"));
   }
 
   sizeInBytes(): number {
-    return this.bytes.length
+    return this.bytes.length;
   }
 
   toBuffer(): Buffer {
-    return Buffer.from(this.bytes)
+    return Buffer.from(this.bytes);
   }
 
   toHex(): string {
-    return '0x' + this.bytes.toString('hex')
+    return "0x" + this.bytes.toString("hex");
   }
 
   toJSON() {
-    return this.toHex()
+    return this.toHex();
   }
 
   toString() {
-    return this.toHex()
+    return this.toHex();
   }
 }

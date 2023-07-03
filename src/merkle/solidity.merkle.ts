@@ -1,12 +1,11 @@
-import { H256 } from './h256';
-import assert from 'assert';
-import { hashConcat, Hasher } from './hasher';
-import { MAX_LEAVES, TREE_DEPTH, zeroNode } from './common.merkle';
+import { H256 } from "./h256";
+import assert from "assert";
+import { hashConcat, type Hasher } from "./hasher";
+import { MAX_LEAVES, TREE_DEPTH, zeroNode } from "./common.merkle";
 
 // Hyperlane Solidity implementation of the MerkleTree
 //  https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/50f04db1faddb6d471b85386bb977fe9762753df/solidity/contracts/libs/Merkle.sol#L11-L10
 export class SolidityMerkleTree {
-
   private readonly hasher: Hasher;
   private readonly branch: H256[]; // TREE_DEPTH size.
   private count: number = 0;
@@ -35,7 +34,7 @@ export class SolidityMerkleTree {
   }
 
   root(): H256 {
-    let index = this.count;
+    const index = this.count;
     let current = H256.zero();
     for (let i = 0; i < TREE_DEPTH; i++) {
       const ithBit = (index >> i) & 0x01;
@@ -43,10 +42,9 @@ export class SolidityMerkleTree {
       if (ithBit === 1) {
         current = hashConcat(this.hasher, next, current);
       } else {
-        current = hashConcat(this.hasher, current, zeroNode(this.hasher, i))
+        current = hashConcat(this.hasher, current, zeroNode(this.hasher, i));
       }
     }
     return current;
   }
-
 }

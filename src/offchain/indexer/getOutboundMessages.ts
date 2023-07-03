@@ -14,10 +14,10 @@ export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
     `${BLOCKFROST_PREFIX}/addresses/${addressOutbox.toBech32()}/utxos`,
     {
       headers: {
-        project_id: process.env.BLOCKFROST_PROJECT_ID,
+        project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
       },
     }
-  ).then((r) => r.json());
+  ).then(async (r) => await r.json());
 
   return utxos.flatMap((utxo) => {
     try {
@@ -26,7 +26,7 @@ export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
           helios.hexToBytes(utxo.inline_datum)
         ).list[1].bytes
       );
-      return text.bytes.length ? [text] : [];
+      return text.bytes.length > 0 ? [text] : [];
     } catch (_) {
       return [];
     }

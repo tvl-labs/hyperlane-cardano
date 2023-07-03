@@ -1,9 +1,9 @@
-import { LastFinalizedBlockResponseType } from '../types'
+import type { LastFinalizedBlockResponseType } from "../types";
 
-import { getLastFinalizedBlockNumber } from '../mock/mock'
+import { getLastFinalizedBlockNumber } from "../mock/mock";
 
 export class LastFinalizedBlockNumberService {
   async getLastFinalizedBlockNumber(): Promise<LastFinalizedBlockResponseType> {
-    return getLastFinalizedBlockNumber()
+    return getLastFinalizedBlockNumber();
   }
 }

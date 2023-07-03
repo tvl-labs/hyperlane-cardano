@@ -2,7 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH, BLOCKFROST_PREFIX } from "../wallet";
-import { AppParams } from "../../typing";
+import type { AppParams } from "../../typing";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
@@ -21,10 +21,10 @@ export async function getInboundMessages(
       }?page=${page}`,
       {
         headers: {
-          project_id: process.env.BLOCKFROST_PROJECT_ID,
+          project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
         },
       }
-    ).then((r) => r.json());
+    ).then(async (r) => await r.json());
 
     if (utxos.length === 0) break;
 

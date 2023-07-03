@@ -11,8 +11,8 @@ import createInboundMessage from "./src/offchain/tx/createInboundMessage";
 import createOutboundMessage from "./src/offchain/tx/createOutboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
-import { OutboxMessage } from "./src/offchain/outbox/outboxMessage";
-import { OutboxMessagePayload } from './src/offchain/outbox/outboxMessagePayload'
+import type { OutboxMessage } from "./src/offchain/outbox/outboxMessage";
+import { OutboxMessagePayload } from "./src/offchain/outbox/outboxMessagePayload";
 
 // TODO: Build several edge cases.
 
@@ -27,7 +27,9 @@ const addressMessage = helios.Address.fromValidatorHash(
 );
 
 const ownerPrivateKeys = [1, 2, 3].map((i) =>
-  Uint8Array.from(Buffer.from(process.env[`PRIVATE_KEY_OWNER_${i}`], "hex"))
+  Uint8Array.from(
+    Buffer.from(process.env[`PRIVATE_KEY_OWNER_${i}`] ?? "", "hex")
+  )
 );
 const appParams = {
   VK_OWNERS: ownerPrivateKeys.map(
@@ -67,7 +69,7 @@ const wallet = emulatedNetwork.createWallet(10_000_000n);
 
 const blockfrost = new helios.BlockfrostV0(
   "preview",
-  process.env.BLOCKFROST_PROJECT_ID
+  process.env.BLOCKFROST_PROJECT_ID ?? ""
 );
 
 // TODO: Give up after a certain number of tries
@@ -75,12 +77,12 @@ async function waitForConfirmation(txIdHex: string) {
   console.log("Waiting for confirmation...");
   const r = await fetch(`${BLOCKFROST_PREFIX}/txs/${txIdHex}`, {
     headers: {
-      project_id: process.env.BLOCKFROST_PROJECT_ID,
+      project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
     },
   });
   if (r.status === 404) {
     await new Promise((resolve) => setTimeout(resolve, 5000));
-    return waitForConfirmation(txIdHex);
+    await waitForConfirmation(txIdHex);
   }
 }
 
@@ -88,9 +90,9 @@ async function waitForConfirmation(txIdHex: string) {
 // Inbound
 //
 
-await emulatedNetwork.tick(1n);
+emulatedNetwork.tick(1n);
 // TODO: Better interface & names here...
-function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
+async function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
   const message = helios.textToBytes(inboundMsg);
   const messageHash = new Uint8Array(
     helios.Crypto.blake2b(
@@ -108,7 +110,7 @@ function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
         Array.from(secp256k1.ecdsaSign(messageHash, k).signature)
       )
   );
-  return createInboundMessage(
+  return await createInboundMessage(
     appParams,
     new helios.ByteArray(origin),
     new helios.ByteArray(originMailbox),
@@ -142,9 +144,9 @@ await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 // Outbound
 //
 
-await emulatedNetwork.tick(1n);
+emulatedNetwork.tick(1n);
 const emulatedUtxoOutbox = await createOutbox(wallet);
-await emulatedNetwork.tick(1n);
+emulatedNetwork.tick(1n);
 
 await createOutboundMessage(emulatedUtxoOutbox, outboxMessage, wallet);
 

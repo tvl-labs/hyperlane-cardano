@@ -2,12 +2,15 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreview from "../../../data/cardano-preview-params.json";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import { getWalletInfo } from "../wallet";
-import { deserializeOutboxDatum, serializeOutboxDatum } from '../outbox/outboxDatum'
+import {
+  deserializeOutboxDatum,
+  serializeOutboxDatum,
+} from "../outbox/outboxDatum";
 import {
   calculateMessageId,
-  OutboxMessage
-} from '../outbox/outboxMessage'
-import { serializeOutboxRedeemer } from '../outbox/outboxMessageSerialize'
+  type OutboxMessage,
+} from "../outbox/outboxMessage";
+import { serializeOutboxRedeemer } from "../outbox/outboxMessageSerialize";
 
 export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
@@ -17,7 +20,7 @@ export default async function createOutboundMessage(
 ): Promise<helios.TxId> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
-  const messageId = calculateMessageId(outboxMessage)
+  const messageId = calculateMessageId(outboxMessage);
   merkleTree.ingest(messageId);
 
   const tx = new helios.Tx();
@@ -29,10 +32,7 @@ export default async function createOutboundMessage(
     tx.addCollateral(utxos[i]);
   }
 
-  tx.addInput(
-    utxoOutbox,
-    serializeOutboxRedeemer(outboxMessage)
-  );
+  tx.addInput(utxoOutbox, serializeOutboxRedeemer(outboxMessage));
 
   const scriptOutbox = new ScriptOutbox().compile(true);
   tx.attachScript(scriptOutbox);
@@ -50,5 +50,7 @@ export default async function createOutboundMessage(
   await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
-  return blockfrost ? blockfrost.submitTx(tx) : relayerWallet.submitTx(tx);
+  return await (blockfrost != null
+    ? blockfrost.submitTx(tx)
+    : relayerWallet.submitTx(tx));
 }
