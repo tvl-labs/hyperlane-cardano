@@ -67,28 +67,38 @@ func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> B
   assert(redeemer.destination_domain.length == 4, "invalid destination_domain");
   assert(redeemer.recipient.length == 32, "invalid recipient");
 
-  outbox_address: Address = ctx.get_current_input().output.address;
+  current_output: TxOutput = ctx.get_current_input().output;
 
   // (1) Can consume only one outbox
   outbox_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
-    input.output.address == outbox_address
+    input.output.address == current_output.address
   });
   assert(outbox_inputs.length == 1, "Can only consume one outbox");
 
   // (2) Can produce only one outbox
   outbox_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
-    output.address == outbox_address
+    output.address == current_output.address
   });
   assert(outbox_outputs.length == 1, "Can only produce one outbox");
 
+  outbox_output: TxOutput = outbox_outputs.head;
+
+  // (3) Can only deposit more lovelace and not spend anything
+  // This is to protect (optonal) auth tokens that identify outboxes
+  assert(
+    outbox_output.value.get_assets() == current_output.value.get_assets() &&
+    outbox_output.value.get_lovelace() >= current_output.value.get_lovelace(),
+    "Invalid value -- can only deposit more lovelace"
+  );
+
   // TODO: Add value checks here?
   // Like prevent ADA withdrawals from outboxes.
-  next_datum: DatumOutbox = outbox_outputs.head.datum.switch {
+  next_datum: DatumOutbox = outbox_output.datum.switch {
     i: Inline => DatumOutbox::from_data(i.data),
     else => error("Invalid outbox output: missing inline datum")
   };
 
-  // (3) Progress the merkle tree correctly
+  // (4) Progress the merkle tree correctly
   message_id: ByteArray = (
     redeemer.version +
     redeemer.nonce +
