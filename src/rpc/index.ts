@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import * as OpenApiValidator from "express-openapi-validator";
 
 import express, { type Response } from "express";
