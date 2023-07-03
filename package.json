@@ -10,7 +10,7 @@
     "start-rpc": "npm run build && node dist/rpc.js",
     "jest": "jest",
     "lint": "npx eslint '**/*.{js,ts}'",
-    "format": "npx prettier '**/*.{js,ts}' --write"
+    "format": "npx prettier '**/*.{js,ts}' --check --write"
   },
   "dependencies": {
     "@hyperionbt/helios": "https://github.com/kreate-community/Helios#0be4f66189f0943ba802cd2a33cc6001b4a76ef3",
