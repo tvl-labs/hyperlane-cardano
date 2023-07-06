@@ -5,6 +5,7 @@ import { BLOCKFROST_PREFIX } from "../wallet";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
+// Note: This only gets the latest message of each outbox
 export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
   const addressOutbox = helios.Address.fromValidatorHash(
     new ScriptOutbox().compile(true).validatorHash

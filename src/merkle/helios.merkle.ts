@@ -32,12 +32,8 @@ export class HeliosMerkleTree {
   updateBranches(i: number, size: number, node: H256): H256[] {
     assert(i < TREE_DEPTH);
     if (size % 2 === 1) {
-      const newBranches = [
-        ...this.branches.slice(0, i),
-        node,
-        ...this.branches.slice(i + 1),
-      ];
-      assert(newBranches.length === TREE_DEPTH);
+      const newBranches = [...this.branches];
+      newBranches[i] = node;
       return newBranches;
     }
     return this.updateBranches(

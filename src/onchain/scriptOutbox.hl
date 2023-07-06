@@ -15,7 +15,7 @@ struct MerkleTree {
     if (size % 2 == 1) {
       self.branches.set(i, node)
     } else {
-      update_branches(i + 1, size / 2, (self.branches.get(i) + node).blake2b())
+      self.update_branches(i + 1, size / 2, (self.branches.get(i) + node).blake2b())
     }
   }
 
@@ -61,7 +61,10 @@ struct RedeemerOutbox {
 func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> Bool {
   // (0) Validate redeemer
   assert(redeemer.version.length == 1, "invalid version");
-  assert(redeemer.nonce.length == 4, "invalid nonce");
+  assert(
+    redeemer.nonce.length == 4 ||
+    Int::from_big_endian(redeemer.nonce) != datum.merkle_tree.count
+  , "invalid nonce");
   assert(redeemer.origin_domain.length == 4, "invalid origin_domain");
   assert(redeemer.sender.length == 32, "invalid sender");
   assert(redeemer.destination_domain.length == 4, "invalid destination_domain");

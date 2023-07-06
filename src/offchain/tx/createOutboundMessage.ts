@@ -17,7 +17,7 @@ export default async function createOutboundMessage(
   outboxMessage: OutboxMessage,
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
-): Promise<helios.TxId> {
+): Promise<helios.UTxO> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
   const messageId = calculateMessageId(outboxMessage);
@@ -47,10 +47,14 @@ export default async function createOutboundMessage(
     )
   );
 
+  // console.log(1, JSON.stringify(tx.dump(), null, 2));
+
   await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
-  return await (blockfrost != null
+  const txId = await (blockfrost != null
     ? blockfrost.submitTx(tx)
     : relayerWallet.submitTx(tx));
+
+  return new helios.UTxO(txId, 0n, tx.body.outputs[0]);
 }

@@ -32,8 +32,7 @@ export function serializeMerkleTree(
     new helios.ListData(
       merkleTree
         .getBranches()
-        .map((h) => new helios.ByteArray(h.toByteArray()))
-        .map((h) => h._toUplcData())
+        .map((h) => new helios.ByteArray(h.toByteArray())._toUplcData())
     ),
     new helios.IntData(BigInt(merkleTree.getCount())),
   ]);
