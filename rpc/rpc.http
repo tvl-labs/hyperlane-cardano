@@ -5,4 +5,15 @@ GET http://127.0.0.1:3000/api/indexer/lastFinalizedBlock
 GET http://127.0.0.1:3000/api/indexer/merkleTrees/7
 
 ### Messages
-GET http://127.0.0.1:3000/api/indexer/messages/1/9
+GET http://127.0.0.1:3000/api/indexer/messages/1/20
+
+### Dispatch new mock message
+POST http://127.0.0.1:3000/api/outbox/dispatch
+Content-Type: application/json
+
+{
+  "destinationDomain": 1,
+  "recipient": "0x0000000000000000000000000000000000000000000000000000000000000EF1",
+  "sender": "0x0000000000000000000000000000000000000000000000000000000000000CA1",
+  "body": "0xabcdef"
+}

@@ -131,3 +131,42 @@ paths:
                               type: string
                             body:
                               type: string
+  /api/outbox/dispatch:
+    post:
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sender
+                - destinationDomain
+                - recipient
+                - body
+              properties:
+                sender:
+                  type: string
+                destinationDomain:
+                  type: integer
+                recipient:
+                  type: string
+                body:
+                  type: string
+      responses:
+        '200':
+          description: "Message has been dispatched"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - messageId
+                properties:
+                  messageId:
+                    type: string
+        '400':
+          description: Bad Request. Invalid input.
+        '500':
+          description: Internal Server Error.

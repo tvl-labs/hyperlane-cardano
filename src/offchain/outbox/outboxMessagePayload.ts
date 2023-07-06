@@ -11,6 +11,10 @@ export class OutboxMessagePayload {
     return new OutboxMessagePayload(Buffer.from(string, "utf-8"));
   }
 
+  static fromHexString(hexString: string) {
+    return new OutboxMessagePayload(Buffer.from(hexString.substring(2), "hex"));
+  }
+
   sizeInBytes(): number {
     return this.bytes.length;
   }

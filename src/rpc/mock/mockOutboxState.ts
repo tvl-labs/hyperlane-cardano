@@ -4,9 +4,15 @@ import {
   calculateMessageId,
   type OutboxMessage,
 } from "../../offchain/outbox/outboxMessage";
-import { Address } from "../../offchain/address";
-import { OutboxMessagePayload } from "../../offchain/outbox/outboxMessagePayload";
 import type { H256 } from "../../merkle/h256";
+import { OutboxDispatchedMessage } from '../outbox/outboxDispatchedMessage';
+
+import { DOMAIN_CARDANO } from './cardanoDomain';
+
+export interface OutboxNextDispatchPayload {
+  blockNumber: number;
+  message: OutboxDispatchedMessage;
+}
 
 export interface OutboxMailboxState {
   blockNumber: number;
@@ -15,44 +21,28 @@ export interface OutboxMailboxState {
   merkleTree: HeliosMerkleTree;
 }
 
-const DOMAIN_CARDANO = 112233;
-const DOMAIN_ETHEREUM = 1;
-const SENDER = Address.fromHex(
-  "0x0000000000000000000000000000000000000000000000000000000000000CA1"
-);
-const RECIPIENT = Address.fromHex(
-  "0x0000000000000000000000000000000000000000000000000000000000000EF1"
-);
-
-export function* mockMailboxStates(
-  initialBlockNumber: number
-): Generator<OutboxMailboxState, OutboxMailboxState, number> {
+/**
+ * Mimic the state changes of the Outbox. Each `.next()` should provide the next message and corresponding block number.
+ * The very first .next() returns a null and should be ignored.
+ */
+export function* outboxStatesGenerator(): Generator<OutboxMailboxState, OutboxMailboxState, OutboxNextDispatchPayload> {
   const merkleTree = new HeliosMerkleTree(blake2bHasher);
-  const messageTemplate: OutboxMessage = {
-    version: 0,
-    nonce: 0,
-    originDomain: DOMAIN_CARDANO,
-    sender: SENDER,
-    destinationDomain: DOMAIN_ETHEREUM,
-    recipient: RECIPIENT,
-    message: OutboxMessagePayload.fromString("Message #0"),
-  };
-  let blockNumber: number = initialBlockNumber;
+  let dispatchPayload = yield (null as unknown as OutboxMailboxState);
   while (true) {
-    const message = {
-      ...messageTemplate,
+    const message: OutboxMessage = {
+      ...dispatchPayload.message,
+      version: 0,
       nonce: merkleTree.getCount(),
-      message: OutboxMessagePayload.fromString(
-        `Message #${merkleTree.getCount()}`
-      ),
+      originDomain: DOMAIN_CARDANO,
+      message: dispatchPayload.message.message
     };
     const messageId = calculateMessageId(message);
     merkleTree.ingest(messageId);
-    blockNumber = yield {
+    dispatchPayload = yield {
       message,
       messageId,
       merkleTree,
-      blockNumber,
+      blockNumber: dispatchPayload.blockNumber,
     };
   }
 }

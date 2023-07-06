@@ -3,6 +3,7 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
   "/api/indexer/lastFinalizedBlock": {
     /** Get the last finalized block */
@@ -16,6 +17,35 @@ export interface paths {
     /** Get messages from fromBlock to toBlock */
     get: operations["messagesByBlockRange"];
   };
+  "/api/outbox/dispatch": {
+    /** Send a message */
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            sender: string;
+            destinationDomain: number;
+            recipient: string;
+            body: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Message has been dispatched */
+        200: {
+          content: {
+            "application/json": {
+              messageId: string;
+            };
+          };
+        };
+        /** @description Bad Request. Invalid input. */
+        400: never;
+        /** @description Internal Server Error. */
+        500: never;
+      };
+    };
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -25,6 +55,7 @@ export type components = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
+
   /** Get the last finalized block */
   lastFinalizedBlock: {
     responses: {
@@ -54,11 +85,11 @@ export interface operations {
           "application/json": {
             /** @example 5 */
             blockNumber: number;
-            merkleTrees: {
-              /** @example 1 */
-              count: number;
-              branches: string[];
-            }[];
+            merkleTrees: ({
+                /** @example 1 */
+                count: number;
+                branches: (string)[];
+              })[];
           };
         };
       };
@@ -79,19 +110,19 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            messages: {
-              /** @example 3 */
-              block: number;
-              message: {
-                version: number;
-                nonce: number;
-                originDomain: number;
-                sender: string;
-                destinationDomain: number;
-                recipient: string;
-                body: string;
-              };
-            }[];
+            messages: ({
+                /** @example 3 */
+                block: number;
+                message: {
+                  version: number;
+                  nonce: number;
+                  originDomain: number;
+                  sender: string;
+                  destinationDomain: number;
+                  recipient: string;
+                  body: string;
+                };
+              })[];
           };
         };
       };
