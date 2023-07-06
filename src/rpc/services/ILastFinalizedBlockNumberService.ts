@@ -1,5 +1,5 @@
-import { LastFinalizedBlockResponseType } from '../types';
+import { type LastFinalizedBlockResponseType } from "../types";
 
 export interface ILastFinalizedBlockNumberService {
-  getLastFinalizedBlockNumber(): Promise<LastFinalizedBlockResponseType>;
+  getLastFinalizedBlockNumber: () => Promise<LastFinalizedBlockResponseType>;
 }

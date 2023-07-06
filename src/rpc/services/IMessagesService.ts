@@ -1,8 +1,8 @@
-import { MessagesByBlockRangeResponseType } from '../types';
+import { type MessagesByBlockRangeResponseType } from "../types";
 
 export interface IMessagesService {
-  getMessagesInBlockRange(
+  getMessagesInBlockRange: (
     fromBlock: number,
     toBlock: number
-  ): Promise<MessagesByBlockRangeResponseType>;
+  ) => Promise<MessagesByBlockRangeResponseType>;
 }

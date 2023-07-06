@@ -1,5 +1,5 @@
-import { OutboxMessage } from '../../offchain/outbox/outboxMessage';
-import { MessageResponseType } from '../types';
+import { type OutboxMessage } from "../../offchain/outbox/outboxMessage";
+import { type MessageResponseType } from "../types";
 
 export function convertMessageResponseType(
   outboxMessage: OutboxMessage

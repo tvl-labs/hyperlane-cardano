@@ -1,10 +1,14 @@
-import { MerkleTreesByBlockNumberResponseType } from '../../types';
-import { IMerkleTreeService } from '../../services/IMerkleTreeService';
-import { mockOutboxMailboxStates } from '../mock';
+import { type MerkleTreesByBlockNumberResponseType } from "../../types";
+import { type IMerkleTreeService } from "../../services/IMerkleTreeService";
+import { mockOutboxMailboxStates } from "../mock";
 
 export class MockMerkleTreeService implements IMerkleTreeService {
-  async getMerkleTreesAtBlockNumber(blockNumber: number): Promise<MerkleTreesByBlockNumberResponseType> {
-    let states = mockOutboxMailboxStates.filter((ms) => ms.blockNumber === blockNumber);
+  async getMerkleTreesAtBlockNumber(
+    blockNumber: number
+  ): Promise<MerkleTreesByBlockNumberResponseType> {
+    let states = mockOutboxMailboxStates.filter(
+      (ms) => ms.blockNumber === blockNumber
+    );
     if (states.length === 0) {
       const previousStates = mockOutboxMailboxStates.filter(
         (ms) => ms.blockNumber < blockNumber

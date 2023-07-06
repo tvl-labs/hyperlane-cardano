@@ -1,8 +1,7 @@
-import { MerkleTreesByBlockNumberResponseType } from '../types';
+import { type MerkleTreesByBlockNumberResponseType } from "../types";
 
 export interface IMerkleTreeService {
-  getMerkleTreesAtBlockNumber(
+  getMerkleTreesAtBlockNumber: (
     blockNumber: number
-  ): Promise<MerkleTreesByBlockNumberResponseType>;
+  ) => Promise<MerkleTreesByBlockNumberResponseType>;
 }
-
