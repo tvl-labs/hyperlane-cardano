@@ -27,7 +27,7 @@ export default async function createOutboundMessage(
 
   const { baseAddress, utxos } = await getWalletInfo(relayerWallet, blockfrost);
   tx.addInputs(utxos);
-  for (let i = 0; i < 3 && i < utxos.length; i++) {
+  for (let i = 0; i < utxos.length && tx.body.collateral.length < 3; i++) {
     if (!utxos[i].value.assets.isZero()) continue;
     tx.addCollateral(utxos[i]);
   }
