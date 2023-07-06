@@ -2,8 +2,9 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import type { MessagesByBlockRangeResponseType } from "../types";
+import { IMessagesService } from './IMessagesService';
 
-export class MessagesService {
+export class MessagesService implements IMessagesService {
   async getMessagesInBlockRange(
     fromBlock: number,
     toBlock: number

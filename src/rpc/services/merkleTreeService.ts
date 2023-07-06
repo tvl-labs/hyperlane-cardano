@@ -2,8 +2,9 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import type { MerkleTreesByBlockNumberResponseType } from "../types";
+import { IMerkleTreeService } from './IMerkleTreeService';
 
-export class MerkleTreeService {
+export class MerkleTreeService implements IMerkleTreeService {
   async getMerkleTreesAtBlockNumber(
     blockNumber: number
   ): Promise<MerkleTreesByBlockNumberResponseType> {
