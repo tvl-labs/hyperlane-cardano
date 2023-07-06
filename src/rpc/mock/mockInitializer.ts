@@ -4,12 +4,17 @@ import { dispatchNewMessage, updateLastFinalizedBlock } from "./mock";
 import { OutboxMessagePayload } from "../../offchain/outbox/outboxMessagePayload";
 import { configDotenv } from "dotenv";
 
-const DOMAIN_ETHEREUM = 1;
+const FUJI_DOMAIN = 43113;
+/**
+ * TestRecipient contract on Fuji: https://testnet.snowtrace.io/address/0xbde95643690F74d8cB8B972a8B281b004b9004E9#code
+ * https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/test/TestRecipient.sol
+ * This contract simply records the last sent message.
+ */
+const FUJI_RECIPIENT = Address.fromHex(
+  "0x000000000000000000000000bde95643690F74d8cB8B972a8B281b004b9004E9"
+);
 const SENDER = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000CA1"
-);
-const RECIPIENT = Address.fromHex(
-  "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
 
 configDotenv();
@@ -22,8 +27,8 @@ if (IS_MOCK_ENVIRONMENT) {
   updateLastFinalizedBlock(3);
   const messageTemplate = {
     sender: SENDER,
-    recipient: RECIPIENT,
-    destinationDomain: DOMAIN_ETHEREUM,
+    recipient: FUJI_RECIPIENT,
+    destinationDomain: FUJI_DOMAIN,
     message: OutboxMessagePayload.fromString("Message at block #3"),
   };
   dispatchNewMessage(messageTemplate);
