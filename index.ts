@@ -14,9 +14,6 @@ import { OutboxMessagePayload } from "./src/offchain/outbox/outboxMessagePayload
 
 // TODO: Build several edge cases.
 
-// This is close to random, depending on how stable the preprod network is.
-const BLOCKFROST_WAIT_TIME = 30000;
-
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
 // TODO: Stake on real networks
@@ -71,6 +68,9 @@ async function waitForConfirmation(txIdHex: string) {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     await waitForConfirmation(txIdHex);
   }
+
+  // Blockfrost needs time to sync even after the previous confirmation...
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 }
 
 //
@@ -125,9 +125,6 @@ if (inboundMessages[inboundMessages.length - 1] !== inboundMsg) {
   throw new Error("Inbound message not found");
 }
 
-// Blockfrost needs time to sync even after the previous confirmation...
-await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
-
 //
 // Outbound
 //
@@ -172,9 +169,6 @@ let preprodUtxoOutbox = await createOutbox("test-ci", wallet, blockfrost);
 console.log(`Create outbox at transaction ${preprodUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(preprodUtxoOutbox.txId.hex);
 
-// Blockfrost needs time to sync even after the previous confirmation...
-await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
-
 preprodUtxoOutbox = await createOutboundMsg(0, preprodUtxoOutbox, blockfrost);
 console.log(
   `Submitted first outbound message at transaction ${preprodUtxoOutbox.txId.hex}!`
@@ -186,9 +180,6 @@ console.log(
   `Submitted second outbound message at transaction ${preprodUtxoOutbox.txId.hex}!`
 );
 await waitForConfirmation(preprodUtxoOutbox.txId.hex);
-
-// Blockfrost needs time to sync even after the previous confirmation...
-await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
 // Note: Not all messages are "text".
 const outboundMessages = (await getOutboundMessages()).map((m) =>
