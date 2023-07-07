@@ -21,6 +21,11 @@ export async function getWalletInfo(
     ? blockfrost.getUtxos(baseAddress)
     : relayerWallet.utxos);
 
+  console.log(
+    baseAddress.toBech32(),
+    utxos.map((u) => [u.txId.hex, u.utxoIdx])
+  );
+
   return {
     baseAddress,
     utxos,

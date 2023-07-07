@@ -16,7 +16,7 @@ import { OutboxMessagePayload } from "./src/offchain/outbox/outboxMessagePayload
 // TODO: Build several edge cases.
 
 // This is close to random, depending on how stable the Preview network is.
-const BLOCKFROST_WAIT_TIME = 30000;
+const BLOCKFROST_WAIT_TIME = 35000;
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 

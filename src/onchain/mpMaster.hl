@@ -1,0 +1,8 @@
+minting master
+
+// Parameters
+const MASTER_PKH: PubKeyHash = PubKeyHash::new(#)
+
+func main(_, ctx: ScriptContext) -> Bool {
+  ctx.tx.is_signed_by(MASTER_PKH)
+}

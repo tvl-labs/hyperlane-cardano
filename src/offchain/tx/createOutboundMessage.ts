@@ -37,24 +37,22 @@ export default async function createOutboundMessage(
   const scriptOutbox = new ScriptOutbox().compile(true);
   tx.attachScript(scriptOutbox);
 
-  tx.addOutput(
-    new helios.TxOutput(
-      helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
-      new helios.Value(),
-      helios.Datum.inline(
-        serializeOutboxDatum(merkleTree, outboxMessage.message.toBuffer())
-      )
+  const outputOutbox = new helios.TxOutput(
+    helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
+    helios.Value.fromCbor(utxoOutbox.origOutput.value.toCbor()),
+    helios.Datum.inline(
+      serializeOutboxDatum(merkleTree, outboxMessage.message.toBuffer())
     )
   );
-
-  // console.log(1, JSON.stringify(tx.dump(), null, 2));
+  tx.addOutput(outputOutbox);
 
   await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
+
   const txId = await (blockfrost != null
     ? blockfrost.submitTx(tx)
     : relayerWallet.submitTx(tx));
 
-  return new helios.UTxO(txId, 0n, tx.body.outputs[0]);
+  return new helios.UTxO(txId, 0n, outputOutbox);
 }
