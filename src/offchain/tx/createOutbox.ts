@@ -9,6 +9,7 @@ import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
 
 export default async function createOutbox(
+  outboxId: string,
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
 ): Promise<helios.UTxO> {
@@ -24,7 +25,7 @@ export default async function createOutbox(
   tx.addSigner(baseAddress.pubKeyHash);
 
   const tokens: [number[], bigint][] = [
-    [helios.textToBytes("auth"), BigInt(1)],
+    [helios.textToBytes(outboxId), BigInt(1)],
   ];
   tx.mintTokens(
     mpMaster.mintingPolicyHash,

@@ -16,7 +16,9 @@ export class MerkleTreeService {
       const utxos: any = await fetch(
         `${
           process.env.BLOCKFROST_PREFIX ?? ""
-        }/addresses/${addressOutbox.toBech32()}/utxos?page=${page}&order=desc`,
+        }/addresses/${addressOutbox.toBech32()}/utxos/${
+          process.env.OUTBOX_AUTH_TOKEN ?? ""
+        }?page=${page}&order=desc`,
         {
           headers: {
             project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
@@ -42,6 +44,9 @@ export class MerkleTreeService {
           const merkleTree = helios.ListData.fromCbor(
             helios.hexToBytes(utxo.inline_datum)
           ).list[0];
+
+          // TODO: Support tx-chaining and return multiple
+          // Merkle trees in the same block if there are.
           return {
             blockNumber: block.height,
             merkleTrees: [

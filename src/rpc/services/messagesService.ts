@@ -14,12 +14,11 @@ export class MessagesService {
 
     const messages: any = [];
 
-    // TODO: Handle outbox identity
     for (let page = 1; true; page++) {
-      const utxos: any = await fetch(
+      const txs: any = await fetch(
         `${
           process.env.BLOCKFROST_PREFIX ?? ""
-        }/addresses/${addressOutbox.toBech32()}/utxos?page=${page}&order=desc`,
+        }/addresses/${addressOutbox.toBech32()}/transactions?from=${fromBlock}&to=${toBlock}&page=${page}`,
         {
           headers: {
             project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
@@ -27,13 +26,13 @@ export class MessagesService {
         }
       ).then(async (r) => await r.json());
 
-      if (utxos.length === 0) break;
+      if (txs.length === 0) break;
 
-      for (const utxo of utxos) {
-        const block: any = await fetch(
-          `${process.env.BLOCKFROST_PREFIX ?? ""}/blocks/${
-            utxo.block as string
-          }`,
+      for (const tx of txs) {
+        const txUTxOs: any = await fetch(
+          `${process.env.BLOCKFROST_PREFIX ?? ""}/txs/${
+            tx.tx_hash as string
+          }/utxos`,
           {
             headers: {
               project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
@@ -41,56 +40,59 @@ export class MessagesService {
           }
         ).then(async (r) => await r.json());
 
-        if (block.height < fromBlock) break;
+        const outbox = txUTxOs.outputs.find(
+          (o) =>
+            o.address === addressOutbox.toBech32() &&
+            o.amount.find((a) => a.unit === process.env.OUTBOX_AUTH_TOKEN)
+        );
+        if (outbox == null) continue;
 
-        if (block.height <= toBlock) {
-          const body = helios.bytesToHex(
-            helios.ListData.fromCbor(helios.hexToBytes(utxo.inline_datum))
-              .list[1].bytes
-          );
-          const txRedeemers: any = await fetch(
-            `${process.env.BLOCKFROST_PREFIX ?? ""}/txs/${
-              utxo.tx_hash as string
-            }/redeemers`,
-            {
-              headers: {
-                project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
-              },
-            }
-          ).then(async (r) => await r.json());
-          const redeemer: any = txRedeemers.find(
-            (r) =>
-              r.purpose === "spend" &&
-              r.script_hash === addressOutbox.validatorHash.hex
-          );
-          if (redeemer == null) continue;
-          const fullRedeemer: any = await fetch(
-            `${process.env.BLOCKFROST_PREFIX ?? ""}/scripts/datum/${
-              redeemer.redeemer_data_hash as string
-            }`,
-            {
-              headers: {
-                project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
-              },
-            }
-          ).then(async (r) => await r.json());
-          const redeemerValue = fullRedeemer.json_value.list;
-          messages.push({
-            block: block.height,
-            message: {
-              version: parseInt(redeemerValue[0].bytes, 16),
-              nonce: parseInt(redeemerValue[1].bytes, 16),
-              originDomain: parseInt(redeemerValue[2].bytes, 16),
-              sender: redeemerValue[3].bytes,
-              destinationDomain: parseInt(redeemerValue[4].bytes, 16),
-              recipient: redeemerValue[4].bytes,
-              body,
+        const body = helios.bytesToHex(
+          helios.ListData.fromCbor(helios.hexToBytes(outbox.inline_datum))
+            .list[1].bytes
+        );
+        const txRedeemers: any = await fetch(
+          `${process.env.BLOCKFROST_PREFIX ?? ""}/txs/${
+            tx.tx_hash as string
+          }/redeemers`,
+          {
+            headers: {
+              project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
             },
-          });
-        }
+          }
+        ).then(async (r) => await r.json());
+        const redeemer: any = txRedeemers.find(
+          (r) =>
+            r.purpose === "spend" &&
+            r.script_hash === addressOutbox.validatorHash.hex
+        );
+        if (redeemer == null) continue;
+        const fullRedeemer: any = await fetch(
+          `${process.env.BLOCKFROST_PREFIX ?? ""}/scripts/datum/${
+            redeemer.redeemer_data_hash as string
+          }`,
+          {
+            headers: {
+              project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
+            },
+          }
+        ).then(async (r) => await r.json());
+        const redeemerValue = fullRedeemer.json_value.list;
+        messages.push({
+          block: tx.block_height,
+          message: {
+            version: parseInt(redeemerValue[0].bytes, 16),
+            nonce: parseInt(redeemerValue[1].bytes, 16),
+            originDomain: parseInt(redeemerValue[2].bytes, 16),
+            sender: redeemerValue[3].bytes,
+            destinationDomain: parseInt(redeemerValue[4].bytes, 16),
+            recipient: redeemerValue[4].bytes,
+            body,
+          },
+        });
       }
     }
 
-    return { messages: messages.reverse() };
+    return { messages };
   }
 }

@@ -15,7 +15,7 @@ import { OutboxMessagePayload } from "./src/offchain/outbox/outboxMessagePayload
 // TODO: Build several edge cases.
 
 // This is close to random, depending on how stable the preprod network is.
-const BLOCKFROST_WAIT_TIME = 20000;
+const BLOCKFROST_WAIT_TIME = 30000;
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
@@ -160,7 +160,7 @@ async function createOutboundMsg(
 }
 
 emulatedNetwork.tick(1n);
-let emulatedUtxoOutbox = await createOutbox(wallet);
+let emulatedUtxoOutbox = await createOutbox("test-ci", wallet);
 emulatedNetwork.tick(1n);
 
 emulatedUtxoOutbox = await createOutboundMsg(0, emulatedUtxoOutbox);
@@ -168,7 +168,7 @@ emulatedNetwork.tick(1n);
 
 await createOutboundMsg(1, emulatedUtxoOutbox);
 
-let preprodUtxoOutbox = await createOutbox(wallet, blockfrost);
+let preprodUtxoOutbox = await createOutbox("test-ci", wallet, blockfrost);
 console.log(`Create outbox at transaction ${preprodUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(preprodUtxoOutbox.txId.hex);
 
