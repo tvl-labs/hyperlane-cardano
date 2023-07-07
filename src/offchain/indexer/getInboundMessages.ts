@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH, BLOCKFROST_PREFIX } from "../wallet";
+import { TOKEN_NAME_AUTH } from "../wallet";
 import type { AppParams } from "../../typing";
 
 // Note: we can provide another interface that takes in a
@@ -16,7 +16,9 @@ export async function getInboundMessages(
 
   for (let page = 1; true; page++) {
     const utxos: any = await fetch(
-      `${BLOCKFROST_PREFIX}/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
+      `${
+        process.env.BLOCKFROST_PREFIX ?? ""
+      }/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
         authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
       }?page=${page}`,
       {

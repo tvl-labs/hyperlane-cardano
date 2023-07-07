@@ -2,8 +2,6 @@ import * as helios from "@hyperionbt/helios";
 
 export const TOKEN_NAME_AUTH = helios.textToBytes("auth");
 
-export const BLOCKFROST_PREFIX = "https://cardano-preview.blockfrost.io/api/v0";
-
 export interface WalletInfo {
   baseAddress: helios.Address;
   utxos: helios.UTxO[];
@@ -20,11 +18,6 @@ export async function getWalletInfo(
   const utxos = await (blockfrost != null
     ? blockfrost.getUtxos(baseAddress)
     : relayerWallet.utxos);
-
-  console.log(
-    baseAddress.toBech32(),
-    utxos.map((u) => [u.txId.hex, u.utxoIdx])
-  );
 
   return {
     baseAddress,

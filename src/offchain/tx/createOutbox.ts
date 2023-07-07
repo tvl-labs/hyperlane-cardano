@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import MintingPolicyMaster from "../../onchain/mpMaster.hl";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
-import paramsPreview from "../../../data/cardano-preview-params.json";
+import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
 import { getWalletInfo } from "../wallet";
 import { blake2bHasher } from "../../merkle/hasher";
@@ -48,7 +48,7 @@ export default async function createOutbox(
     )
   );
 
-  await tx.finalize(new helios.NetworkParams(paramsPreview), baseAddress);
+  await tx.finalize(new helios.NetworkParams(paramsPreprod), baseAddress);
 
   tx.addSignatures(await relayerWallet.signTx(tx));
   const txId = await (blockfrost != null

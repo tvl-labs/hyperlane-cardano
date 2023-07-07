@@ -1,6 +1,7 @@
 # Hyperlane <> Cardano
 
 ## Set up
+
 ```sh
 yarn
 ```
@@ -11,15 +12,17 @@ yarn
 yarn test
 ```
 
-- `.env` provides test data to run the "integration" test on Cardano's preview
+- `.env` provides test data to run the "integration" test on Cardano's preprod
   network.
 
 ## RPC
+
 ```
 yarn start-rpc
 ```
 
 ## Overview
+
 See [design.md](docs%2Fdesign.md)
 
 ### Onchain

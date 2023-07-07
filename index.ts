@@ -3,7 +3,6 @@ import "dotenv/config";
 import fetch from "node-fetch";
 import secp256k1 from "secp256k1";
 
-import { BLOCKFROST_PREFIX } from "./src/offchain/wallet";
 import { Address } from "./src/offchain/address";
 import { getInboundMessages } from "./src/offchain/indexer/getInboundMessages";
 import { getOutboundMessages } from "./src/offchain/indexer/getOutboundMessages";
@@ -15,8 +14,8 @@ import { OutboxMessagePayload } from "./src/offchain/outbox/outboxMessagePayload
 
 // TODO: Build several edge cases.
 
-// This is close to random, depending on how stable the Preview network is.
-const BLOCKFROST_WAIT_TIME = 35000;
+// This is close to random, depending on how stable the preprod network is.
+const BLOCKFROST_WAIT_TIME = 20000;
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
@@ -53,18 +52,21 @@ const emulatedNetwork = new helios.NetworkEmulator(644);
 const wallet = emulatedNetwork.createWallet(10_000_000n);
 
 const blockfrost = new helios.BlockfrostV0(
-  "preview",
+  "preprod",
   process.env.BLOCKFROST_PROJECT_ID ?? ""
 );
 
 // TODO: Give up after a certain number of tries
 async function waitForConfirmation(txIdHex: string) {
   console.log("Waiting for confirmation...");
-  const r = await fetch(`${BLOCKFROST_PREFIX}/txs/${txIdHex}`, {
-    headers: {
-      project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
-    },
-  });
+  const r = await fetch(
+    `${process.env.BLOCKFROST_PREFIX ?? ""}/txs/${txIdHex}`,
+    {
+      headers: {
+        project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
+      },
+    }
+  );
   if (r.status === 404) {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     await waitForConfirmation(txIdHex);
@@ -166,24 +168,24 @@ emulatedNetwork.tick(1n);
 
 await createOutboundMsg(1, emulatedUtxoOutbox);
 
-let previewUtxoOutbox = await createOutbox(wallet, blockfrost);
-console.log(`Create outbox at transaction ${previewUtxoOutbox.txId.hex}!`);
-await waitForConfirmation(previewUtxoOutbox.txId.hex);
+let preprodUtxoOutbox = await createOutbox(wallet, blockfrost);
+console.log(`Create outbox at transaction ${preprodUtxoOutbox.txId.hex}!`);
+await waitForConfirmation(preprodUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
 await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));
 
-previewUtxoOutbox = await createOutboundMsg(0, previewUtxoOutbox, blockfrost);
+preprodUtxoOutbox = await createOutboundMsg(0, preprodUtxoOutbox, blockfrost);
 console.log(
-  `Submitted first outbound message at transaction ${previewUtxoOutbox.txId.hex}!`
+  `Submitted first outbound message at transaction ${preprodUtxoOutbox.txId.hex}!`
 );
-await waitForConfirmation(previewUtxoOutbox.txId.hex);
+await waitForConfirmation(preprodUtxoOutbox.txId.hex);
 
-previewUtxoOutbox = await createOutboundMsg(1, previewUtxoOutbox, blockfrost);
+preprodUtxoOutbox = await createOutboundMsg(1, preprodUtxoOutbox, blockfrost);
 console.log(
-  `Submitted second outbound message at transaction ${previewUtxoOutbox.txId.hex}!`
+  `Submitted second outbound message at transaction ${preprodUtxoOutbox.txId.hex}!`
 );
-await waitForConfirmation(previewUtxoOutbox.txId.hex);
+await waitForConfirmation(preprodUtxoOutbox.txId.hex);
 
 // Blockfrost needs time to sync even after the previous confirmation...
 await new Promise((resolve) => setTimeout(resolve, BLOCKFROST_WAIT_TIME));

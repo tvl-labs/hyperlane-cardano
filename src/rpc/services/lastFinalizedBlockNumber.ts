@@ -4,7 +4,7 @@ import type { LastFinalizedBlockResponseType } from "../types";
 export class LastFinalizedBlockNumberService {
   async getLastFinalizedBlockNumber(): Promise<LastFinalizedBlockResponseType> {
     const block: any = await fetch(
-      "https://cardano-preview.blockfrost.io/api/v0/blocks/latest",
+      "https://cardano-preprod.blockfrost.io/api/v0/blocks/latest",
       {
         headers: {
           project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
