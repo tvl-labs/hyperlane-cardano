@@ -1,5 +1,5 @@
 import * as helios from "@hyperionbt/helios";
-import MintingPolicyMaster from "../../onchain/mpMaster.hl";
+import MintingPolicyNFT from "../../onchain/mpNFT.hl";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
@@ -9,7 +9,6 @@ import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
 
 export default async function createOutbox(
-  outboxId: string,
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
 ): Promise<helios.UTxO> {
@@ -18,14 +17,14 @@ export default async function createOutbox(
   const { baseAddress, utxos } = await getWalletInfo(relayerWallet, blockfrost);
   tx.addInputs(utxos);
 
-  const mpMaster = new MintingPolicyMaster({
-    MASTER_PKH: baseAddress.pubKeyHash,
+  const mpMaster = new MintingPolicyNFT({
+    OUTPUT_ID: new helios.TxOutputId([utxos[0].txId, utxos[0].utxoIdx]),
   }).compile(true);
   tx.attachScript(mpMaster);
   tx.addSigner(baseAddress.pubKeyHash);
 
   const tokens: [number[], bigint][] = [
-    [helios.textToBytes(outboxId), BigInt(1)],
+    [helios.textToBytes("auth"), BigInt(1)],
   ];
   tx.mintTokens(
     mpMaster.mintingPolicyHash,

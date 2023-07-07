@@ -1,0 +1,16 @@
+minting master
+
+// Parameters
+const OUTPUT_ID: TxOutputId = TxOutputId::new(TxId::new(#), 0)
+
+func main(_, ctx: ScriptContext) -> Bool {
+  own_minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(
+    ctx.get_current_minting_policy_hash()
+  );
+
+  own_minted.length == 1 &&
+  own_minted.head_value == 1 &&
+  ctx.tx.inputs.any((input: TxInput) -> {
+    input.output_id == OUTPUT_ID
+  })
+}

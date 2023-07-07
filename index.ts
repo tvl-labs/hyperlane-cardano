@@ -157,7 +157,7 @@ async function createOutboundMsg(
 }
 
 emulatedNetwork.tick(1n);
-let emulatedUtxoOutbox = await createOutbox("test-ci", wallet);
+let emulatedUtxoOutbox = await createOutbox(wallet);
 emulatedNetwork.tick(1n);
 
 emulatedUtxoOutbox = await createOutboundMsg(0, emulatedUtxoOutbox);
@@ -165,7 +165,7 @@ emulatedNetwork.tick(1n);
 
 await createOutboundMsg(1, emulatedUtxoOutbox);
 
-let preprodUtxoOutbox = await createOutbox("test-ci", wallet, blockfrost);
+let preprodUtxoOutbox = await createOutbox(wallet, blockfrost);
 console.log(`Create outbox at transaction ${preprodUtxoOutbox.txId.hex}!`);
 await waitForConfirmation(preprodUtxoOutbox.txId.hex);
 
