@@ -1,7 +1,7 @@
 import { mockMailboxStates } from "./mockOutboxState";
 import type {
   LastFinalizedBlockResponseType,
-  MerkleTreesByBlockNumberResponseType,
+  MerkleTreeResponseType,
   MessageResponseType,
   MessagesByBlockRangeResponseType,
 } from "../types";
@@ -26,29 +26,14 @@ export function getLastFinalizedBlockNumber(): LastFinalizedBlockResponseType {
   };
 }
 
-export function getMerkleTreesAtBlockNumber(
-  blockNumber: number
-): MerkleTreesByBlockNumberResponseType {
-  let states = MOCK_STATES.filter((ms) => ms.blockNumber === blockNumber);
-  if (states.length === 0) {
-    const previousStates = MOCK_STATES.filter(
-      (ms) => ms.blockNumber < blockNumber
-    );
-    if (previousStates.length === 0) {
-      return {
-        blockNumber,
-        merkleTrees: [],
-      };
-    }
-    states = [previousStates[previousStates.length - 1]];
-  }
-  const merkleTrees = states.map((ms) => ({
-    count: ms.merkleTree.getCount(),
-    branches: ms.merkleTree.getBranches().map((h) => h.hex()),
-  }));
+export function getMerkleTree(): MerkleTreeResponseType {
+  const latestState = MOCK_STATES[MOCK_STATES.length - 1];
   return {
-    blockNumber,
-    merkleTrees,
+    blockNumber: latestState.blockNumber,
+    merkleTree: {
+      count: latestState.merkleTree.getCount(),
+      branches: latestState.merkleTree.getBranches().map((h) => h.hex()),
+    },
   };
 }
 

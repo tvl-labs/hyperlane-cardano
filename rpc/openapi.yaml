@@ -8,7 +8,7 @@ paths:
       summary: "Get the last finalized block"
       operationId: "lastFinalizedBlock"
       responses:
-        '200':
+        "200":
           description: "Successful operation"
           content:
             application/json:
@@ -18,25 +18,12 @@ paths:
                   lastFinalizedBlock:
                     type: integer
                     example: 10
-  /api/indexer/merkleTrees/{blockNumber}:
+  /api/indexer/merkleTree:
     get:
-      summary: "
-      Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block.
-      - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist.
-      - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message.
-      - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing.
-      "
-      operationId: "merkleTreesByBlockNumber"
-      parameters:
-        - name: "blockNumber"
-          in: "path"
-          required: true
-          description: "Block number to retrieve the MerkleTree"
-          schema:
-            type: integer
-            example: 5
+      summary: "Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)"
+      operationId: "merkleTree"
       responses:
-        '200':
+        "200":
           description: "Successful operation"
           content:
             application/json:
@@ -44,28 +31,26 @@ paths:
                 type: object
                 required:
                   - blockNumber
-                  - merkleTrees
+                  - merkleTree
                 properties:
                   blockNumber:
                     type: integer
                     example: 5
-                  merkleTrees:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - count
-                        - branches
-                      properties:
-                        count:
-                          type: integer
-                          example: 1
-                        branches:
-                          type: array
-                          minItems: 32
-                          maxItems: 32
-                          items:
-                            type: string
+                  merkleTree:
+                    type: object
+                    required:
+                      - count
+                      - branches
+                    properties:
+                      count:
+                        type: integer
+                        example: 1
+                      branches:
+                        type: array
+                        minItems: 32
+                        maxItems: 32
+                        items:
+                          type: string
   /api/indexer/messages/{fromBlock}/{toBlock}:
     get:
       summary: "Get messages from fromBlock to toBlock"
@@ -86,7 +71,7 @@ paths:
             type: integer
             example: 10
       responses:
-        '200':
+        "200":
           description: "Successful operation"
           content:
             application/json:

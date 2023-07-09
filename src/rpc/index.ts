@@ -8,7 +8,7 @@ import http from "http";
 import logger from "morgan";
 import type {
   LastFinalizedBlockResponseType,
-  MerkleTreesByBlockNumberResponseType,
+  MerkleTreeResponseType,
   MessagesByBlockRangeResponseType,
 } from "./types";
 import { LastFinalizedBlockNumberService } from "./services/lastFinalizedBlockNumber";
@@ -54,12 +54,9 @@ app.get(
 );
 
 app.get(
-  "/api/indexer/merkleTrees/:blockNumber",
-  async function (req, res: Response<MerkleTreesByBlockNumberResponseType>, _) {
-    const blockNumber = parseInt(req.params.blockNumber);
-    const response = await merkleTreeService.getMerkleTreesAtBlockNumber(
-      blockNumber
-    );
+  "/api/indexer/merkleTree",
+  async function (req, res: Response<MerkleTreeResponseType>, _) {
+    const response = await merkleTreeService.getMerkleTree();
     res.json(response);
   }
 );

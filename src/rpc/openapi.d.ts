@@ -8,9 +8,9 @@ export interface paths {
     /** Get the last finalized block */
     get: operations["lastFinalizedBlock"];
   };
-  "/api/indexer/merkleTrees/{blockNumber}": {
-    /** Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block. - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist. - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message. - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing. */
-    get: operations["merkleTreesByBlockNumber"];
+  "/api/indexer/merkleTree": {
+    /** Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO) */
+    get: operations["merkleTree"];
   };
   "/api/indexer/messages/{fromBlock}/{toBlock}": {
     /** Get messages from fromBlock to toBlock */
@@ -39,14 +39,8 @@ export interface operations {
       };
     };
   };
-  /** Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block. - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist. - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message. - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing. */
-  merkleTreesByBlockNumber: {
-    parameters: {
-      path: {
-        /** @description Block number to retrieve the MerkleTree */
-        blockNumber: number;
-      };
-    };
+  /** Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO) */
+  merkleTree: {
     responses: {
       /** @description Successful operation */
       200: {
@@ -54,11 +48,11 @@ export interface operations {
           "application/json": {
             /** @example 5 */
             blockNumber: number;
-            merkleTrees: {
+            merkleTree: {
               /** @example 1 */
               count: number;
               branches: string[];
-            }[];
+            };
           };
         };
       };
