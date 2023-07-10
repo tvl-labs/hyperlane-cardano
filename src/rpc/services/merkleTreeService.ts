@@ -2,10 +2,11 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import type { MerkleTreeResponseType } from "../types";
+import { type IMerkleTreeService } from "./IMerkleTreeService";
 
-export class MerkleTreeService {
+export class MerkleTreeService implements IMerkleTreeService {
   // TODO: Better error handling
-  async getMerkleTree(): Promise<MerkleTreeResponseType> {
+  async getLatestMerkleTree(): Promise<MerkleTreeResponseType> {
     const addressOutbox = helios.Address.fromValidatorHash(
       new ScriptOutbox().compile(true).validatorHash
     );

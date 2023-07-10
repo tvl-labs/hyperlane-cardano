@@ -1,7 +1,10 @@
 import fetch from "node-fetch";
 import type { LastFinalizedBlockResponseType } from "../types";
+import { type ILastFinalizedBlockNumberService } from "./ILastFinalizedBlockNumberService";
 
-export class LastFinalizedBlockNumberService {
+export class LastFinalizedBlockNumberService
+  implements ILastFinalizedBlockNumberService
+{
   async getLastFinalizedBlockNumber(): Promise<LastFinalizedBlockResponseType> {
     const block: any = await fetch(
       `${process.env.BLOCKFROST_PREFIX ?? ""}/blocks/latest`,
