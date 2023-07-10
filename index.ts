@@ -70,7 +70,7 @@ async function waitForConfirmation(txIdHex: string) {
   }
 
   // Blockfrost needs time to sync even after the previous confirmation...
-  await new Promise((resolve) => setTimeout(resolve, 15000));
+  await new Promise((resolve) => setTimeout(resolve, 25000));
 }
 
 //

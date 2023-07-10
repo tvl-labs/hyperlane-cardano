@@ -7,7 +7,6 @@ import {
   serializeOutboxDatum,
 } from "../outbox/outboxDatum";
 import { calculateMessageId, type Message } from "../message";
-import { serializeOutboxRedeemer } from "../messageSerialize";
 
 export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
@@ -29,7 +28,7 @@ export default async function createOutboundMessage(
     tx.addCollateral(utxos[i]);
   }
 
-  tx.addInput(utxoOutbox, serializeOutboxRedeemer(outboxMessage));
+  tx.addInput(utxoOutbox, new helios.ConstrData(0, []));
 
   const scriptOutbox = new ScriptOutbox().compile(true);
   tx.attachScript(scriptOutbox);
@@ -37,9 +36,7 @@ export default async function createOutboundMessage(
   const outputOutbox = new helios.TxOutput(
     helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
     helios.Value.fromCbor(utxoOutbox.origOutput.value.toCbor()),
-    helios.Datum.inline(
-      serializeOutboxDatum(merkleTree, outboxMessage.message.toBuffer())
-    )
+    helios.Datum.inline(serializeOutboxDatum(merkleTree, outboxMessage))
   );
   tx.addOutput(outputOutbox);
 

@@ -44,7 +44,7 @@ export default async function createOutbox(
         BigInt(0),
         new helios.Assets([[mpMaster.mintingPolicyHash, tokens]])
       ),
-      helios.Datum.inline(serializeOutboxDatum(merkleTree, Buffer.alloc(0)))
+      helios.Datum.inline(serializeOutboxDatum(merkleTree))
     )
   );
 

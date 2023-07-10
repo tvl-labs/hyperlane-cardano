@@ -4,6 +4,8 @@ spending outbox
 const TREE_DEPTH: Int = 32
 const MAX_LEAVES: Int = 4294967295 // 2 ^ TREE_DEPTH - 1
 
+import { Message } from "./message.hl"
+
 // Trying to stay close to the Hyperlane implementation.
 // https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Merkle.sol
 struct MerkleTree {
@@ -30,46 +32,12 @@ struct MerkleTree {
 
 struct DatumOutbox {
   merkle_tree: MerkleTree
-  latest_message: ByteArray
-}
-
-// Trying to stay close to the Hyperlane implementation.
-// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Message.sol#L33
-// "Int" is unbounded in Plutus so we use "ByteArray" to easier handle padding.
-// TODO: More specific types for addresses, etc.
-struct RedeemerOutbox {
-  // The version of the origin and destination Mailboxes
-  version: ByteArray
-  // A nonce to uniquely identify the message on its origin chain
-  nonce: ByteArray
-  // Domain of origin chain
-  // TODO: Do we hardcode or reference a UTxO instead of reading from redeemer?
-  origin_domain: ByteArray
-  // Address of sender as bytes32
-  // TODO: Do we read from the tx instead of reading from redeemer?
-  // It'd be quite weird not checking signatures of the sender.
-  sender: ByteArray
-  // Domain of destination chain
-  destination_domain: ByteArray
-  // Address of recipient on destination chain as bytes32
-  recipient: ByteArray
-  // NOTE: We put the message in the next datum and don't repeat it here to save bytes
+  latest_message: Option[Message]
 }
 
 // TODO: Authentic outboxes with clearer identities?
 // TODO: Allow progressing multiple outboxes in the same tx?
-func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> Bool {
-  // (0) Validate redeemer
-  assert(redeemer.version.length == 1, "invalid version");
-  assert(
-    redeemer.nonce.length == 4 ||
-    Int::from_big_endian(redeemer.nonce) != datum.merkle_tree.count
-  , "invalid nonce");
-  assert(redeemer.origin_domain.length == 4, "invalid origin_domain");
-  assert(redeemer.sender.length == 32, "invalid sender");
-  assert(redeemer.destination_domain.length == 4, "invalid destination_domain");
-  assert(redeemer.recipient.length == 32, "invalid recipient");
-
+func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
   current_output: TxOutput = ctx.get_current_input().output;
 
   // (1) Can consume only one outbox
@@ -96,20 +64,20 @@ func main(datum: DatumOutbox, redeemer: RedeemerOutbox, ctx: ScriptContext) -> B
 
   // TODO: Add value checks here?
   // Like prevent ADA withdrawals from outboxes.
+  // (4) Validate message
   next_datum: DatumOutbox = outbox_output.datum.switch {
     i: Inline => DatumOutbox::from_data(i.data),
     else => error("Invalid outbox output: missing inline datum")
   };
+  message: Message = next_datum.latest_message.unwrap();
+  assert(message.is_valid(), "Invalid message");
+  assert(
+    Int::from_big_endian(message.nonce) == datum.merkle_tree.count,
+    "Invalid nonce"
+  );
 
-  // (4) Progress the merkle tree correctly
-  message_id: ByteArray = (
-    redeemer.version +
-    redeemer.nonce +
-    redeemer.origin_domain +
-    redeemer.sender +
-    redeemer.destination_domain +
-    redeemer.recipient +
-    next_datum.latest_message
-  ).blake2b();
-  next_datum.merkle_tree == datum.merkle_tree.insert(message_id)
+  // (5) Progress the merkle tree correctly
+  next_datum.merkle_tree == datum.merkle_tree.insert(message.id())
+
+  // TODO: Validate message's sender & origin domain on-chain?
 }

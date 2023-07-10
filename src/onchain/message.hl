@@ -1,0 +1,42 @@
+module message
+
+// Following Hyperlane as tight as possible
+// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Message.sol
+// "Int" is unbounded in Plutus so we use "ByteArray" to easier handle padding.
+// TODO: More specific types for addresses, etc.
+struct Message {
+  // The version of the origin and destination Mailboxes
+  version: ByteArray
+  // A nonce to uniquely identify the message on its origin chain
+  nonce: ByteArray
+  // Domain of origin chain
+  origin_domain: ByteArray
+  // Address of sender as bytes32
+  sender: ByteArray
+  // Domain of destination chain
+  destination_domain: ByteArray
+  // Address of recipient on destination chain as bytes32
+  recipient: ByteArray
+  // Raw bytes of message body
+  message: ByteArray
+
+  func is_valid(self) -> Bool {
+    self.version.length == 1 &&
+    self.nonce.length == 4 &&
+    self.origin_domain.length == 4 &&
+    self.sender.length == 32 &&
+    self.destination_domain.length == 4 &&
+    self.recipient.length == 32
+  }
+
+  func id(self) -> ByteArray {
+    ( self.version +
+      self.nonce +
+      self.origin_domain +
+      self.sender +
+      self.destination_domain +
+      self.recipient +
+      self.message
+    ).blake2b()
+  }
+}

@@ -26,7 +26,7 @@ export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
       const text = new helios.ByteArray(
         helios.ListData.fromCbor(
           helios.hexToBytes(utxo.inline_datum)
-        ).list[1].bytes
+        ).list[1].fields[0].list[6].bytes
       );
       return text.bytes.length > 0 ? [text] : [];
     } catch (_) {
