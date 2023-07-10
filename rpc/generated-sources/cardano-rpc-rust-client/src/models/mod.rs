@@ -1,9 +1,9 @@
 pub mod last_finalized_block_200_response;
 pub use self::last_finalized_block_200_response::LastFinalizedBlock200Response;
-pub mod merkle_trees_by_block_number_200_response;
-pub use self::merkle_trees_by_block_number_200_response::MerkleTreesByBlockNumber200Response;
-pub mod merkle_trees_by_block_number_200_response_merkle_trees_inner;
-pub use self::merkle_trees_by_block_number_200_response_merkle_trees_inner::MerkleTreesByBlockNumber200ResponseMerkleTreesInner;
+pub mod merkle_tree_200_response;
+pub use self::merkle_tree_200_response::MerkleTree200Response;
+pub mod merkle_tree_200_response_merkle_tree;
+pub use self::merkle_tree_200_response_merkle_tree::MerkleTree200ResponseMerkleTree;
 pub mod messages_by_block_range_200_response;
 pub use self::messages_by_block_range_200_response::MessagesByBlockRange200Response;
 pub mod messages_by_block_range_200_response_messages_inner;

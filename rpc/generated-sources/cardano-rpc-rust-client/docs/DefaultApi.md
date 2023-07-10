@@ -5,7 +5,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**last_finalized_block**](DefaultApi.md#last_finalized_block) | **GET** /api/indexer/lastFinalizedBlock | Get the last finalized block
-[**merkle_trees_by_block_number**](DefaultApi.md#merkle_trees_by_block_number) | **GET** /api/indexer/merkleTrees/{blockNumber} |  Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block. - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist. - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message. - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing. 
+[**merkle_tree**](DefaultApi.md#merkle_tree) | **GET** /api/indexer/merkleTree | Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 [**messages_by_block_range**](DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock
 
 
@@ -35,21 +35,18 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 
-## merkle_trees_by_block_number
+## merkle_tree
 
-> crate::models::MerkleTreesByBlockNumber200Response merkle_trees_by_block_number(block_number)
- Retrieve the states of the MerkleTree corresponding to the specified 'blockNumber'. The behavior depends on the number and presence of dispatched messages within the block. - If there are no dispatched messages at 'blockNumber', the method returns the MerkleTree state following the most recent dispatched message from a previous block, or an empty MerkleTree if no prior messages exist. - If there's only a single dispatched message within 'blockNumber', the method returns the MerkleTree state after processing this message. - If 'blockNumber' contains multiple dispatched messages, the method returns the sequence of MerkleTree states corresponding to each dispatched message, in the order of their processing. 
+> crate::models::MerkleTree200Response merkle_tree()
+Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 
 ### Parameters
 
-
-Name | Type | Description  | Required | Notes
-------------- | ------------- | ------------- | ------------- | -------------
-**block_number** | **i32** | Block number to retrieve the MerkleTree | [required] |
+This endpoint does not need any parameter.
 
 ### Return type
 
-[**crate::models::MerkleTreesByBlockNumber200Response**](merkleTreesByBlockNumber_200_response.md)
+[**crate::models::MerkleTree200Response**](merkleTree_200_response.md)
 
 ### Authorization
 

@@ -22,10 +22,10 @@ pub enum LastFinalizedBlockError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`merkle_trees_by_block_number`]
+/// struct for typed errors of method [`merkle_tree`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum MerkleTreesByBlockNumberError {
+pub enum MerkleTreeError {
     UnknownValue(serde_json::Value),
 }
 
@@ -64,12 +64,12 @@ pub async fn last_finalized_block(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn merkle_trees_by_block_number(configuration: &configuration::Configuration, block_number: i32) -> Result<crate::models::MerkleTreesByBlockNumber200Response, Error<MerkleTreesByBlockNumberError>> {
+pub async fn merkle_tree(configuration: &configuration::Configuration, ) -> Result<crate::models::MerkleTree200Response, Error<MerkleTreeError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/indexer/merkleTrees/{blockNumber}", local_var_configuration.base_path, blockNumber=block_number);
+    let local_var_uri_str = format!("{}/api/indexer/merkleTree", local_var_configuration.base_path);
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
@@ -85,7 +85,7 @@ pub async fn merkle_trees_by_block_number(configuration: &configuration::Configu
     if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
         serde_json::from_str(&local_var_content).map_err(Error::from)
     } else {
-        let local_var_entity: Option<MerkleTreesByBlockNumberError> = serde_json::from_str(&local_var_content).ok();
+        let local_var_entity: Option<MerkleTreeError> = serde_json::from_str(&local_var_content).ok();
         let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
         Err(Error::ResponseError(local_var_error))
     }

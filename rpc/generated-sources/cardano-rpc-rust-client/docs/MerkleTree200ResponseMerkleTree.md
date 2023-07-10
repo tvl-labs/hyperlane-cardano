@@ -1,4 +1,4 @@
-# MerkleTreesByBlockNumber200ResponseMerkleTreesInner
+# MerkleTree200ResponseMerkleTree
 
 ## Properties
 

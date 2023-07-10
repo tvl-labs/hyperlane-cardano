@@ -17,36 +17,17 @@ paths:
           description: Successful operation
       summary: Get the last finalized block
       x-eov-operation-handler: controllers/DefaultController
-  /api/indexer/merkleTrees/{blockNumber}:
+  /api/indexer/merkleTree:
     get:
-      operationId: merkleTreesByBlockNumber
-      parameters:
-      - description: Block number to retrieve the MerkleTree
-        explode: false
-        in: path
-        name: blockNumber
-        required: true
-        schema:
-          example: 5
-          type: integer
-        style: simple
+      operationId: merkleTree
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/merkleTreesByBlockNumber_200_response'
+                $ref: '#/components/schemas/merkleTree_200_response'
           description: Successful operation
-      summary: " Retrieve the states of the MerkleTree corresponding to the specified\
-        \ 'blockNumber'. The behavior depends on the number and presence of dispatched\
-        \ messages within the block. - If there are no dispatched messages at 'blockNumber',\
-        \ the method returns the MerkleTree state following the most recent dispatched\
-        \ message from a previous block, or an empty MerkleTree if no prior messages\
-        \ exist. - If there's only a single dispatched message within 'blockNumber',\
-        \ the method returns the MerkleTree state after processing this message. -\
-        \ If 'blockNumber' contains multiple dispatched messages, the method returns\
-        \ the sequence of MerkleTree states corresponding to each dispatched message,\
-        \ in the order of their processing. "
+      summary: Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
       x-eov-operation-handler: controllers/DefaultController
   /api/indexer/messages/{fromBlock}/{toBlock}:
     get:
@@ -81,29 +62,6 @@ paths:
       x-eov-operation-handler: controllers/DefaultController
 components:
   schemas:
-    merkleTreesByBlockNumber_200_response_merkleTrees_inner:
-      example:
-        count: 1
-        branches:
-        - branches
-        - branches
-        - branches
-        - branches
-        - branches
-      properties:
-        count:
-          example: 1
-          type: integer
-        branches:
-          items:
-            type: string
-          maxItems: 32
-          minItems: 32
-          type: array
-      required:
-      - branches
-      - count
-      type: object
     messagesByBlockRange_200_response:
       example:
         messages:
@@ -154,36 +112,6 @@ components:
       - block
       - message
       type: object
-    merkleTreesByBlockNumber_200_response:
-      example:
-        blockNumber: 5
-        merkleTrees:
-        - count: 1
-          branches:
-          - branches
-          - branches
-          - branches
-          - branches
-          - branches
-        - count: 1
-          branches:
-          - branches
-          - branches
-          - branches
-          - branches
-          - branches
-      properties:
-        blockNumber:
-          example: 5
-          type: integer
-        merkleTrees:
-          items:
-            $ref: '#/components/schemas/merkleTreesByBlockNumber_200_response_merkleTrees_inner'
-          type: array
-      required:
-      - blockNumber
-      - merkleTrees
-      type: object
     messagesByBlockRange_200_response_messages_inner_message:
       example:
         destinationDomain: 5
@@ -224,4 +152,48 @@ components:
         lastFinalizedBlock:
           example: 10
           type: integer
+      type: object
+    merkleTree_200_response_merkleTree:
+      example:
+        count: 1
+        branches:
+        - branches
+        - branches
+        - branches
+        - branches
+        - branches
+      properties:
+        count:
+          example: 1
+          type: integer
+        branches:
+          items:
+            type: string
+          maxItems: 32
+          minItems: 32
+          type: array
+      required:
+      - branches
+      - count
+      type: object
+    merkleTree_200_response:
+      example:
+        merkleTree:
+          count: 1
+          branches:
+          - branches
+          - branches
+          - branches
+          - branches
+          - branches
+        blockNumber: 5
+      properties:
+        blockNumber:
+          example: 5
+          type: integer
+        merkleTree:
+          $ref: '#/components/schemas/merkleTree_200_response_merkleTree'
+      required:
+      - blockNumber
+      - merkleTree
       type: object
