@@ -10,7 +10,7 @@ import createInboundMessage from "./src/offchain/tx/createInboundMessage";
 import createOutboundMessage from "./src/offchain/tx/createOutboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
-import { OutboxMessagePayload } from "./src/offchain/outbox/outboxMessagePayload";
+import { MessagePayload } from "./src/offchain/messagePayload";
 
 // TODO: Build several edge cases.
 
@@ -70,7 +70,7 @@ async function waitForConfirmation(txIdHex: string) {
   }
 
   // Blockfrost needs time to sync even after the previous confirmation...
-  await new Promise((resolve) => setTimeout(resolve, 10000));
+  await new Promise((resolve) => setTimeout(resolve, 15000));
 }
 
 //
@@ -149,7 +149,7 @@ async function createOutboundMsg(
       recipient: Address.fromHex(
         "0x0000000000000000000000000000000000000000000000000000000000000EF1"
       ),
-      message: OutboxMessagePayload.fromString(lastOutboundMsg),
+      message: MessagePayload.fromString(lastOutboundMsg),
     },
     wallet,
     blockfrost

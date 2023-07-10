@@ -6,15 +6,12 @@ import {
   deserializeOutboxDatum,
   serializeOutboxDatum,
 } from "../outbox/outboxDatum";
-import {
-  calculateMessageId,
-  type OutboxMessage,
-} from "../outbox/outboxMessage";
-import { serializeOutboxRedeemer } from "../outbox/outboxMessageSerialize";
+import { calculateMessageId, type Message } from "../message";
+import { serializeOutboxRedeemer } from "../messageSerialize";
 
 export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
-  outboxMessage: OutboxMessage,
+  outboxMessage: Message,
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
 ): Promise<helios.UTxO> {

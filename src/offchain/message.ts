@@ -1,7 +1,10 @@
-import { blake2bHasher } from "../../merkle/hasher";
-import type { Address } from "../address";
+// Following Hyperlane as tight as possible
+// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Message.sol
+
+import { blake2bHasher } from "../merkle/hasher";
+import type { Address } from "./address";
 import { Buffer } from "buffer";
-import type { OutboxMessagePayload } from "./outboxMessagePayload";
+import type { MessagePayload } from "./messagePayload";
 
 const VERSION_SIZE = 1;
 const NONCE_SIZE = 4;
@@ -10,7 +13,7 @@ const SENDER_SIZE = 32;
 const DESTINATION_DOMAIN_SIZE = 4;
 const RECIPIENT_SIZE = 32;
 
-export interface OutboxMessage {
+export interface Message {
   /**
    * 1-byte version of the messaging protocol.
    */
@@ -38,10 +41,10 @@ export interface OutboxMessage {
   /**
    * Message payload, arbitrary size below ~1Kb.
    */
-  message: OutboxMessagePayload;
+  message: MessagePayload;
 }
 
-export function calculateMessageId(outboxMessage: OutboxMessage) {
+export function calculateMessageId(message: Message) {
   const buffer = Buffer.alloc(
     VERSION_SIZE +
       NONCE_SIZE +
@@ -49,21 +52,21 @@ export function calculateMessageId(outboxMessage: OutboxMessage) {
       SENDER_SIZE +
       DESTINATION_DOMAIN_SIZE +
       RECIPIENT_SIZE +
-      outboxMessage.message.sizeInBytes()
+      message.message.sizeInBytes()
   );
   let offset = 0;
-  buffer.writeUint8(outboxMessage.version, offset);
+  buffer.writeUint8(message.version, offset);
   offset += VERSION_SIZE;
-  buffer.writeUint32BE(outboxMessage.nonce, offset);
+  buffer.writeUint32BE(message.nonce, offset);
   offset += NONCE_SIZE;
-  buffer.writeUint32BE(outboxMessage.originDomain, offset);
+  buffer.writeUint32BE(message.originDomain, offset);
   offset += ORIGIN_DOMAIN_SIZE;
-  outboxMessage.sender.toBuffer().copy(buffer, offset);
+  message.sender.toBuffer().copy(buffer, offset);
   offset += SENDER_SIZE;
-  buffer.writeUint32BE(outboxMessage.destinationDomain, offset);
+  buffer.writeUint32BE(message.destinationDomain, offset);
   offset += DESTINATION_DOMAIN_SIZE;
-  outboxMessage.recipient.toBuffer().copy(buffer, offset);
+  message.recipient.toBuffer().copy(buffer, offset);
   offset += RECIPIENT_SIZE;
-  outboxMessage.message.toBuffer().copy(buffer, offset);
+  message.message.toBuffer().copy(buffer, offset);
   return blake2bHasher(buffer);
 }

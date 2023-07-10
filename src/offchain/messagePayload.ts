@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 
-export class OutboxMessagePayload {
+export class MessagePayload {
   private readonly bytes: Buffer;
 
   constructor(bytes: Buffer) {
@@ -8,7 +8,7 @@ export class OutboxMessagePayload {
   }
 
   static fromString(string: string) {
-    return new OutboxMessagePayload(Buffer.from(string, "utf-8"));
+    return new MessagePayload(Buffer.from(string, "utf-8"));
   }
 
   sizeInBytes(): number {

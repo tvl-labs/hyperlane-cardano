@@ -5,7 +5,7 @@ import type {
   MessageResponseType,
   MessagesByBlockRangeResponseType,
 } from "../types";
-import type { OutboxMessage } from "../../offchain/outbox/outboxMessage";
+import type { Message } from "../../offchain/message";
 
 export const LAST_FINALIZED_BLOCK_NUMBER = 10;
 
@@ -52,7 +52,7 @@ export function getMessagesInBlockRange(
 }
 
 function convertMessageResponseType(
-  outboxMessage: OutboxMessage
+  outboxMessage: Message
 ): MessageResponseType {
   return {
     version: outboxMessage.version,

@@ -1,16 +1,13 @@
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { blake2bHasher } from "../../merkle/hasher";
-import {
-  calculateMessageId,
-  type OutboxMessage,
-} from "../../offchain/outbox/outboxMessage";
+import { calculateMessageId, type Message } from "../../offchain/message";
 import { Address } from "../../offchain/address";
-import { OutboxMessagePayload } from "../../offchain/outbox/outboxMessagePayload";
+import { MessagePayload } from "../../offchain/messagePayload";
 import type { H256 } from "../../merkle/h256";
 
 export interface OutboxMailboxState {
   blockNumber: number;
-  message: OutboxMessage;
+  message: Message;
   messageId: H256;
   merkleTree: HeliosMerkleTree;
 }
@@ -28,23 +25,21 @@ export function* mockMailboxStates(
   initialBlockNumber: number
 ): Generator<OutboxMailboxState, OutboxMailboxState, number> {
   const merkleTree = new HeliosMerkleTree(blake2bHasher);
-  const messageTemplate: OutboxMessage = {
+  const messageTemplate: Message = {
     version: 0,
     nonce: 0,
     originDomain: DOMAIN_CARDANO,
     sender: SENDER,
     destinationDomain: DOMAIN_ETHEREUM,
     recipient: RECIPIENT,
-    message: OutboxMessagePayload.fromString("Message #0"),
+    message: MessagePayload.fromString("Message #0"),
   };
   let blockNumber: number = initialBlockNumber;
   while (true) {
     const message = {
       ...messageTemplate,
       nonce: merkleTree.getCount(),
-      message: OutboxMessagePayload.fromString(
-        `Message #${merkleTree.getCount()}`
-      ),
+      message: MessagePayload.fromString(`Message #${merkleTree.getCount()}`),
     };
     const messageId = calculateMessageId(message);
     merkleTree.ingest(messageId);
