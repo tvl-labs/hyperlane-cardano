@@ -1,7 +1,7 @@
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
 import * as helios from "@hyperionbt/helios";
-import { emulatedNetwork, wallet } from "../../index";
+import { emulatedNetwork, wallet } from "./index";
 import secp256k1 from "secp256k1";
 import ScriptLockForever from "../onchain/scriptLockForever.hl";
 import createInboundMessage from "../offchain/tx/createInboundMessage";

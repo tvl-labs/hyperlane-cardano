@@ -17,7 +17,7 @@ import {
   messagesService,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
-import "./mock/mockInitializer";
+import { mockPrefillState } from './mock/mockInitializer';
 
 const openapiSpec = path.resolve(__dirname, "..", "rpc", "openapi.yaml");
 
@@ -81,3 +81,7 @@ console.log(
   } environment`
 );
 http.createServer(app).listen(PORT);
+
+if (IS_MOCK_ENVIRONMENT) {
+  mockPrefillState();
+}

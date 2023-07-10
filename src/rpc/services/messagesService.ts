@@ -3,6 +3,10 @@ import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import type { MessagesByBlockRangeResponseType } from "../types";
 import { type IMessagesService } from "./IMessagesService";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../../offchain/indexer/blockfrost";
 
 export class MessagesService implements IMessagesService {
   async getMessagesInBlockRange(
@@ -17,12 +21,10 @@ export class MessagesService implements IMessagesService {
 
     for (let page = 1; true; page++) {
       const txs: any = await fetch(
-        `${
-          process.env.BLOCKFROST_PREFIX ?? ""
-        }/addresses/${addressOutbox.toBech32()}/transactions?from=${fromBlock}&to=${toBlock}&page=${page}`,
+        `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/transactions?from=${fromBlock}&to=${toBlock}&page=${page}`,
         {
           headers: {
-            project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
+            project_id: blockfrostProjectId,
           },
         }
       ).then(async (r) => await r.json());
@@ -32,12 +34,10 @@ export class MessagesService implements IMessagesService {
       for (const tx of txs) {
         try {
           const txUTxOs: any = await fetch(
-            `${process.env.BLOCKFROST_PREFIX ?? ""}/txs/${
-              tx.tx_hash as string
-            }/utxos`,
+            `${blockfrostPrefix}/txs/${tx.tx_hash as string}/utxos`,
             {
               headers: {
-                project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
+                project_id: blockfrostProjectId,
               },
             }
           ).then(async (r) => await r.json());

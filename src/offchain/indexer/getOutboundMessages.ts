@@ -1,6 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
+import { blockfrostPrefix, blockfrostProjectId } from './blockfrost';
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
@@ -12,11 +13,11 @@ export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
 
   const utxos: any = await fetch(
     `${
-      process.env.BLOCKFROST_PREFIX ?? ""
+      blockfrostPrefix
     }/addresses/${addressOutbox.toBech32()}/utxos`,
     {
       headers: {
-        project_id: process.env.BLOCKFROST_PROJECT_ID ?? "",
+        project_id: blockfrostProjectId,
       },
     }
   ).then(async (r) => await r.json());
