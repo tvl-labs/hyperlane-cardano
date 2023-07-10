@@ -8,7 +8,8 @@ import createOutboundMessage from '../offchain/tx/createOutboundMessage';
 import createOutbox from '../offchain/tx/createOutbox';
 import { waitForTxConfirmation } from '../offchain/waitForTxConfirmation';
 import { getOutboundMessages } from '../offchain/indexer/getOutboundMessages';
-import { blockfrost, emulatedNetwork, wallet } from '../../index';
+import { emulatedNetwork, wallet } from '../../index';
+import { blockfrost } from '../offchain/indexer/blockfrost';
 
 let lastOutboundMsg: Message = {
   version: 0,
