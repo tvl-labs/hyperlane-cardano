@@ -1,10 +1,10 @@
 spending outbox
 
+import { Message } from "./message.hl"
+
 // TODO: Move to its own module (merkleTree.hl)
 const TREE_DEPTH: Int = 32
 const MAX_LEAVES: Int = 4294967295 // 2 ^ TREE_DEPTH - 1
-
-import { Message } from "./message.hl"
 
 // Trying to stay close to the Hyperlane implementation.
 // https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Merkle.sol

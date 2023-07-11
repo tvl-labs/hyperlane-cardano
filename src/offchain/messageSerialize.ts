@@ -6,18 +6,13 @@ import {
 import type { Message } from "./message";
 
 export function serializeMessage(message: Message) {
-  return new helios.ConstrData(0, [
-    new helios.ListData([
-      convertNumberToHeliosByteArray(message.version, 1)._toUplcData(),
-      convertNumberToHeliosByteArray(message.nonce, 4)._toUplcData(),
-      convertNumberToHeliosByteArray(message.originDomain, 4)._toUplcData(),
-      bufferToHeliosByteArray(message.sender.toBuffer())._toUplcData(),
-      convertNumberToHeliosByteArray(
-        message.destinationDomain,
-        4
-      )._toUplcData(),
-      bufferToHeliosByteArray(message.recipient.toBuffer())._toUplcData(),
-      bufferToHeliosByteArray(message.message.toBuffer())._toUplcData(),
-    ]),
+  return new helios.ListData([
+    convertNumberToHeliosByteArray(message.version, 1)._toUplcData(),
+    convertNumberToHeliosByteArray(message.nonce, 4)._toUplcData(),
+    convertNumberToHeliosByteArray(message.originDomain, 4)._toUplcData(),
+    bufferToHeliosByteArray(message.sender.toBuffer())._toUplcData(),
+    convertNumberToHeliosByteArray(message.destinationDomain, 4)._toUplcData(),
+    bufferToHeliosByteArray(message.recipient.toBuffer())._toUplcData(),
+    bufferToHeliosByteArray(message.message.toBuffer())._toUplcData(),
   ]);
 }

@@ -10,6 +10,7 @@ import createInboundMessage from "./src/offchain/tx/createInboundMessage";
 import createOutboundMessage from "./src/offchain/tx/createOutboundMessage";
 import createOutbox from "./src/offchain/tx/createOutbox";
 import ScriptLockForever from "./src/onchain/scriptLockForever.hl";
+import { type Message, calculateMessageId } from "./src/offchain/message";
 import { MessagePayload } from "./src/offchain/messagePayload";
 
 // TODO: Build several edge cases.
@@ -34,19 +35,30 @@ const appParams = {
   ADDR_MESSAGE: addressMessage,
 };
 
-// Mock inbound message
+// Mock messages
+const DOMAIN_CARDANO = 112233;
+const DOMAIN_ETHEREUM = 1;
 const origin = Array(32).fill(0);
 const originMailbox = Array(32).fill(1);
 const checkpointRoot = Array(32).fill(2);
 const checkpointIndex = Array(32).fill(3);
 const inboundMsg = `[${Date.now()}] Inbound Message!`;
-
-// Mock outbound message
-const DOMAIN_CARDANO = 112233;
-const DOMAIN_ETHEREUM = 1;
+const inboundMessage: Message = {
+  version: 0,
+  nonce: 0,
+  originDomain: DOMAIN_ETHEREUM,
+  sender: Address.fromHex(
+    "0x0000000000000000000000000000000000000000000000000000000000000EF1"
+  ),
+  destinationDomain: DOMAIN_CARDANO,
+  recipient: Address.fromHex(
+    "0x0000000000000000000000000000000000000000000000000000000000000CA1"
+  ),
+  message: MessagePayload.fromString(inboundMsg),
+};
 
 const emulatedNetwork = new helios.NetworkEmulator(644);
-const wallet = emulatedNetwork.createWallet(10_000_000n);
+const wallet = emulatedNetwork.createWallet(100_000_000n);
 
 const blockfrost = new helios.BlockfrostV0(
   "preprod",
@@ -79,21 +91,20 @@ async function waitForConfirmation(txIdHex: string) {
 
 // TODO: Better interface & names here...
 async function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
-  const message = helios.textToBytes(inboundMsg);
-  const messageHash = new Uint8Array(
+  const checkpointHash = new Uint8Array(
     helios.Crypto.blake2b(
       helios.Crypto.blake2b(
         origin.concat(originMailbox).concat(LABEL_HYPERLANE)
       )
         .concat(checkpointRoot)
         .concat(checkpointIndex)
-        .concat(helios.Crypto.blake2b(message))
+        .concat(calculateMessageId(inboundMessage).toByteArray())
     )
   );
   const signatures = ownerPrivateKeys.map(
     (k) =>
       new helios.ByteArray(
-        Array.from(secp256k1.ecdsaSign(messageHash, k).signature)
+        Array.from(secp256k1.ecdsaSign(checkpointHash, k).signature)
       )
   );
   return await createInboundMessage(
@@ -102,7 +113,7 @@ async function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
     new helios.ByteArray(originMailbox),
     new helios.ByteArray(checkpointRoot),
     new helios.ByteArray(checkpointIndex),
-    new helios.ByteArray(message),
+    inboundMessage,
     signatures,
     wallet,
     blockfrost

@@ -10,7 +10,7 @@ export function serializeOutboxDatum(
 ) {
   const datum: any = [serializeMerkleTree(merkleTree)];
   if (outboxMessage != null) {
-    datum.push(serializeMessage(outboxMessage));
+    datum.push(new helios.ConstrData(0, [serializeMessage(outboxMessage)]));
   }
   return new helios.ListData(datum);
 }

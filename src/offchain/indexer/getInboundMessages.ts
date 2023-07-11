@@ -31,9 +31,17 @@ export async function getInboundMessages(
     if (utxos.length === 0) break;
 
     for (const utxo of utxos) {
-      messages.push(
-        helios.ByteArray.fromUplcCbor(helios.hexToBytes(utxo.inline_datum))
-      );
+      try {
+        messages.push(
+          new helios.ByteArray(
+            helios.ListData.fromCbor(
+              helios.hexToBytes(utxo.inline_datum)
+            ).list[6].bytes
+          )
+        );
+      } catch (e) {
+        console.warn(e);
+      }
     }
   }
 

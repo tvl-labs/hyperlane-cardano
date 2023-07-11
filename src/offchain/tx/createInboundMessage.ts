@@ -3,6 +3,8 @@ import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH, getWalletInfo } from "../wallet";
 import type { AppParams } from "../../typing";
+import type { Message } from "../message";
+import { serializeMessage } from "../messageSerialize";
 
 export default async function createInboundMessage(
   appParams: AppParams,
@@ -10,7 +12,7 @@ export default async function createInboundMessage(
   originMailbox: helios.ByteArray,
   checkpointRoot: helios.ByteArray,
   checkpointIndex: helios.ByteArray,
-  message: helios.ByteArray,
+  message: Message,
   signatures: helios.ByteArray[],
   relayerWallet: helios.Wallet,
   blockfrost?: helios.BlockfrostV0
@@ -30,7 +32,6 @@ export default async function createInboundMessage(
       originMailbox._toUplcData(),
       checkpointRoot._toUplcData(),
       checkpointIndex._toUplcData(),
-      message._toUplcData(),
       new helios.ListData(signatures.map((s) => s._toUplcData())),
     ])
   );
@@ -44,7 +45,7 @@ export default async function createInboundMessage(
           [ismMultiSig.mintingPolicyHash, [[TOKEN_NAME_AUTH, BigInt(1)]]],
         ])
       ),
-      helios.Datum.inline(message)
+      helios.Datum.inline(serializeMessage(message))
     )
   );
 

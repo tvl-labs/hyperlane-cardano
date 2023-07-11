@@ -1,5 +1,7 @@
 minting ism_multi_sig
 
+import { Message } from "./message.hl"
+
 // Constants
 const TOKEN_NAME_AUTH: ByteArray = #61757468 // auth
 const LABEL_HYPERLANE: ByteArray = #48595045524c414e45 // HYPERLANE
@@ -21,26 +23,19 @@ const ADDR_MESSAGE: Address = Address::new(
 )
 // End of Parameters
 
-// Datum
-struct DatumMessage {
-  // The inbound message
-  message: ByteArray
-}
-
 // Redeemer
+// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/CheckpointLib.sol
 // "Int" is unbounded in Plutus so we use "ByteArray" for "origin"
-// and "checkpointIndex" to easier handle padding.
+// and "checkpoint_index" to easier handle padding.
 struct RedeemerIsmMultiSig {
   // The origin domain of the checkpoint
   origin: ByteArray
   // The address of the origin mailbox
-  originMailbox: ByteArray
+  origin_mailbox: ByteArray
   // The root of the checkpoint
-  checkpointRoot: ByteArray
+  checkpoint_root: ByteArray
   // The index of the checkpoint
-  checkpointIndex: ByteArray
-  // The inbound message
-  message: ByteArray
+  checkpoint_index: ByteArray
   // The signatures signed on the hash
   signatures: []ByteArray
 }
@@ -51,9 +46,9 @@ struct RedeemerIsmMultiSig {
 func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
   // (0) Validate redeemers
   assert(redeemer.origin.length == 32, "invalid origin");
-  assert(redeemer.originMailbox.length == 32, "invalid originMailbox");
-  assert(redeemer.checkpointRoot.length == 32, "invalid checkpointRoot");
-  assert(redeemer.checkpointIndex.length == 32, "invalid checkpointIndex");
+  assert(redeemer.origin_mailbox.length == 32, "invalid origin_mailbox");
+  assert(redeemer.checkpoint_root.length == 32, "invalid checkpoint_root");
+  assert(redeemer.checkpoint_index.length == 32, "invalid checkpoint_index");
 
   // (1) Must mint only a single auth token.
   asset_class_auth_token: AssetClass = AssetClass::new(
@@ -72,22 +67,26 @@ func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
   output: TxOutput = authentic_outputs.head;
   assert(
     output.address == ADDR_MESSAGE &&
-    output.value.get_assets() == value_single_auth_token &&
-    output.datum == OutputDatum::new_inline(DatumMessage { redeemer.message }),
+    output.value.get_assets() == value_single_auth_token,
     "invalid output"
   );
 
+  message: Message = output.datum.switch {
+    i: Inline => Message::from_data(i.data),
+    else => error("Invalid message output: missing inline datum")
+  };
+
   // (3) The submitted message is signed by the required number of "owners".
   // NOTE: We can look up faster by adding the public key to each redeemer signature.
-  message_hash: ByteArray = (
-    (redeemer.origin + redeemer.originMailbox + LABEL_HYPERLANE).blake2b() +
-    redeemer.checkpointRoot +
-    redeemer.checkpointIndex +
-    redeemer.message.blake2b()
+  checkpoint_digest: ByteArray = (
+    (redeemer.origin + redeemer.origin_mailbox + LABEL_HYPERLANE).blake2b() +
+    redeemer.checkpoint_root +
+    redeemer.checkpoint_index +
+    message.id()
   ).blake2b();
   valid_signatures: []ByteArray = redeemer.signatures.filter((signature: ByteArray) -> {
     VK_OWNERS.any((vkey: ByteArray) -> {
-      vkey.verify_ecdsa_secp256k1_signature(message_hash, signature)
+      vkey.verify_ecdsa_secp256k1_signature(checkpoint_digest, signature)
     })
   });
   valid_signatures.length >= NUM_SIGNATURES_REQUIRED
