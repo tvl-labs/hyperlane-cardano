@@ -6,7 +6,7 @@
   "scripts": {
     "generate-openapi": "npx openapi-typescript rpc/openapi.yaml -o src/rpc/openapi.d.ts",
     "build": "npx webpack build",
-    "test-inbox-outbox": "npm run build && TEST_INBOX_OUTBOX=true node dist/testInboxOutbox.js",
+    "test-inbox-outbox": "npm run build && node dist/testInboxOutbox.js",
     "start-rpc": "npm run build && PORT=3000 MOCK_ENV=true node dist/rpc.js",
     "jest": "jest",
     "lint": "npx eslint '**/*.{js,ts}'",
