@@ -1,5 +1,5 @@
-import * as helios from '@hyperionbt/helios';
-import { Address } from '../offchain/address';
+import * as helios from "@hyperionbt/helios";
+import { Address } from "../offchain/address";
 
 export function getAddressOfWallet(_wallet: helios.Wallet): Address {
   // TODO: sender address must be derived from the wallet (param).

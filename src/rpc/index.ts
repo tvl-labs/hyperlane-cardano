@@ -17,7 +17,7 @@ import {
   messagesService,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
-import { mockPrefillState } from './mock/mockInitializer';
+import { mockPrefillState } from "./mock/mockInitializer";
 
 const openapiSpec = path.resolve(__dirname, "..", "rpc", "openapi.yaml");
 

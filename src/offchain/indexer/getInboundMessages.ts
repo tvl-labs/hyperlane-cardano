@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH } from "../wallet";
 import type { AppParams } from "../../typing";
-import { blockfrostPrefix, blockfrostProjectId } from './blockfrost';
+import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
@@ -17,9 +17,7 @@ export async function getInboundMessages(
 
   for (let page = 1; true; page++) {
     const utxos: any = await fetch(
-      `${
-        blockfrostPrefix
-      }/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
+      `${blockfrostPrefix}/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
         authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
       }?page=${page}`,
       {

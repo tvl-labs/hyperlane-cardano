@@ -3,7 +3,10 @@ import fetch from "node-fetch";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import type { MerkleTreeResponseType } from "../types";
 import { type IMerkleTreeService } from "./IMerkleTreeService";
-import { blockfrostPrefix, blockfrostProjectId } from '../../offchain/indexer/blockfrost';
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../../offchain/indexer/blockfrost";
 
 export class MerkleTreeService implements IMerkleTreeService {
   // TODO: Better error handling
@@ -14,9 +17,7 @@ export class MerkleTreeService implements IMerkleTreeService {
 
     // NOTE: We assume only a single UTxO exists for an NFT auth token
     const [utxo]: any = await fetch(
-      `${
-        blockfrostPrefix
-      }/addresses/${addressOutbox.toBech32()}/utxos/${
+      `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos/${
         process.env.OUTBOX_AUTH_TOKEN ?? ""
       }`,
       {

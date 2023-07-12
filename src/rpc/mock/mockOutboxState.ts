@@ -4,8 +4,8 @@ import { calculateMessageId, type Message } from "../../offchain/message";
 import type { H256 } from "../../merkle/h256";
 import { DOMAIN_CARDANO } from "./cardanoDomain";
 import { type DispatchedMessage } from "../outbox/dispatchedMessage";
-import { wallet } from '../../test';
-import { getAddressOfWallet } from '../wallet';
+import { wallet } from "../../test";
+import { getAddressOfWallet } from "../wallet";
 
 export interface OutboxNextDispatchPayload {
   blockNumber: number;
