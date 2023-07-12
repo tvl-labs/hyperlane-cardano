@@ -1,7 +1,8 @@
 import type * as helios from "@hyperionbt/helios";
 
 export interface AppParams {
-  VK_OWNERS: helios.ByteArray[];
-  NUM_SIGNATURES_REQUIRED: bigint;
-  ADDR_MESSAGE: helios.Address;
+  VALIDATOR_VKEYS: helios.ByteArray[];
+  VALIDATOR_STORAGE_LOCATIONS: helios.ByteArray[];
+  THRESHOLD: bigint;
+  RECIPIENT_ADDRESS: helios.Address;
 }

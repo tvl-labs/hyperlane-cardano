@@ -37,7 +37,7 @@ export default async function createInboundMessage(
 
   tx.addOutput(
     new helios.TxOutput(
-      appParams.ADDR_MESSAGE,
+      appParams.RECIPIENT_ADDRESS,
       new helios.Value(
         0n, // Let Helios calculate the min ADA!
         new helios.Assets([

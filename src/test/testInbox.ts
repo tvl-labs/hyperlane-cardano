@@ -46,11 +46,14 @@ const ownerPrivateKeys = [1, 2, 3].map((i) =>
   )
 );
 const appParams = {
-  VK_OWNERS: ownerPrivateKeys.map(
+  VALIDATOR_VKEYS: ownerPrivateKeys.map(
     (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
   ),
-  NUM_SIGNATURES_REQUIRED: 2n,
-  ADDR_MESSAGE: addressMessage,
+  VALIDATOR_STORAGE_LOCATIONS: ownerPrivateKeys.map(
+    (_, i) => new helios.ByteArray(helios.textToBytes(`mock/location/${i}`))
+  ),
+  THRESHOLD: 2n,
+  RECIPIENT_ADDRESS: addressMessage,
 };
 
 // TODO: Better interface & names here...

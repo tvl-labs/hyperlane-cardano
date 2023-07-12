@@ -17,7 +17,7 @@ export async function getInboundMessages(
 
   for (let page = 1; true; page++) {
     const utxos: any = await fetch(
-      `${blockfrostPrefix}/addresses/${appParams.ADDR_MESSAGE.toBech32()}/utxos/${
+      `${blockfrostPrefix}/addresses/${appParams.RECIPIENT_ADDRESS.toBech32()}/utxos/${
         authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
       }?page=${page}`,
       {
