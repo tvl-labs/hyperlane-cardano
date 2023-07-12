@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
-import { getWalletInfo } from "../wallet";
+import type { Wallet } from "../wallet";
 import {
   deserializeOutboxDatum,
   serializeOutboxDatum,
@@ -11,8 +11,7 @@ import { calculateMessageId, type Message } from "../message";
 export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
   outboxMessage: Message,
-  relayerWallet: helios.Wallet,
-  blockfrost?: helios.BlockfrostV0
+  wallet: Wallet
 ): Promise<helios.UTxO> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
@@ -21,7 +20,7 @@ export default async function createOutboundMessage(
 
   const tx = new helios.Tx();
 
-  const { baseAddress, utxos } = await getWalletInfo(relayerWallet, blockfrost);
+  const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
   for (let i = 0; i < utxos.length && tx.body.collateral.length < 3; i++) {
     if (!utxos[i].value.assets.isZero()) continue;
@@ -40,13 +39,11 @@ export default async function createOutboundMessage(
   );
   tx.addOutput(outputOutbox);
 
-  await tx.finalize(new helios.NetworkParams(paramsPreprod), baseAddress);
+  await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
-  tx.addSignatures(await relayerWallet.signTx(tx));
+  tx.addSignatures(await wallet.signTx(tx));
 
-  const txId = await (blockfrost != null
-    ? blockfrost.submitTx(tx)
-    : relayerWallet.submitTx(tx));
+  const txId = await wallet.submitTx(tx);
 
   return new helios.UTxO(txId, 0n, outputOutbox);
 }

@@ -19,10 +19,7 @@ const SENDER = Address.fromHex(
 
 configDotenv();
 
-/**
- * Just some initial messages data.
- */
-if (IS_MOCK_ENVIRONMENT) {
+export function mockPrefillState() {
   console.log("Prefilling mock state");
   updateLastFinalizedBlock(3);
   const messageTemplate = {

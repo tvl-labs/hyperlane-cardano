@@ -4,8 +4,9 @@ module.exports = {
   target: 'node',
   mode: "development",
   entry: {
-    test: "./index.ts",
-    rpc: './src/rpc/index.ts'
+    testInboxOutbox: "./src/test/index.ts",
+    rpc: './src/rpc/index.ts',
+    dispatchMessage: './src/cli/dispatchMessage.ts'
   },
   output: {
     filename: "[name].js",
