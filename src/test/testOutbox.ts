@@ -1,15 +1,15 @@
-import { type Message } from '../offchain/message';
-import { DOMAIN_CARDANO } from '../rpc/mock/cardanoDomain';
-import { Address } from '../offchain/address';
-import { FUJI_DOMAIN } from '../rpc/mock/mockInitializer';
-import { MessagePayload } from '../offchain/messagePayload';
-import * as helios from '@hyperionbt/helios';
-import createOutboundMessage from '../offchain/tx/createOutboundMessage';
-import createOutbox from '../offchain/tx/createOutbox';
-import { waitForTxConfirmation } from '../offchain/waitForTxConfirmation';
-import { getOutboundMessages } from '../offchain/indexer/getOutboundMessages';
-import { emulatedNetwork, wallet } from '../../index';
-import { blockfrost } from '../offchain/indexer/blockfrost';
+import { type Message } from "../offchain/message";
+import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
+import { Address } from "../offchain/address";
+import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
+import { MessagePayload } from "../offchain/messagePayload";
+import * as helios from "@hyperionbt/helios";
+import createOutboundMessage from "../offchain/tx/createOutboundMessage";
+import createOutbox from "../offchain/tx/createOutbox";
+import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
+import { emulatedNetwork, wallet } from "../../index";
+import { blockfrost } from "../offchain/indexer/blockfrost";
 
 let lastOutboundMsg: Message = {
   version: 0,
@@ -27,18 +27,19 @@ let lastOutboundMsg: Message = {
 
 async function createOutboundMsg(
   nonce: number,
-  utxoOutbox: helios.UTxO
+  utxoOutbox: helios.UTxO,
+  isEmulated: boolean = false
 ): Promise<helios.UTxO> {
   lastOutboundMsg = {
     ...lastOutboundMsg,
     nonce,
-    message: MessagePayload.fromString(`[${Date.now()}] Outbound message!`)
-  }
+    message: MessagePayload.fromString(`[${Date.now()}] Outbound message!`),
+  };
   return await createOutboundMessage(
     utxoOutbox,
     lastOutboundMsg,
     wallet,
-    blockfrost
+    isEmulated ? undefined : blockfrost
   );
 }
 
@@ -47,10 +48,10 @@ export async function testOutboxOnEmulatedNetwork() {
   let emulatedUtxoOutbox = await createOutbox(wallet);
   emulatedNetwork.tick(1n);
 
-  emulatedUtxoOutbox = await createOutboundMsg(0, emulatedUtxoOutbox);
+  emulatedUtxoOutbox = await createOutboundMsg(0, emulatedUtxoOutbox, true);
   emulatedNetwork.tick(1n);
 
-  await createOutboundMsg(1, emulatedUtxoOutbox);
+  return await createOutboundMsg(1, emulatedUtxoOutbox, true);
 }
 
 export async function testOutboxOnPreprodNetwork() {
@@ -75,7 +76,10 @@ export async function testOutboxOnPreprodNetwork() {
     helios.bytesToText(m.bytes)
   );
   console.log("(Latest) Outbound Messages:", outboundMessages);
-  if (outboundMessages[outboundMessages.length - 1] !== helios.bytesToText([...lastOutboundMsg.message.toBuffer()])) {
+  if (
+    outboundMessages[outboundMessages.length - 1] !==
+    helios.bytesToText([...lastOutboundMsg.message.toBuffer()])
+  ) {
     throw new Error("Outbound message not found");
   }
 }

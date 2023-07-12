@@ -1,4 +1,4 @@
-import * as helios from '@hyperionbt/helios';
+import * as helios from "@hyperionbt/helios";
 
 export const blockfrost = new helios.BlockfrostV0(
   "preprod",
