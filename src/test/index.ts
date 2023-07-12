@@ -1,5 +1,6 @@
 import "dotenv/config";
 import * as helios from "@hyperionbt/helios";
+import { Wallet } from "../offchain/wallet";
 import {
   testInboxOnEmulatedNetwork,
   testInboxOnPreprodNetwork,
@@ -10,7 +11,13 @@ import {
 } from "./testOutbox";
 
 export const emulatedNetwork = new helios.NetworkEmulator(644);
-export const wallet = emulatedNetwork.createWallet(100_000_000n);
+export const emulatedWallet = Wallet.fromEmulatedWallet(
+  emulatedNetwork.createWallet(100_000_000n)
+);
+export const preprodWallet = new Wallet(
+  new helios.Address(process.env.WALLET_ADDRESS ?? ""),
+  new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
+);
 
 await testInboxOnEmulatedNetwork();
 await testInboxOnPreprodNetwork();

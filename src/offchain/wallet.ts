@@ -1,26 +1,48 @@
 import * as helios from "@hyperionbt/helios";
+import { blockfrost } from "../offchain/indexer/blockfrost";
 
+// TODO: Move this elsewhere
 export const TOKEN_NAME_AUTH = helios.textToBytes("auth");
 
-export interface WalletInfo {
-  baseAddress: helios.Address;
-  utxos: helios.UTxO[];
-}
+export class Wallet {
+  readonly address: helios.Address;
+  readonly privateKey: helios.PrivateKey;
+  readonly emulatedWallet?: helios.Wallet;
 
-export async function getWalletInfo(
-  relayerWallet: helios.Wallet,
-  blockfrost?: helios.BlockfrostV0
-): Promise<WalletInfo> {
-  const baseAddress =
-    (await relayerWallet.usedAddresses)[0] ??
-    (await relayerWallet.unusedAddresses)[0];
+  constructor(
+    address: helios.Address,
+    privateKey: helios.PrivateKey,
+    emulatedWallet?: helios.Wallet
+  ) {
+    this.address = address;
+    this.privateKey = privateKey;
+    this.emulatedWallet = emulatedWallet;
+  }
 
-  const utxos = await (blockfrost != null
-    ? blockfrost.getUtxos(baseAddress)
-    : relayerWallet.utxos);
+  static fromEmulatedWallet(emulatedWallet: helios.WalletEmulator): Wallet {
+    return new Wallet(
+      emulatedWallet.address,
+      emulatedWallet.privateKey,
+      emulatedWallet
+    );
+  }
 
-  return {
-    baseAddress,
-    utxos,
-  };
+  async getUtxos(): Promise<helios.UTxO[]> {
+    return await (this.emulatedWallet != null
+      ? this.emulatedWallet.utxos
+      : blockfrost.getUtxos(this.address));
+  }
+
+  async signTx(tx: helios.Tx): Promise<helios.Signature[]> {
+    if (this.emulatedWallet != null) {
+      return await this.emulatedWallet.signTx(tx);
+    }
+    return [this.privateKey.sign(tx.bodyHash)];
+  }
+
+  async submitTx(tx: helios.Tx): Promise<helios.TxId> {
+    return await (this.emulatedWallet != null
+      ? this.emulatedWallet.submitTx(tx)
+      : blockfrost.submitTx(tx));
+  }
 }

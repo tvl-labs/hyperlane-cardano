@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH, getWalletInfo } from "../wallet";
+import { TOKEN_NAME_AUTH, type Wallet } from "../wallet";
 import type { AppParams } from "../../typing";
 import type { Message } from "../message";
 import { serializeMessage } from "../messageSerialize";
@@ -14,12 +14,11 @@ export default async function createInboundMessage(
   checkpointIndex: helios.ByteArray,
   message: Message,
   signatures: helios.ByteArray[],
-  relayerWallet: helios.Wallet,
-  blockfrost?: helios.BlockfrostV0
+  wallet: Wallet
 ): Promise<helios.TxId> {
   const tx = new helios.Tx();
 
-  const { baseAddress, utxos } = await getWalletInfo(relayerWallet, blockfrost);
+  const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
   const ismMultiSig = new MintingPolicyIsmMultiSig(appParams).compile(true);
@@ -49,10 +48,8 @@ export default async function createInboundMessage(
     )
   );
 
-  await tx.finalize(new helios.NetworkParams(paramsPreprod), baseAddress);
+  await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
-  tx.addSignatures(await relayerWallet.signTx(tx));
-  return await (blockfrost != null
-    ? blockfrost.submitTx(tx)
-    : relayerWallet.submitTx(tx));
+  tx.addSignatures(await wallet.signTx(tx));
+  return await wallet.submitTx(tx);
 }

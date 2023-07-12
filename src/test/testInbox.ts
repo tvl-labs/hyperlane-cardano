@@ -1,11 +1,10 @@
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
 import * as helios from "@hyperionbt/helios";
-import { emulatedNetwork, wallet } from "./index";
+import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import secp256k1 from "secp256k1";
 import ScriptLockForever from "../onchain/scriptLockForever.hl";
 import createInboundMessage from "../offchain/tx/createInboundMessage";
-import { blockfrost } from "../offchain/indexer/blockfrost";
 import { Address } from "../offchain/address";
 import { type Message, calculateMessageId } from "../offchain/message";
 import { MessagePayload } from "../offchain/messagePayload";
@@ -55,7 +54,7 @@ const appParams = {
 };
 
 // TODO: Better interface & names here...
-async function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
+async function createInboundMsg(isEmulated: boolean = false) {
   const checkpointHash = new Uint8Array(
     helios.Crypto.blake2b(
       helios.Crypto.blake2b(
@@ -80,19 +79,18 @@ async function createInboundMsg(blockfrost?: helios.BlockfrostV0) {
     new helios.ByteArray(checkpointIndex),
     inboundMessage,
     signatures,
-    wallet,
-    blockfrost
+    isEmulated ? emulatedWallet : preprodWallet
   );
 }
 
 export async function testInboxOnEmulatedNetwork() {
   emulatedNetwork.tick(1n);
-  await createInboundMsg();
+  await createInboundMsg(true);
 }
 
 export async function testInboxOnPreprodNetwork() {
-  const txIdInbound = await createInboundMsg(blockfrost);
-  console.log(`Submitted inbound message at transaction ${txIdInbound.hex}!`);
+  const txIdInbound = await createInboundMsg();
+  console.log(`Submitted inbound message at tx ${txIdInbound.hex}!`);
   await waitForTxConfirmation(txIdInbound.hex);
 
   // Note: Not all messages are "text".

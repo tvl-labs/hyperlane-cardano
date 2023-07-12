@@ -3,25 +3,24 @@ import MintingPolicyNFT from "../../onchain/mpNFT.hl";
 import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
-import { getWalletInfo } from "../wallet";
+import { type Wallet } from "../wallet";
 import { blake2bHasher } from "../../merkle/hasher";
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
 
 export default async function createOutbox(
-  relayerWallet: helios.Wallet,
-  blockfrost?: helios.BlockfrostV0
+  wallet: Wallet
 ): Promise<helios.UTxO> {
   const tx = new helios.Tx();
 
-  const { baseAddress, utxos } = await getWalletInfo(relayerWallet, blockfrost);
+  const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
   const mpMaster = new MintingPolicyNFT({
     OUTPUT_ID: new helios.TxOutputId([utxos[0].txId, utxos[0].utxoIdx]),
   }).compile(true);
   tx.attachScript(mpMaster);
-  tx.addSigner(baseAddress.pubKeyHash);
+  tx.addSigner(wallet.address.pubKeyHash);
 
   const tokens: [number[], bigint][] = [
     [helios.textToBytes("auth"), BigInt(1)],
@@ -48,12 +47,10 @@ export default async function createOutbox(
     )
   );
 
-  await tx.finalize(new helios.NetworkParams(paramsPreprod), baseAddress);
+  await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
-  tx.addSignatures(await relayerWallet.signTx(tx));
-  const txId = await (blockfrost != null
-    ? blockfrost.submitTx(tx)
-    : relayerWallet.submitTx(tx));
+  tx.addSignatures(await wallet.signTx(tx));
+  const txId = await wallet.submitTx(tx);
 
   return new helios.UTxO(txId, 0n, tx.body.outputs[0]);
 }

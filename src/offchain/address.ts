@@ -2,7 +2,8 @@ import { Buffer } from "buffer";
 import assert from "assert";
 
 /**
- * 32-byte address (Cardano or Ethereum).
+ * 32-byte address for Ethereum.
+ * The 29-byte address on Cardano is left-padded with 3 0s.
  */
 export class Address {
   private readonly bytes: Buffer;

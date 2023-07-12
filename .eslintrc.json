@@ -12,6 +12,7 @@
   "rules": {
     // Should gradually turn on several (non-style) actually
     "generator-star-spacing": "off",
+    "@typescript-eslint/indent": "off",
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/comma-dangle": "off",

@@ -8,8 +8,7 @@ import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import createOutbox from "../offchain/tx/createOutbox";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
-import { emulatedNetwork, wallet } from "./index";
-import { blockfrost } from "../offchain/indexer/blockfrost";
+import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 
 let lastOutboundMsg: Message = {
   version: 0,
@@ -38,14 +37,13 @@ async function createOutboundMsg(
   return await createOutboundMessage(
     utxoOutbox,
     lastOutboundMsg,
-    wallet,
-    isEmulated ? undefined : blockfrost
+    isEmulated ? emulatedWallet : preprodWallet
   );
 }
 
 export async function testOutboxOnEmulatedNetwork() {
   emulatedNetwork.tick(1n);
-  let emulatedUtxoOutbox = await createOutbox(wallet);
+  let emulatedUtxoOutbox = await createOutbox(emulatedWallet);
   emulatedNetwork.tick(1n);
 
   emulatedUtxoOutbox = await createOutboundMsg(0, emulatedUtxoOutbox, true);
@@ -55,19 +53,19 @@ export async function testOutboxOnEmulatedNetwork() {
 }
 
 export async function testOutboxOnPreprodNetwork() {
-  let preprodUtxoOutbox = await createOutbox(wallet, blockfrost);
-  console.log(`Create outbox at transaction ${preprodUtxoOutbox.txId.hex}!`);
+  let preprodUtxoOutbox = await createOutbox(preprodWallet);
+  console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
   preprodUtxoOutbox = await createOutboundMsg(0, preprodUtxoOutbox);
   console.log(
-    `Submitted first outbound message at transaction ${preprodUtxoOutbox.txId.hex}!`
+    `Submitted first outbound message at tx ${preprodUtxoOutbox.txId.hex}!`
   );
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
   preprodUtxoOutbox = await createOutboundMsg(1, preprodUtxoOutbox);
   console.log(
-    `Submitted second outbound message at transaction ${preprodUtxoOutbox.txId.hex}!`
+    `Submitted second outbound message at tx ${preprodUtxoOutbox.txId.hex}!`
   );
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
