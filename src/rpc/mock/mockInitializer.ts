@@ -4,7 +4,7 @@ import { dispatchNewMessage, updateLastFinalizedBlock } from "./mock";
 import { configDotenv } from "dotenv";
 import { MessagePayload } from "../../offchain/messagePayload";
 
-const FUJI_DOMAIN = 43113;
+export const FUJI_DOMAIN = 43113;
 /**
  * TestRecipient contract on Fuji: https://testnet.snowtrace.io/address/0xbde95643690F74d8cB8B972a8B281b004b9004E9#code
  * https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/test/TestRecipient.sol

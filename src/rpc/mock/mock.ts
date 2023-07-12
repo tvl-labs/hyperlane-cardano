@@ -16,9 +16,7 @@ export function updateLastFinalizedBlock(blockNumber: number) {
   mockLastFinalizedBlock = blockNumber;
 }
 
-export function dispatchNewMessage(
-  dispatchedMessage: DispatchedMessage
-): H256 {
+export function dispatchNewMessage(dispatchedMessage: DispatchedMessage): H256 {
   mockLastFinalizedBlock += 1;
   const nextState = statesGenerator.next({
     message: dispatchedMessage,
