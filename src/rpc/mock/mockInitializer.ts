@@ -6,12 +6,15 @@ import { MessagePayload } from "../../offchain/messagePayload";
 
 export const FUJI_DOMAIN = 43113;
 /**
- * TestRecipient contract on Fuji: https://testnet.snowtrace.io/address/0xbde95643690F74d8cB8B972a8B281b004b9004E9#code
+ * TestRecipient contract on Fuji: https://testnet.snowtrace.io/address/0x27d2D0b183d5F839C5A9ACf6046cC215Ab6d0a9A#code
  * https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/test/TestRecipient.sol
  * This contract simply records the last sent message.
+ *
+ * The ISM module registered for the TestRecipient is 0x73719b218E3B92489570B55Fbc9E1bb2C2887674.
+ * It has the only validator enrolled 0x70997970c51812dc3a010c7d01b50e0d17dc79c8.
  */
 const FUJI_RECIPIENT = Address.fromHex(
-  "0x000000000000000000000000bde95643690F74d8cB8B972a8B281b004b9004E9"
+  "0x00000000000000000000000027d2D0b183d5F839C5A9ACf6046cC215Ab6d0a9A"
 );
 const SENDER = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000CA1"
