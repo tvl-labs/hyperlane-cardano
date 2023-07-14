@@ -1,5 +1,4 @@
 import { Address } from "../../offchain/address";
-import { IS_MOCK_ENVIRONMENT } from "../environment";
 import { dispatchNewMessage, updateLastFinalizedBlock } from "./mock";
 import { configDotenv } from "dotenv";
 import { MessagePayload } from "../../offchain/messagePayload";
@@ -25,24 +24,33 @@ configDotenv();
 export function mockPrefillState() {
   console.log("Prefilling mock state");
   updateLastFinalizedBlock(3);
+
+  const startedAt = new Date().toISOString();
+
+  function getMockMessage(blockNumber: number) {
+    return MessagePayload.fromString(
+      `Message at block #${blockNumber} [tested at ${startedAt}]`
+    );
+  }
+
   const messageTemplate = {
     sender: SENDER,
     recipient: FUJI_RECIPIENT,
     destinationDomain: FUJI_DOMAIN,
-    message: MessagePayload.fromString("Message at block #3"),
+    message: getMockMessage(3),
   };
   dispatchNewMessage(messageTemplate);
 
   updateLastFinalizedBlock(5);
   dispatchNewMessage({
     ...messageTemplate,
-    message: MessagePayload.fromString("Message at block #5"),
+    message: getMockMessage(5),
   });
 
   updateLastFinalizedBlock(8);
   dispatchNewMessage({
     ...messageTemplate,
-    message: MessagePayload.fromString("Message at block #8"),
+    message: getMockMessage(8),
   });
 
   updateLastFinalizedBlock(10);
