@@ -31,6 +31,12 @@ export class Address {
     return this.toHex();
   }
 
+  toEvmAddress() {
+    const hex = this.toHex();
+    assert(hex.startsWith("0x000000000000000000000000"));
+    return "0x" + hex.substring(26);
+  }
+
   toString() {
     return this.toHex();
   }

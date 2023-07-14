@@ -4,6 +4,9 @@
 Cargo.toml
 README.md
 docs/DefaultApi.md
+docs/GetValidatorStorageLocations200Response.md
+docs/GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner.md
+docs/GetValidatorStorageLocationsRequest.md
 docs/LastFinalizedBlock200Response.md
 docs/MerkleTree200Response.md
 docs/MerkleTree200ResponseMerkleTree.md
@@ -15,6 +18,9 @@ src/apis/configuration.rs
 src/apis/default_api.rs
 src/apis/mod.rs
 src/lib.rs
+src/models/get_validator_storage_locations_200_response.rs
+src/models/get_validator_storage_locations_200_response_validator_storage_locations_inner.rs
+src/models/get_validator_storage_locations_request.rs
 src/models/last_finalized_block_200_response.rs
 src/models/merkle_tree_200_response.rs
 src/models/merkle_tree_200_response_merkle_tree.rs

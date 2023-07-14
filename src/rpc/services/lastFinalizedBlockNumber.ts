@@ -7,8 +7,7 @@ import {
 } from "../../offchain/indexer/blockfrost";
 
 export class LastFinalizedBlockNumberService
-  implements ILastFinalizedBlockNumberService
-{
+  implements ILastFinalizedBlockNumberService {
   async getLastFinalizedBlockNumber(): Promise<LastFinalizedBlockResponseType> {
     const block: any = await fetch(`${blockfrostPrefix}/blocks/latest`, {
       headers: {
