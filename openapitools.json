@@ -6,17 +6,10 @@
     "generators": {
       "rust-client-generator": {
         "generatorName": "rust",
-        "output": "generated-sources/cardano-rpc-rust-client",
+        "output": "generated-sources/hyperlane-cardano-rpc-rust-client",
         "inputSpec": "./openapi.yaml",
         "additionalProperties": {
-          "packageName": "cardano-rpc"
-        }
-      },
-      "rpc-server-generator": {
-        "generatorName": "nodejs-express-server",
-        "output": "generated-sources/cardano-rpc-server",
-        "inputSpec": "./openapi.yaml",
-        "additionalProperties": {
+          "packageName": "hyperlane-cardano-rpc-rust-client"
         }
       }
     }

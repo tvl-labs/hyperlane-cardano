@@ -19,7 +19,7 @@ import {
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
 
-const openapiSpec = path.resolve(__dirname, "..", "rpc", "openapi.yaml");
+const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
 const app = express();
 
