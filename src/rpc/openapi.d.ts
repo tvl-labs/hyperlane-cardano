@@ -17,6 +17,10 @@ export interface paths {
     /** Get messages from fromBlock to toBlock */
     get: operations["messagesByBlockRange"];
   };
+  "/api/validator-announcement/get-storage-locations/": {
+    /** Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters) */
+    post: operations["getValidatorStorageLocations"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -87,6 +91,29 @@ export interface operations {
                   recipient: string;
                   body: string;
                 };
+              })[];
+          };
+        };
+      };
+    };
+  };
+  /** Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters) */
+  getValidatorStorageLocations: {
+    requestBody: {
+      content: {
+        "application/json": {
+          validatorAddresses: (string)[];
+        };
+      };
+    };
+    responses: {
+      /** @description A list of validator addresses (0x prefix 32 bytes, total length of 66 characters) with their corresponding storage locations */
+      200: {
+        content: {
+          "application/json": {
+            validatorStorageLocations: ({
+                validatorAddress: string;
+                storageLocation: string;
               })[];
           };
         };

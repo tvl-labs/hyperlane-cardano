@@ -11,7 +11,8 @@
     "lint": "npx eslint '**/*.{js,ts}'",
     "format": "npx prettier '**/*.{js,ts}' --check --write",
     "generate-rpc-server-types": "npx openapi-typescript openapi.yaml -o src/rpc/openapi.d.ts",
-    "generate-rpc-rust-client": "rm -rf generated-sources/ && openapi-generator-cli generate"
+    "generate-rpc-rust-client": "rm -rf generated-sources/ && openapi-generator-cli generate",
+    "publish-rpc-rust-client": "cd generated-sources/hyperlane-cardano-rpc-rust-client && cargo publish"
   },
   "dependencies": {
     "@hyperionbt/helios": "https://github.com/kreate-community/Helios#dc1f353329a3d6e00006dc7d961ef7ad9b546b27",

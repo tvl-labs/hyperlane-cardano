@@ -116,3 +116,42 @@ paths:
                               type: string
                             body:
                               type: string
+  /api/validator-announcement/get-storage-locations/:
+    post:
+      operationId: "getValidatorStorageLocations"
+      summary: Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                validatorAddresses:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - validatorAddresses
+      responses:
+        200:
+          description: A list of validator addresses (0x prefix 32 bytes, total length of 66 characters) with their corresponding storage locations
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - validatorStorageLocations
+                properties:
+                  validatorStorageLocations:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - validatorAddress
+                        - storageLocation
+                      properties:
+                        validatorAddress:
+                          type: string
+                        storageLocation:
+                          type: string

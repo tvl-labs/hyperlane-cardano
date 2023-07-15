@@ -1,3 +1,88 @@
+POST http://127.0.0.1:3000/api/validator-announcement/get-storage-locations/
+Content-Type: application/json
+Content-Length: 106
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "validatorAddresses": [
+    "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8"
+  ]
+}
+
+<> 2023-07-14T180415.200.json
+
+###
+
+POST http://127.0.0.1:3000/api/validator-announcement/get-storage-locations/
+Content-Type: application/json
+Content-Length: 107
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "validatorAddresses": [
+    "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+  ]
+}
+
+<> 2023-07-14T180411.400.json
+
+###
+
+POST http://127.0.0.1:3000/api/validator-announcement/get-storage-locations/
+Content-Type: application/json
+Content-Length: 85
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "validatorEvmAddresses": [
+    "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+  ]
+}
+
+<> 2023-07-14T173825.200.json
+
+###
+
+POST http://127.0.0.1:3000/api/validator-announcement/get-storage-locations/
+Content-Type: application/json
+Content-Length: 85
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "validatorEvmAddresses": [
+    "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+  ]
+}
+
+<> 2023-07-14T173817.200.json
+
+###
+
+POST http://127.0.0.1:3000/api/validator-announcement/get-storage-locations/
+Content-Type: application/json
+Content-Length: 85
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "validatorEvmAddresses": [
+    "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+  ]
+}
+
+<> 2023-07-14T173800.200.json
+
+###
+
 GET http://127.0.0.1:3000/api/indexer/messages/9/10
 Connection: Keep-Alive
 User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
@@ -454,60 +539,6 @@ Accept-Encoding: br,deflate,gzip,x-gzip
 }
 
 <> 2023-07-06T173146.200.json
-
-###
-
-GET http://127.0.0.1:3000/api/indexer/messages/1/20
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-07-06T173132.200.json
-
-###
-
-GET http://127.0.0.1:3000/api/indexer/merkleTrees/20
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-07-06T173125.200.json
-
-###
-
-GET http://127.0.0.1:3000/api/indexer/messages/1/20
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-07-06T173113.200.json
-
-###
-
-POST http://127.0.0.1:3000/api/outbox/dispatch
-Content-Type: application/json
-Content-Length: 216
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "destinationDomain": 1,
-  "recipient": "0x0000000000000000000000000000000000000000000000000000000000000EF1",
-  "sender": "0x0000000000000000000000000000000000000000000000000000000000000CA1",
-  "body": "0xabcde"
-}
-
-<> 2023-07-06T173105.200.json
-
-###
-
-GET http://127.0.0.1:3000/api/indexer/messages/1/20
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-07-06T173055.200.json
 
 ###
 

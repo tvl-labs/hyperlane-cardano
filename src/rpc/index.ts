@@ -2,11 +2,13 @@ import "dotenv/config";
 
 import * as OpenApiValidator from "express-openapi-validator";
 
-import express, { type Response } from "express";
+import express, { type Request, type Response } from "express";
 import path from "path";
 import http from "http";
 import logger from "morgan";
 import type {
+  GetValidatorStorageLocationsRequestBody,
+  GetValidatorStorageLocationsResponseBody,
   LastFinalizedBlockResponseType,
   MerkleTreeResponseType,
   MessagesByBlockRangeResponseType,
@@ -15,9 +17,11 @@ import {
   lastFinalizedBlockNumberService,
   merkleTreeService,
   messagesService,
+  validatorAnnouncement,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
+import { Address } from "../offchain/address";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -71,6 +75,32 @@ app.get(
       toBlock
     );
     res.json(response);
+  }
+);
+
+app.post(
+  "/api/validator-announcement/get-storage-locations/",
+  async function (
+    req: Request<GetValidatorStorageLocationsRequestBody>,
+    res: Response<GetValidatorStorageLocationsResponseBody>,
+    _
+  ) {
+    // TODO[RPC]: better request validation, respond with 400 if invalid request body.
+    const validatorEvmAddresses = req.body.validatorAddresses.map((address) =>
+      Address.fromHex(address)
+    );
+    const validatorStorageLocations =
+      await validatorAnnouncement.getValidatorStorageLocations(
+        validatorEvmAddresses
+      );
+    res.json({
+      validatorStorageLocations: validatorStorageLocations.map(
+        ({ validatorAddress, storageLocation }) => ({
+          storageLocation,
+          validatorAddress: validatorAddress.toHex(),
+        })
+      ),
+    });
   }
 );
 
