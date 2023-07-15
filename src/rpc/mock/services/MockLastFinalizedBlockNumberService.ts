@@ -3,7 +3,8 @@ import { type ILastFinalizedBlockNumberService } from "../../services/ILastFinal
 import { mockLastFinalizedBlock } from "../mock";
 
 export class MockLastFinalizedBlockNumberService
-  implements ILastFinalizedBlockNumberService {
+  implements ILastFinalizedBlockNumberService
+{
   async getLastFinalizedBlockNumber(): Promise<LastFinalizedBlockResponseType> {
     return {
       lastFinalizedBlock: mockLastFinalizedBlock,
