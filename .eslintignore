@@ -1,2 +1,4 @@
 dist
-rpc
+generated-sources
+node_modules
+src/rpc/openapi.d.ts
