@@ -1,8 +1,8 @@
 import type * as helios from "@hyperionbt/helios";
 
-declare class ScriptLockForever {
+declare class ScriptOutbox {
   constructor();
   compile(optimize: boolean): helios.UplcProgram;
 }
 
-export default ScriptLockForever;
+export default ScriptOutbox;

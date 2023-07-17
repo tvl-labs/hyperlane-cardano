@@ -5,7 +5,7 @@
   "repository": "https://github.com/tvl-labs/hyperlane-cardano",
   "scripts": {
     "build": "npx webpack build",
-    "test-inbox-outbox": "npm run build && node dist/testInboxOutbox.js",
+    "test-integration": "npm run build && node dist/testIntegration.js",
     "start-rpc": "npm run build && PORT=3000 MOCK_ENV=true node dist/rpc.js",
     "jest": "jest",
     "lint": "npx eslint '**/*.{js,ts}'",

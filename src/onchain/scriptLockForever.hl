@@ -1,5 +1,9 @@
 spending lock_forever
 
+// A simple "false" is cleaner but would result
+// in a heavily shared script, which in turn
+// makes our indexer much slower.
+// NOTE: Do not optimize the script for the above effect.
 func main(_, _, _) -> Bool {
-  false
+  "HYPERLANE" == "CARDANO"
 }

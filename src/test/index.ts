@@ -9,6 +9,10 @@ import {
   testOutboxOnEmulatedNetwork,
   testOutboxOnPreprodNetwork,
 } from "./testOutbox";
+import {
+  testValidatorStorageLocationOnEmulatedNetwork,
+  testValidatorStorageLocationOnPreprodNetwork,
+} from "./testValidatorStorageLocation";
 
 export const emulatedNetwork = new helios.NetworkEmulator(644);
 export const emulatedWallet = Wallet.fromEmulatedWallet(
@@ -21,6 +25,9 @@ export const preprodWallet = new Wallet(
 
 await testInboxOnEmulatedNetwork();
 await testInboxOnPreprodNetwork();
+
+await testValidatorStorageLocationOnEmulatedNetwork();
+await testValidatorStorageLocationOnPreprodNetwork();
 
 await testOutboxOnEmulatedNetwork();
 await testOutboxOnPreprodNetwork();
