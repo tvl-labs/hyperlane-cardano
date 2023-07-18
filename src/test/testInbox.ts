@@ -49,9 +49,6 @@ const appParams = {
   VALIDATOR_VKEYS: ownerPrivateKeys.map(
     (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
   ),
-  VALIDATOR_STORAGE_LOCATIONS: ownerPrivateKeys.map(
-    (_, i) => new helios.ByteArray(helios.textToBytes(`mock/location/${i}`))
-  ),
   THRESHOLD: 2n,
   RECIPIENT_ADDRESS: addressMessage,
 };

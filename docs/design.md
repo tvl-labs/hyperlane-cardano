@@ -155,7 +155,6 @@ To deliver a message sent from an EVM chain, the relayer builds a transaction:
 The `MultisigIsm` minting policy is parameterized by:
 
 - `VALIDATOR_VKEYS` — public keys of the expected validators.
-- `VALIdATOR_STORAGE_LOCATIONS` — storage locations of the expected validators.
 - `THRESHOLD` — the validators' quorum threshold.
 - `RECIPIENT_ADDRESS` — the recipient of output (message) EUTxO.
 

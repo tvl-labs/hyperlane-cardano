@@ -10,9 +10,6 @@ const LABEL_HYPERLANE: ByteArray = #48595045524c414e45 // HYPERLANE
 // The verification keys whose signatures are acknowledged.
 const VALIDATOR_VKEYS: []ByteArray = []ByteArray{}
 
-// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/ValidatorAnnounce.sol#L35C24-L35C30
-const VALIDATOR_STORAGE_LOCATIONS: []ByteArray = []ByteArray{}
-
 // The number of signatures needed to pass a transaction.
 const THRESHOLD: Int = 0
 
