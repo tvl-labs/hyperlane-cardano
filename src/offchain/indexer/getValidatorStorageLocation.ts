@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
@@ -5,6 +6,7 @@ import type { Address } from "../address";
 import {
   type ValidatorStorageLocation,
   deserializeValidatorStorageLocation,
+  hashValidatorStorageLocation,
 } from "../validatorStorageLocation";
 import ScriptLockForever from "../../onchain/scriptLockForever.hl";
 
@@ -50,7 +52,19 @@ export async function getValidatorStorageLocation(
           continue;
         }
 
-        // FIXME: Validate signature
+        const signedAddress = ethers
+          .verifyMessage(
+            hashValidatorStorageLocation(validatorStorageLocation),
+            validatorStorageLocation.signature ?? ""
+          )
+          .toLowerCase();
+
+        if (
+          signedAddress !== validatorStorageLocation.validator.toEvmAddress()
+        ) {
+          continue;
+        }
+
         return validatorStorageLocation;
       } catch (e) {
         console.warn(e);
@@ -58,6 +72,6 @@ export async function getValidatorStorageLocation(
     }
   }
 
-  // TODO: Better error handling
+  // TODO: Better error handling instead of nuking the server
   throw new Error("Validator storage location not found!");
 }

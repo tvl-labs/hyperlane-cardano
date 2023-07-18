@@ -2,8 +2,8 @@ import { Buffer } from "buffer";
 import assert from "assert";
 
 /**
- * 32-byte address for Ethereum.
- * The 29-byte address on Cardano is left-padded with 3 0s.
+ * The 20-byte address on Ethereum is left-padded.
+ * The 29-byte address on Cardano is left-padded.
  */
 export class Address {
   private readonly bytes: Buffer;
@@ -29,6 +29,10 @@ export class Address {
 
   toJSON() {
     return this.toHex();
+  }
+
+  static fromEvmAddress(hex: string): Address {
+    return this.fromHex(`0x000000000000000000000000${hex.substring(2)}`);
   }
 
   toEvmAddress() {
