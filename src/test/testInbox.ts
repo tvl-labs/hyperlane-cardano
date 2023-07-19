@@ -12,6 +12,7 @@ import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
 import {
   getIsmParams,
   getIsmParamsHelios,
+  isInboundMessageDelivered,
   estimateInboundMessageFee,
 } from "../offchain/inbox";
 
@@ -66,6 +67,14 @@ async function createInboundMsg(isEmulated: boolean = false) {
       )
   );
 
+  const isDelivered = await isInboundMessageDelivered(
+    ismParams,
+    inboundMessage
+  );
+  if (isDelivered) {
+    throw new Error("Message must not be delivered already");
+  }
+
   const fee = await estimateInboundMessageFee(
     ismParams,
     new helios.ByteArray(origin),
@@ -101,6 +110,14 @@ export async function testInboxOnPreprodNetwork() {
   const txId = await createInboundMsg();
   console.log(`Submitted inbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
+
+  const isDelivered = await isInboundMessageDelivered(
+    ismParams,
+    inboundMessage
+  );
+  if (!isDelivered) {
+    throw new Error("Message must have been delivered already");
+  }
 
   // Note: Not all messages are "text".
   const inboundMessages = (await getInboundMessages(ismParams)).map((m) =>
