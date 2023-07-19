@@ -1,7 +1,9 @@
 import * as helios from "@hyperionbt/helios";
 import { Buffer } from "buffer";
 
-export function bufferToHeliosByteArray(buffer: Buffer): helios.ByteArray {
+export function bufferToHeliosByteArray(
+  buffer: Buffer | Uint8Array
+): helios.ByteArray {
   const numbers = [...buffer.valueOf()];
   return new helios.ByteArray(numbers);
 }

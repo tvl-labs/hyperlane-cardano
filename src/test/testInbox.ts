@@ -4,7 +4,6 @@ import * as helios from "@hyperionbt/helios";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import secp256k1 from "secp256k1";
 import { Address } from "../offchain/address";
-import { type Message, calculateMessageId } from "../offchain/message";
 import { MessagePayload } from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
@@ -15,14 +14,14 @@ import {
   estimateInboundMessageFee,
   createInboundMessage,
 } from "../offchain/inbox";
+import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
+import type { Message } from "../offchain/message";
+
+// TODO: Build several edge cases.
 
 // Mock inbound message
-const origin = Array(32).fill(0);
-const originMailbox = Array(32).fill(1);
-const checkpointRoot = Array(32).fill(2);
-const checkpointIndex = Array(32).fill(3);
 const inboundMsg = `[${Date.now()}] Inbound Message!`;
-const inboundMessage: Message = {
+const message: Message = {
   version: 0,
   nonce: 0,
   originDomain: FUJI_DOMAIN,
@@ -35,26 +34,22 @@ const inboundMessage: Message = {
   ),
   message: MessagePayload.fromString(inboundMsg),
 };
-
-// TODO: Build several edge cases.
-
-const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
+const checkpoint: Checkpoint = {
+  origin: FUJI_DOMAIN,
+  originMailbox: Address.fromHex(
+    "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
+  ),
+  checkpointRoot: new Uint8Array(32).fill(0),
+  checkpointIndex: 0,
+  message,
+};
 
 console.log(getIsmParams());
 const ismParams = getIsmParamsHelios();
 
 // TODO: Better interface & names here...
 async function createInboundMsg(isEmulated: boolean = false) {
-  const checkpointHash = new Uint8Array(
-    helios.Crypto.blake2b(
-      helios.Crypto.blake2b(
-        origin.concat(originMailbox).concat(LABEL_HYPERLANE)
-      )
-        .concat(checkpointRoot)
-        .concat(checkpointIndex)
-        .concat(calculateMessageId(inboundMessage).toByteArray())
-    )
-  );
+  const checkpointHash = hashCheckpoint(checkpoint);
   const validatorPrivateKeys = [1, 2, 3].map((i) =>
     Uint8Array.from(
       Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
@@ -67,21 +62,14 @@ async function createInboundMsg(isEmulated: boolean = false) {
       )
   );
 
-  const isDelivered = await isInboundMessageDelivered(
-    ismParams,
-    inboundMessage
-  );
+  const isDelivered = await isInboundMessageDelivered(ismParams, message);
   if (isDelivered) {
     throw new Error("Message must not be delivered already");
   }
 
   const fee = await estimateInboundMessageFee(
     ismParams,
-    new helios.ByteArray(origin),
-    new helios.ByteArray(originMailbox),
-    new helios.ByteArray(checkpointRoot),
-    new helios.ByteArray(checkpointIndex),
-    inboundMessage,
+    checkpoint,
     signatures,
     isEmulated ? emulatedWallet : preprodWallet
   );
@@ -91,11 +79,7 @@ async function createInboundMsg(isEmulated: boolean = false) {
 
   return await createInboundMessage(
     ismParams,
-    new helios.ByteArray(origin),
-    new helios.ByteArray(originMailbox),
-    new helios.ByteArray(checkpointRoot),
-    new helios.ByteArray(checkpointIndex),
-    inboundMessage,
+    checkpoint,
     signatures,
     isEmulated ? emulatedWallet : preprodWallet
   );
@@ -111,10 +95,7 @@ export async function testInboxOnPreprodNetwork() {
   console.log(`Submitted inbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
 
-  const isDelivered = await isInboundMessageDelivered(
-    ismParams,
-    inboundMessage
-  );
+  const isDelivered = await isInboundMessageDelivered(ismParams, message);
   if (!isDelivered) {
     throw new Error("Message must have been delivered already");
   }

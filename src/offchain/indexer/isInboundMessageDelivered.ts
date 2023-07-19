@@ -20,23 +20,28 @@ export async function isInboundMessageDelivered(
   const messageDatum = serializeMessage(message).toCborHex();
 
   for (let page = 1; true; page++) {
-    const utxos: any = await fetch(
-      `${blockfrostPrefix}/addresses/${ismParams.RECIPIENT_ADDRESS.toBech32()}/utxos/${
-        authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
-      }?order=desc&page=${page}`,
-      {
-        headers: {
-          project_id: blockfrostProjectId,
-        },
-      }
-    ).then(async (r) => await r.json());
+    try {
+      const utxos: any = await fetch(
+        `${blockfrostPrefix}/addresses/${ismParams.RECIPIENT_ADDRESS.toBech32()}/utxos/${
+          authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
+        }?order=desc&page=${page}`,
+        {
+          headers: {
+            project_id: blockfrostProjectId,
+          },
+        }
+      ).then(async (r) => await r.json());
 
-    if (utxos.length === 0) break;
+      if (utxos.length === 0) break;
 
-    for (const utxo of utxos) {
-      if (utxo.inline_datum === messageDatum) {
-        return true;
+      for (const utxo of utxos) {
+        if (utxo.inline_datum === messageDatum) {
+          return true;
+        }
       }
+    } catch (e) {
+      console.warn(e);
+      break;
     }
   }
 

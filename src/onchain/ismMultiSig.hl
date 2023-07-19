@@ -45,10 +45,10 @@ struct RedeemerIsmMultiSig {
 // for more advanced integrations.
 func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
   // (0) Validate redeemers
-  assert(redeemer.origin.length == 32, "invalid origin");
+  assert(redeemer.origin.length == 4, "invalid origin");
   assert(redeemer.origin_mailbox.length == 32, "invalid origin_mailbox");
   assert(redeemer.checkpoint_root.length == 32, "invalid checkpoint_root");
-  assert(redeemer.checkpoint_index.length == 32, "invalid checkpoint_index");
+  assert(redeemer.checkpoint_index.length == 4, "invalid checkpoint_index");
 
   // (1) Must mint only a single auth token.
   asset_class_auth_token: AssetClass = AssetClass::new(

@@ -3,18 +3,18 @@ import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH, type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
-import type { Message } from "../message";
 import { serializeMessage } from "../messageSerialize";
+import type { Checkpoint } from "../checkpoint";
+import {
+  bufferToHeliosByteArray,
+  convertNumberToHeliosByteArray,
+} from "../outbox/heliosByteArrayUtils";
 
 // TODO: Expose API to "share" the tx between functions.
 
 async function buildInboundMessageTx(
   ismParams: IsmParamsHelios,
-  origin: helios.ByteArray,
-  originMailbox: helios.ByteArray,
-  checkpointRoot: helios.ByteArray,
-  checkpointIndex: helios.ByteArray,
-  message: Message,
+  checkpoint: Checkpoint,
   signatures: helios.ByteArray[],
   wallet: Wallet
 ): Promise<helios.Tx> {
@@ -29,10 +29,15 @@ async function buildInboundMessageTx(
     ismMultiSig.mintingPolicyHash,
     [[TOKEN_NAME_AUTH, BigInt(1)]],
     new helios.ListData([
-      origin._toUplcData(),
-      originMailbox._toUplcData(),
-      checkpointRoot._toUplcData(),
-      checkpointIndex._toUplcData(),
+      convertNumberToHeliosByteArray(checkpoint.origin, 4)._toUplcData(),
+      bufferToHeliosByteArray(
+        checkpoint.originMailbox.toBuffer()
+      )._toUplcData(),
+      bufferToHeliosByteArray(checkpoint.checkpointRoot)._toUplcData(),
+      convertNumberToHeliosByteArray(
+        checkpoint.checkpointIndex,
+        4
+      )._toUplcData(),
       new helios.ListData(signatures.map((s) => s._toUplcData())),
     ])
   );
@@ -46,7 +51,7 @@ async function buildInboundMessageTx(
           [ismMultiSig.mintingPolicyHash, [[TOKEN_NAME_AUTH, BigInt(1)]]],
         ])
       ),
-      helios.Datum.inline(serializeMessage(message))
+      helios.Datum.inline(serializeMessage(checkpoint.message))
     )
   );
 
@@ -61,21 +66,13 @@ async function buildInboundMessageTx(
 // the relayer's UTxO set.
 export async function estimateInboundMessageFee(
   ismParams: IsmParamsHelios,
-  origin: helios.ByteArray,
-  originMailbox: helios.ByteArray,
-  checkpointRoot: helios.ByteArray,
-  checkpointIndex: helios.ByteArray,
-  message: Message,
+  checkpoint: Checkpoint,
   signatures: helios.ByteArray[],
   wallet: Wallet
 ): Promise<bigint> {
   const tx = await buildInboundMessageTx(
     ismParams,
-    origin,
-    originMailbox,
-    checkpointRoot,
-    checkpointIndex,
-    message,
+    checkpoint,
     signatures,
     wallet
   );
@@ -84,21 +81,13 @@ export async function estimateInboundMessageFee(
 
 export async function createInboundMessage(
   ismParams: IsmParamsHelios,
-  origin: helios.ByteArray,
-  originMailbox: helios.ByteArray,
-  checkpointRoot: helios.ByteArray,
-  checkpointIndex: helios.ByteArray,
-  message: Message,
+  checkpoint: Checkpoint,
   signatures: helios.ByteArray[],
   wallet: Wallet
 ): Promise<helios.TxId> {
   const tx = await buildInboundMessageTx(
     ismParams,
-    origin,
-    originMailbox,
-    checkpointRoot,
-    checkpointIndex,
-    message,
+    checkpoint,
     signatures,
     wallet
   );
