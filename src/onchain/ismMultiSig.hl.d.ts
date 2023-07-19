@@ -1,8 +1,8 @@
 import type * as helios from "@hyperionbt/helios";
-import type { AppParams } from "../typing";
+import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 
 declare class MintingPolicyIsmMultiSig {
-  constructor(params: AppParams);
+  constructor(params: IsmParamsHelios);
   compile(optimize: boolean): helios.UplcProgram;
 }
 

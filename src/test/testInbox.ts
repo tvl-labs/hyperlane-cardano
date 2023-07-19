@@ -3,13 +3,13 @@ import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
 import * as helios from "@hyperionbt/helios";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import secp256k1 from "secp256k1";
-import ScriptLockForever from "../onchain/scriptLockForever.hl";
 import createInboundMessage from "../offchain/tx/createInboundMessage";
 import { Address } from "../offchain/address";
 import { type Message, calculateMessageId } from "../offchain/message";
 import { MessagePayload } from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
+import { getIsmParams, getIsmParamsHelios } from "../offchain/inbox/ismParams";
 
 // Mock inbound message
 const origin = Array(32).fill(0);
@@ -35,23 +35,8 @@ const inboundMessage: Message = {
 
 const LABEL_HYPERLANE = helios.textToBytes("HYPERLANE");
 
-// TODO: Stake on real networks
-const addressMessage = helios.Address.fromValidatorHash(
-  new ScriptLockForever().compile(true).validatorHash
-);
-
-const ownerPrivateKeys = [1, 2, 3].map((i) =>
-  Uint8Array.from(
-    Buffer.from(process.env[`PRIVATE_KEY_OWNER_${i}`] ?? "", "hex")
-  )
-);
-const appParams = {
-  VALIDATOR_VKEYS: ownerPrivateKeys.map(
-    (k) => new helios.ByteArray(Array.from(secp256k1.publicKeyCreate(k)))
-  ),
-  THRESHOLD: 2n,
-  RECIPIENT_ADDRESS: addressMessage,
-};
+console.log(getIsmParams());
+const ismParams = getIsmParamsHelios();
 
 // TODO: Better interface & names here...
 async function createInboundMsg(isEmulated: boolean = false) {
@@ -65,14 +50,19 @@ async function createInboundMsg(isEmulated: boolean = false) {
         .concat(calculateMessageId(inboundMessage).toByteArray())
     )
   );
-  const signatures = ownerPrivateKeys.map(
+  const validatorPrivateKeys = [1, 2, 3].map((i) =>
+    Uint8Array.from(
+      Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
+    )
+  );
+  const signatures = validatorPrivateKeys.map(
     (k) =>
       new helios.ByteArray(
         Array.from(secp256k1.ecdsaSign(checkpointHash, k).signature)
       )
   );
   return await createInboundMessage(
-    appParams,
+    ismParams,
     new helios.ByteArray(origin),
     new helios.ByteArray(originMailbox),
     new helios.ByteArray(checkpointRoot),
@@ -89,12 +79,12 @@ export async function testInboxOnEmulatedNetwork() {
 }
 
 export async function testInboxOnPreprodNetwork() {
-  const txIdInbound = await createInboundMsg();
-  console.log(`Submitted inbound message at tx ${txIdInbound.hex}!`);
-  await waitForTxConfirmation(txIdInbound.hex);
+  const txId = await createInboundMsg();
+  console.log(`Submitted inbound message at tx ${txId.hex}!`);
+  await waitForTxConfirmation(txId.hex);
 
   // Note: Not all messages are "text".
-  const inboundMessages = (await getInboundMessages(appParams)).map((m) =>
+  const inboundMessages = (await getInboundMessages(ismParams)).map((m) =>
     helios.bytesToText(m.bytes)
   );
   console.log("Inbound Messages:", inboundMessages);

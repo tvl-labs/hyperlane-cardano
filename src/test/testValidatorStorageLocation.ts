@@ -11,7 +11,7 @@ import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import announceValidatorStorageLocation from "../offchain/tx/announceValidatorStorageLocation";
 import { getValidatorStorageLocation } from "../offchain/indexer/getValidatorStorageLocation";
 
-const privateKey = `0x${process.env.PRIVATE_KEY_OWNER_1 ?? ""}`;
+const privateKey = `0x${process.env.PRIVATE_KEY_VALIDATOR_1 ?? ""}`;
 const validator = Address.fromEvmAddress(ethers.computeAddress(privateKey));
 
 const validatorStorageLocation: ValidatorStorageLocation =

@@ -2,22 +2,22 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH } from "../wallet";
-import type { AppParams } from "../../typing";
+import type { IsmParamsHelios } from "../inbox/ismParams";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
 export async function getInboundMessages(
-  appParams: AppParams
+  ismParams: IsmParamsHelios
 ): Promise<helios.ByteArray[]> {
-  const authenticMPH = new MintingPolicyIsmMultiSig(appParams).compile(true)
+  const authenticMPH = new MintingPolicyIsmMultiSig(ismParams).compile(true)
     .mintingPolicyHash.hex;
 
   const messages: helios.ByteArray[] = [];
 
   for (let page = 1; true; page++) {
     const utxos: any = await fetch(
-      `${blockfrostPrefix}/addresses/${appParams.RECIPIENT_ADDRESS.toBech32()}/utxos/${
+      `${blockfrostPrefix}/addresses/${ismParams.RECIPIENT_ADDRESS.toBech32()}/utxos/${
         authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
       }?page=${page}`,
       {
