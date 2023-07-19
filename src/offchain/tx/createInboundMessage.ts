@@ -6,7 +6,9 @@ import type { IsmParamsHelios } from "../inbox/ismParams";
 import type { Message } from "../message";
 import { serializeMessage } from "../messageSerialize";
 
-export default async function createInboundMessage(
+// TODO: Expose API to "share" the tx between functions.
+
+async function buildInboundMessageTx(
   ismParams: IsmParamsHelios,
   origin: helios.ByteArray,
   originMailbox: helios.ByteArray,
@@ -15,7 +17,7 @@ export default async function createInboundMessage(
   message: Message,
   signatures: helios.ByteArray[],
   wallet: Wallet
-): Promise<helios.TxId> {
+): Promise<helios.Tx> {
   const tx = new helios.Tx();
 
   const utxos = await wallet.getUtxos();
@@ -51,5 +53,54 @@ export default async function createInboundMessage(
   await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
   tx.addSignatures(await wallet.signTx(tx));
+  return tx;
+}
+
+// Fee in lovelace.
+// Note that fee is also dynamic and changes with
+// the relayer's UTxO set.
+export async function estimateInboundMessageFee(
+  ismParams: IsmParamsHelios,
+  origin: helios.ByteArray,
+  originMailbox: helios.ByteArray,
+  checkpointRoot: helios.ByteArray,
+  checkpointIndex: helios.ByteArray,
+  message: Message,
+  signatures: helios.ByteArray[],
+  wallet: Wallet
+): Promise<bigint> {
+  const tx = await buildInboundMessageTx(
+    ismParams,
+    origin,
+    originMailbox,
+    checkpointRoot,
+    checkpointIndex,
+    message,
+    signatures,
+    wallet
+  );
+  return tx.body.fee;
+}
+
+export async function createInboundMessage(
+  ismParams: IsmParamsHelios,
+  origin: helios.ByteArray,
+  originMailbox: helios.ByteArray,
+  checkpointRoot: helios.ByteArray,
+  checkpointIndex: helios.ByteArray,
+  message: Message,
+  signatures: helios.ByteArray[],
+  wallet: Wallet
+): Promise<helios.TxId> {
+  const tx = await buildInboundMessageTx(
+    ismParams,
+    origin,
+    originMailbox,
+    checkpointRoot,
+    checkpointIndex,
+    message,
+    signatures,
+    wallet
+  );
   return await wallet.submitTx(tx);
 }

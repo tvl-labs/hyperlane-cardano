@@ -3,13 +3,17 @@ import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
 import * as helios from "@hyperionbt/helios";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import secp256k1 from "secp256k1";
-import createInboundMessage from "../offchain/tx/createInboundMessage";
+import { createInboundMessage } from "../offchain/tx/createInboundMessage";
 import { Address } from "../offchain/address";
 import { type Message, calculateMessageId } from "../offchain/message";
 import { MessagePayload } from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
-import { getIsmParams, getIsmParamsHelios } from "../offchain/inbox/ismParams";
+import {
+  getIsmParams,
+  getIsmParamsHelios,
+  estimateInboundMessageFee,
+} from "../offchain/inbox";
 
 // Mock inbound message
 const origin = Array(32).fill(0);
@@ -61,6 +65,21 @@ async function createInboundMsg(isEmulated: boolean = false) {
         Array.from(secp256k1.ecdsaSign(checkpointHash, k).signature)
       )
   );
+
+  const fee = await estimateInboundMessageFee(
+    ismParams,
+    new helios.ByteArray(origin),
+    new helios.ByteArray(originMailbox),
+    new helios.ByteArray(checkpointRoot),
+    new helios.ByteArray(checkpointIndex),
+    inboundMessage,
+    signatures,
+    isEmulated ? emulatedWallet : preprodWallet
+  );
+  if (fee < 300_000n) {
+    throw new Error("Invalid fee? Fee too low.");
+  }
+
   return await createInboundMessage(
     ismParams,
     new helios.ByteArray(origin),
