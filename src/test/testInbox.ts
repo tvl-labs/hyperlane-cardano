@@ -3,7 +3,6 @@ import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
 import * as helios from "@hyperionbt/helios";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import secp256k1 from "secp256k1";
-import { createInboundMessage } from "../offchain/tx/createInboundMessage";
 import { Address } from "../offchain/address";
 import { type Message, calculateMessageId } from "../offchain/message";
 import { MessagePayload } from "../offchain/messagePayload";
@@ -14,6 +13,7 @@ import {
   getIsmParamsHelios,
   isInboundMessageDelivered,
   estimateInboundMessageFee,
+  createInboundMessage,
 } from "../offchain/inbox";
 
 // Mock inbound message
