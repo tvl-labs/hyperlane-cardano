@@ -16,3 +16,8 @@ export type GetValidatorStorageLocationsResponseBody =
 
 export type InboxIsmParametersResponseType =
   operations["inboxIsmParameters"]["responses"]["200"]["content"]["application/json"];
+
+export type IsInboxMessageDeliveredRequestBody =
+  operations["isInboxMessageDelivered"]["requestBody"]["content"]["application/json"];
+export type IsInboxMessageDeliveredResponseBody =
+  operations["isInboxMessageDelivered"]["responses"]["200"]["content"]["application/json"];

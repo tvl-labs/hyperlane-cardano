@@ -25,6 +25,10 @@ export interface paths {
     /** Get the inbox ISM parameters */
     get: operations["inboxIsmParameters"];
   };
+  "/api/inbox/is-message-delivered": {
+    /** Check if an inbox message was delivered */
+    post: operations["isInboxMessageDelivered"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -133,6 +137,32 @@ export interface operations {
           "application/json": {
             validators: (string)[];
             threshold: number;
+          };
+        };
+      };
+    };
+  };
+  /** Check if an inbox message was delivered */
+  isInboxMessageDelivered: {
+    requestBody: {
+      content: {
+        "application/json": {
+          version: number;
+          nonce: number;
+          originDomain: number;
+          sender: string;
+          destinationDomain: number;
+          recipient: string;
+          message: string;
+        };
+      };
+    };
+    responses: {
+      /** @description A boolean value whether the message was delivered */
+      200: {
+        content: {
+          "application/json": {
+            isDelivered: boolean;
           };
         };
       };

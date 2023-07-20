@@ -176,3 +176,48 @@ paths:
                 required:
                   - validators
                   - threshold
+  /api/inbox/is-message-delivered:
+    post:
+      operationId: "isInboxMessageDelivered"
+      summary: Check if an inbox message was delivered
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                version:
+                  type: number
+                nonce:
+                  type: number
+                originDomain:
+                  type: number
+                sender:
+                  type: string
+                destinationDomain:
+                  type: number
+                recipient:
+                  type: string
+                message:
+                  type: string
+              required:
+                - version
+                - nonce
+                - originDomain
+                - sender
+                - destinationDomain
+                - recipient
+                - message
+      responses:
+        200:
+          description: A boolean value whether the message was delivered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isDelivered:
+                    type: boolean
+                required:
+                  - isDelivered

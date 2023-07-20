@@ -13,6 +13,8 @@ import type {
   MerkleTreeResponseType,
   MessagesByBlockRangeResponseType,
   InboxIsmParametersResponseType,
+  IsInboxMessageDeliveredRequestBody,
+  IsInboxMessageDeliveredResponseBody,
 } from "./types";
 import {
   lastFinalizedBlockNumberService,
@@ -20,10 +22,12 @@ import {
   messagesService,
   validatorAnnouncement,
   inboxIsmParameters,
+  isInboundMessageDelivered,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
 import { Address } from "../offchain/address";
+import { MessagePayload } from "../offchain/messagePayload";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -111,6 +115,27 @@ app.get(
   async function (req, res: Response<InboxIsmParametersResponseType>, _) {
     const response = await inboxIsmParameters.getInboxIsmParameters();
     res.status(200).json(response);
+  }
+);
+
+app.post(
+  "/api/inbox/is-message-delivered",
+  async function (
+    req: Request<IsInboxMessageDeliveredRequestBody>,
+    res: Response<IsInboxMessageDeliveredResponseBody>,
+    _
+  ) {
+    const isDelivered =
+      await isInboundMessageDelivered.getIsInboxMessageDelivered({
+        version: req.body.version,
+        nonce: req.body.nonce,
+        originDomain: req.body.originDomain,
+        sender: Address.fromHex(req.body.sender),
+        destinationDomain: req.body.destinationDomain,
+        recipient: Address.fromHex(req.body.recipient),
+        message: MessagePayload.fromHexString(req.body.message),
+      });
+    res.status(200).json({ isDelivered });
   }
 );
 
