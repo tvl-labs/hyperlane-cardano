@@ -291,3 +291,76 @@ paths:
                     type: number
                 required:
                   - feeADA
+  /api/inbox/submit-message:
+    post:
+      operationId: "submitInboundMessage"
+      summary: Submit an new inbound message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                relayerCardanoAddress:
+                  type: string
+                privateKey:
+                  type: string
+                origin:
+                  type: number
+                originMailbox:
+                  type: string
+                checkpointRoot:
+                  type: string
+                checkpointIndex:
+                  type: number
+                message:
+                  type: object
+                  properties:
+                    version:
+                      type: number
+                    nonce:
+                      type: number
+                    originDomain:
+                      type: number
+                    sender:
+                      type: string
+                    destinationDomain:
+                      type: number
+                    recipient:
+                      type: string
+                    message:
+                      type: string
+                  required:
+                    - version
+                    - nonce
+                    - originDomain
+                    - sender
+                    - destinationDomain
+                    - recipient
+                    - message
+                signatures:
+                  type: array
+                  items:
+                    type: string # hex
+              required:
+                - relayerCardanoAddress
+                - privateKey
+                - origin
+                - originMailbox
+                - checkpointRoot
+                - checkpointIndex
+                - message
+                - signatures
+      responses:
+        200:
+          description: The tx id of the inbound message on Cardano
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  txId:
+                    type: string
+                required:
+                  - txId

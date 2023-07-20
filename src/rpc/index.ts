@@ -18,6 +18,8 @@ import type {
   IsInboxMessageDeliveredResponseBody,
   EstimateInboxMessageFeeRequestBody,
   EstimateInboxMessageFeeResponseBody,
+  SubmitInboundMessageRequestBody,
+  SubmitInboundMessageResponseBody,
 } from "./types";
 import {
   lastFinalizedBlockNumberService,
@@ -27,6 +29,7 @@ import {
   inboxIsmParameters,
   isInboundMessageDelivered,
   estimateInboundMessageFee,
+  submitInboundMessage,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
@@ -175,6 +178,43 @@ app.post(
       req.body.signatures.map((s) => Uint8Array.from(Buffer.from(s, "hex")))
     );
     res.status(200).json({ feeADA });
+  }
+);
+
+// TODO: Better error handling, like when the tx
+// fails to build / doesn't validate
+app.post(
+  "/api/inbox/submit-message",
+  async function (
+    req: Request<SubmitInboundMessageRequestBody>,
+    res: Response<SubmitInboundMessageResponseBody>,
+    _
+  ) {
+    const txId = await submitInboundMessage.submitInboundMessage(
+      new Wallet(
+        new helios.Address(req.body.relayerCardanoAddress),
+        new helios.PrivateKey(req.body.privateKey)
+      ),
+      {
+        origin: req.body.origin,
+        originMailbox: Address.fromHex(req.body.originMailbox),
+        checkpointRoot: Uint8Array.from(
+          Buffer.from(req.body.checkpointRoot, "hex")
+        ),
+        checkpointIndex: req.body.checkpointIndex,
+        message: {
+          version: req.body.message.version,
+          nonce: req.body.message.nonce,
+          originDomain: req.body.message.originDomain,
+          sender: Address.fromHex(req.body.message.sender),
+          destinationDomain: req.body.message.destinationDomain,
+          recipient: Address.fromHex(req.body.message.recipient),
+          message: MessagePayload.fromHexString(req.body.message.message),
+        },
+      },
+      req.body.signatures.map((s) => Uint8Array.from(Buffer.from(s, "hex")))
+    );
+    res.status(200).json({ txId: txId.hex });
   }
 );
 

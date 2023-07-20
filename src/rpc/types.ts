@@ -26,3 +26,8 @@ export type EstimateInboxMessageFeeRequestBody =
   operations["estimateInboundMessageFee"]["requestBody"]["content"]["application/json"];
 export type EstimateInboxMessageFeeResponseBody =
   operations["estimateInboundMessageFee"]["responses"]["200"]["content"]["application/json"];
+
+export type SubmitInboundMessageRequestBody =
+  operations["submitInboundMessage"]["requestBody"]["content"]["application/json"];
+export type SubmitInboundMessageResponseBody =
+  operations["submitInboundMessage"]["responses"]["200"]["content"]["application/json"];

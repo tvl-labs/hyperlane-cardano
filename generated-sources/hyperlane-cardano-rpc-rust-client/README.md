@@ -32,6 +32,7 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**last_finalized_block**](docs/DefaultApi.md#last_finalized_block) | **GET** /api/indexer/lastFinalizedBlock | Get the last finalized block
 *DefaultApi* | [**merkle_tree**](docs/DefaultApi.md#merkle_tree) | **GET** /api/indexer/merkleTree | Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 *DefaultApi* | [**messages_by_block_range**](docs/DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock
+*DefaultApi* | [**submit_inbound_message**](docs/DefaultApi.md#submit_inbound_message) | **POST** /api/inbox/submit-message | Submit an new inbound message
 
 
 ## Documentation For Models
@@ -50,6 +51,8 @@ Class | Method | HTTP request | Description
  - [MessagesByBlockRange200Response](docs/MessagesByBlockRange200Response.md)
  - [MessagesByBlockRange200ResponseMessagesInner](docs/MessagesByBlockRange200ResponseMessagesInner.md)
  - [MessagesByBlockRange200ResponseMessagesInnerMessage](docs/MessagesByBlockRange200ResponseMessagesInnerMessage.md)
+ - [SubmitInboundMessage200Response](docs/SubmitInboundMessage200Response.md)
+ - [SubmitInboundMessageRequest](docs/SubmitInboundMessageRequest.md)
 
 
 To get access to the crate's generated documentation, use:

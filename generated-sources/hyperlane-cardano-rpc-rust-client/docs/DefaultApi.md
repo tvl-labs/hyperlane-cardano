@@ -11,6 +11,7 @@ Method | HTTP request | Description
 [**last_finalized_block**](DefaultApi.md#last_finalized_block) | **GET** /api/indexer/lastFinalizedBlock | Get the last finalized block
 [**merkle_tree**](DefaultApi.md#merkle_tree) | **GET** /api/indexer/merkleTree | Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 [**messages_by_block_range**](DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock
+[**submit_inbound_message**](DefaultApi.md#submit_inbound_message) | **POST** /api/inbox/submit-message | Submit an new inbound message
 
 
 
@@ -197,6 +198,34 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## submit_inbound_message
+
+> crate::models::SubmitInboundMessage200Response submit_inbound_message(submit_inbound_message_request)
+Submit an new inbound message
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**submit_inbound_message_request** | [**SubmitInboundMessageRequest**](SubmitInboundMessageRequest.md) |  | [required] |
+
+### Return type
+
+[**crate::models::SubmitInboundMessage200Response**](submitInboundMessage_200_response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

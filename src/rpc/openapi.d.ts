@@ -33,6 +33,10 @@ export interface paths {
     /** Estimate the fee in ADA to deliver an inbound message */
     post: operations["estimateInboundMessageFee"];
   };
+  "/api/inbox/submit-message": {
+    /** Submit an new inbound message */
+    post: operations["submitInboundMessage"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -201,6 +205,41 @@ export interface operations {
         content: {
           "application/json": {
             feeADA: number;
+          };
+        };
+      };
+    };
+  };
+  /** Submit an new inbound message */
+  submitInboundMessage: {
+    requestBody: {
+      content: {
+        "application/json": {
+          relayerCardanoAddress: string;
+          privateKey: string;
+          origin: number;
+          originMailbox: string;
+          checkpointRoot: string;
+          checkpointIndex: number;
+          message: {
+            version: number;
+            nonce: number;
+            originDomain: number;
+            sender: string;
+            destinationDomain: number;
+            recipient: string;
+            message: string;
+          };
+          signatures: (string)[];
+        };
+      };
+    };
+    responses: {
+      /** @description The tx id of the inbound message on Cardano */
+      200: {
+        content: {
+          "application/json": {
+            txId: string;
           };
         };
       };
