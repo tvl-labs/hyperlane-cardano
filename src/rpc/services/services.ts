@@ -1,5 +1,5 @@
 import { type ILastFinalizedBlockNumberService } from "./ILastFinalizedBlockNumberService";
-import { LastFinalizedBlockNumberService } from "./lastFinalizedBlockNumber";
+import { LastFinalizedBlockNumberService } from "./lastFinalizedBlockNumberService";
 import { type IMerkleTreeService } from "./IMerkleTreeService";
 import { MerkleTreeService } from "./merkleTreeService";
 import { type IMessagesService } from "./IMessagesService";
@@ -10,12 +10,16 @@ import { MockMerkleTreeService } from "../mock/services/MockMerkleTreeService";
 import { MockMessagesService } from "../mock/services/MockMessagesService";
 import { type IValidatorAnnouncement } from "./IValidatorAnnouncement";
 import { MockValidatorAnnouncement } from "../mock/services/MockValidatorAnnouncement";
-import { ValidatorAnnouncementService } from "./ValidatorAnnouncementService";
+import { ValidatorAnnouncementService } from "./validatorAnnouncementService";
+import type { IInboxIsmParametersService } from "./IInboxIsmParametersService";
+import { InboxIsmParametersService } from "./inboxIsmParametersService";
 
 export let lastFinalizedBlockNumberService: ILastFinalizedBlockNumberService;
 export let merkleTreeService: IMerkleTreeService;
 export let messagesService: IMessagesService;
 export let validatorAnnouncement: IValidatorAnnouncement;
+// TODO: Mock these
+export let inboxIsmParameters: IInboxIsmParametersService;
 
 if (IS_MOCK_ENVIRONMENT) {
   lastFinalizedBlockNumberService = new MockLastFinalizedBlockNumberService();
@@ -27,4 +31,5 @@ if (IS_MOCK_ENVIRONMENT) {
   merkleTreeService = new MerkleTreeService();
   messagesService = new MessagesService();
   validatorAnnouncement = new ValidatorAnnouncementService();
+  inboxIsmParameters = new InboxIsmParametersService();
 }

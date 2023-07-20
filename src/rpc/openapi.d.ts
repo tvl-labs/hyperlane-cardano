@@ -21,6 +21,10 @@ export interface paths {
     /** Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters) */
     post: operations["getValidatorStorageLocations"];
   };
+  "/api/inbox/ism-parameters": {
+    /** Get the inbox ISM parameters */
+    get: operations["inboxIsmParameters"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -115,6 +119,20 @@ export interface operations {
                 validatorAddress: string;
                 storageLocation: string;
               })[];
+          };
+        };
+      };
+    };
+  };
+  /** Get the inbox ISM parameters */
+  inboxIsmParameters: {
+    responses: {
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": {
+            validators: (string)[];
+            threshold: number;
           };
         };
       };

@@ -4,6 +4,8 @@ pub mod get_validator_storage_locations_200_response_validator_storage_locations
 pub use self::get_validator_storage_locations_200_response_validator_storage_locations_inner::GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner;
 pub mod get_validator_storage_locations_request;
 pub use self::get_validator_storage_locations_request::GetValidatorStorageLocationsRequest;
+pub mod inbox_ism_parameters_200_response;
+pub use self::inbox_ism_parameters_200_response::InboxIsmParameters200Response;
 pub mod last_finalized_block_200_response;
 pub use self::last_finalized_block_200_response::LastFinalizedBlock200Response;
 pub mod merkle_tree_200_response;

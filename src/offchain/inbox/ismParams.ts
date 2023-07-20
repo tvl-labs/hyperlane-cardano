@@ -7,20 +7,20 @@ import ScriptLockForever from "../../onchain/scriptLockForever.hl";
 
 // For relayers's offchain usage
 export interface IsmParams {
-  VALIDATOR_ADDRESSES: Address[];
-  THRESHOLD: bigint;
+  validators: Address[];
+  threshold: bigint;
 }
 
 export function getIsmParams(): IsmParams {
   return {
-    VALIDATOR_ADDRESSES: [1, 2, 3].map((i) =>
+    validators: [1, 2, 3].map((i) =>
       Address.fromEvmAddress(
         ethers.computeAddress(
           `0x${process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? ""}`
         )
       )
     ),
-    THRESHOLD: BigInt(process.env.ISM_THRESHOLD ?? 2),
+    threshold: BigInt(process.env.ISM_THRESHOLD ?? 2),
   };
 }
 

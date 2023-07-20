@@ -12,12 +12,14 @@ import type {
   LastFinalizedBlockResponseType,
   MerkleTreeResponseType,
   MessagesByBlockRangeResponseType,
+  InboxIsmParametersResponseType,
 } from "./types";
 import {
   lastFinalizedBlockNumberService,
   merkleTreeService,
   messagesService,
   validatorAnnouncement,
+  inboxIsmParameters,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
@@ -101,6 +103,14 @@ app.post(
         })
       ),
     });
+  }
+);
+
+app.get(
+  "/api/inbox/ism-parameters",
+  async function (req, res: Response<InboxIsmParametersResponseType>, _) {
+    const response = await inboxIsmParameters.getInboxIsmParameters();
+    res.status(200).json(response);
   }
 );
 

@@ -26,6 +26,7 @@ All URIs are relative to *http://localhost*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**get_validator_storage_locations**](docs/DefaultApi.md#get_validator_storage_locations) | **POST** /api/validator-announcement/get-storage-locations/ | Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters)
+*DefaultApi* | [**inbox_ism_parameters**](docs/DefaultApi.md#inbox_ism_parameters) | **GET** /api/inbox/ism-parameters | Get the inbox ISM parameters
 *DefaultApi* | [**last_finalized_block**](docs/DefaultApi.md#last_finalized_block) | **GET** /api/indexer/lastFinalizedBlock | Get the last finalized block
 *DefaultApi* | [**merkle_tree**](docs/DefaultApi.md#merkle_tree) | **GET** /api/indexer/merkleTree | Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 *DefaultApi* | [**messages_by_block_range**](docs/DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock
@@ -36,6 +37,7 @@ Class | Method | HTTP request | Description
  - [GetValidatorStorageLocations200Response](docs/GetValidatorStorageLocations200Response.md)
  - [GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner](docs/GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner.md)
  - [GetValidatorStorageLocationsRequest](docs/GetValidatorStorageLocationsRequest.md)
+ - [InboxIsmParameters200Response](docs/InboxIsmParameters200Response.md)
  - [LastFinalizedBlock200Response](docs/LastFinalizedBlock200Response.md)
  - [MerkleTree200Response](docs/MerkleTree200Response.md)
  - [MerkleTree200ResponseMerkleTree](docs/MerkleTree200ResponseMerkleTree.md)

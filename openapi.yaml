@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Outbox RPC API
+  title: Hyperlane <> Cardano RPC API
   version: 1.0.0
 paths:
   /api/indexer/lastFinalizedBlock:
@@ -155,3 +155,24 @@ paths:
                           type: string
                         storageLocation:
                           type: string
+  /api/inbox/ism-parameters:
+    get:
+      summary: "Get the inbox ISM parameters"
+      operationId: "inboxIsmParameters"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  validators:
+                    type: array
+                    items:
+                      type: string
+                  threshold:
+                    type: number
+                required:
+                  - validators
+                  - threshold

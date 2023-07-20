@@ -13,3 +13,6 @@ export type GetValidatorStorageLocationsRequestBody =
   operations["getValidatorStorageLocations"]["requestBody"]["content"]["application/json"];
 export type GetValidatorStorageLocationsResponseBody =
   operations["getValidatorStorageLocations"]["responses"]["200"]["content"]["application/json"];
+
+export type InboxIsmParametersResponseType =
+  operations["inboxIsmParameters"]["responses"]["200"]["content"]["application/json"];
