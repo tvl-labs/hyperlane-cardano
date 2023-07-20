@@ -6,12 +6,12 @@ export const TOKEN_NAME_AUTH = helios.textToBytes("auth");
 
 export class Wallet {
   readonly address: helios.Address;
-  readonly privateKey: helios.PrivateKey;
+  readonly privateKey?: helios.PrivateKey;
   readonly emulatedWallet?: helios.Wallet;
 
   constructor(
     address: helios.Address,
-    privateKey: helios.PrivateKey,
+    privateKey?: helios.PrivateKey,
     emulatedWallet?: helios.Wallet
   ) {
     this.address = address;
@@ -36,6 +36,9 @@ export class Wallet {
   async signTx(tx: helios.Tx): Promise<helios.Signature[]> {
     if (this.emulatedWallet != null) {
       return await this.emulatedWallet.signTx(tx);
+    }
+    if (this.privateKey == null) {
+      throw new Error("No key to sign");
     }
     return [this.privateKey.sign(tx.bodyHash)];
   }

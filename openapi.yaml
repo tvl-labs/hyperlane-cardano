@@ -221,3 +221,73 @@ paths:
                     type: boolean
                 required:
                   - isDelivered
+  /api/inbox/estimate-message-fee:
+    post:
+      operationId: "estimateInboundMessageFee"
+      summary: Estimate the fee in ADA to deliver an inbound message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                relayerCardanoAddress:
+                  type: string
+                origin:
+                  type: number
+                originMailbox:
+                  type: string
+                checkpointRoot:
+                  type: string
+                checkpointIndex:
+                  type: number
+                message:
+                  type: object
+                  properties:
+                    version:
+                      type: number
+                    nonce:
+                      type: number
+                    originDomain:
+                      type: number
+                    sender:
+                      type: string
+                    destinationDomain:
+                      type: number
+                    recipient:
+                      type: string
+                    message:
+                      type: string
+                  required:
+                    - version
+                    - nonce
+                    - originDomain
+                    - sender
+                    - destinationDomain
+                    - recipient
+                    - message
+                signatures:
+                  type: array
+                  items:
+                    type: string # hex
+              required:
+                - relayerCardanoAddress
+                - origin
+                - originMailbox
+                - checkpointRoot
+                - checkpointIndex
+                - message
+                - signatures
+      responses:
+        200:
+          description: The estimated fee in ADA to deliver the inbound message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feeADA:
+                    type: number
+                required:
+                  - feeADA

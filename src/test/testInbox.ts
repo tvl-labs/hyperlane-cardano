@@ -56,10 +56,7 @@ async function createInboundMsg(isEmulated: boolean = false) {
     )
   );
   const signatures = validatorPrivateKeys.map(
-    (k) =>
-      new helios.ByteArray(
-        Array.from(secp256k1.ecdsaSign(checkpointHash, k).signature)
-      )
+    (k) => secp256k1.ecdsaSign(checkpointHash, k).signature
   );
 
   const isDelivered = await isInboundMessageDelivered(ismParams, message);

@@ -4,6 +4,8 @@
 Cargo.toml
 README.md
 docs/DefaultApi.md
+docs/EstimateInboundMessageFee200Response.md
+docs/EstimateInboundMessageFeeRequest.md
 docs/GetValidatorStorageLocations200Response.md
 docs/GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner.md
 docs/GetValidatorStorageLocationsRequest.md
@@ -21,6 +23,8 @@ src/apis/configuration.rs
 src/apis/default_api.rs
 src/apis/mod.rs
 src/lib.rs
+src/models/estimate_inbound_message_fee_200_response.rs
+src/models/estimate_inbound_message_fee_request.rs
 src/models/get_validator_storage_locations_200_response.rs
 src/models/get_validator_storage_locations_200_response_validator_storage_locations_inner.rs
 src/models/get_validator_storage_locations_request.rs

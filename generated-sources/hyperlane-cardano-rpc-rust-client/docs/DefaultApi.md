@@ -4,6 +4,7 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**estimate_inbound_message_fee**](DefaultApi.md#estimate_inbound_message_fee) | **POST** /api/inbox/estimate-message-fee | Estimate the fee in ADA to deliver an inbound message
 [**get_validator_storage_locations**](DefaultApi.md#get_validator_storage_locations) | **POST** /api/validator-announcement/get-storage-locations/ | Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters)
 [**inbox_ism_parameters**](DefaultApi.md#inbox_ism_parameters) | **GET** /api/inbox/ism-parameters | Get the inbox ISM parameters
 [**is_inbox_message_delivered**](DefaultApi.md#is_inbox_message_delivered) | **POST** /api/inbox/is-message-delivered | Check if an inbox message was delivered
@@ -11,6 +12,34 @@ Method | HTTP request | Description
 [**merkle_tree**](DefaultApi.md#merkle_tree) | **GET** /api/indexer/merkleTree | Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 [**messages_by_block_range**](DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock
 
+
+
+## estimate_inbound_message_fee
+
+> crate::models::EstimateInboundMessageFee200Response estimate_inbound_message_fee(estimate_inbound_message_fee_request)
+Estimate the fee in ADA to deliver an inbound message
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**estimate_inbound_message_fee_request** | [**EstimateInboundMessageFeeRequest**](EstimateInboundMessageFeeRequest.md) |  | [required] |
+
+### Return type
+
+[**crate::models::EstimateInboundMessageFee200Response**](estimateInboundMessageFee_200_response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 
 ## get_validator_storage_locations

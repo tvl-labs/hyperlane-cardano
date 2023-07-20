@@ -14,6 +14,7 @@ import { ValidatorAnnouncementService } from "./validatorAnnouncementService";
 import type { IInboxIsmParametersService } from "./IInboxIsmParametersService";
 import { InboxIsmParametersService } from "./inboxIsmParametersService";
 import { IsInboxMessageDeliveredService } from "./isInboxMessageDeliveredService";
+import { EstimateInboxMessageFeeService } from "./estimateInboxMessageFeeService";
 
 export let lastFinalizedBlockNumberService: ILastFinalizedBlockNumberService;
 export let merkleTreeService: IMerkleTreeService;
@@ -22,6 +23,7 @@ export let validatorAnnouncement: IValidatorAnnouncement;
 // TODO: Mock these
 export let inboxIsmParameters: IInboxIsmParametersService;
 export let isInboundMessageDelivered: IsInboxMessageDeliveredService;
+export let estimateInboundMessageFee: EstimateInboxMessageFeeService;
 
 if (IS_MOCK_ENVIRONMENT) {
   lastFinalizedBlockNumberService = new MockLastFinalizedBlockNumberService();
@@ -35,4 +37,5 @@ if (IS_MOCK_ENVIRONMENT) {
   validatorAnnouncement = new ValidatorAnnouncementService();
   inboxIsmParameters = new InboxIsmParametersService();
   isInboundMessageDelivered = new IsInboxMessageDeliveredService();
+  estimateInboundMessageFee = new EstimateInboxMessageFeeService();
 }

@@ -15,6 +15,13 @@ use crate::apis::ResponseContent;
 use super::{Error, configuration};
 
 
+/// struct for typed errors of method [`estimate_inbound_message_fee`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EstimateInboundMessageFeeError {
+    UnknownValue(serde_json::Value),
+}
+
 /// struct for typed errors of method [`get_validator_storage_locations`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -57,6 +64,34 @@ pub enum MessagesByBlockRangeError {
     UnknownValue(serde_json::Value),
 }
 
+
+pub async fn estimate_inbound_message_fee(configuration: &configuration::Configuration, estimate_inbound_message_fee_request: crate::models::EstimateInboundMessageFeeRequest) -> Result<crate::models::EstimateInboundMessageFee200Response, Error<EstimateInboundMessageFeeError>> {
+    let local_var_configuration = configuration;
+
+    let local_var_client = &local_var_configuration.client;
+
+    let local_var_uri_str = format!("{}/api/inbox/estimate-message-fee", local_var_configuration.base_path);
+    let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    }
+    local_var_req_builder = local_var_req_builder.json(&estimate_inbound_message_fee_request);
+
+    let local_var_req = local_var_req_builder.build()?;
+    let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+    let local_var_status = local_var_resp.status();
+    let local_var_content = local_var_resp.text().await?;
+
+    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+        serde_json::from_str(&local_var_content).map_err(Error::from)
+    } else {
+        let local_var_entity: Option<EstimateInboundMessageFeeError> = serde_json::from_str(&local_var_content).ok();
+        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Err(Error::ResponseError(local_var_error))
+    }
+}
 
 pub async fn get_validator_storage_locations(configuration: &configuration::Configuration, get_validator_storage_locations_request: crate::models::GetValidatorStorageLocationsRequest) -> Result<crate::models::GetValidatorStorageLocations200Response, Error<GetValidatorStorageLocationsError>> {
     let local_var_configuration = configuration;

@@ -1,3 +1,7 @@
+pub mod estimate_inbound_message_fee_200_response;
+pub use self::estimate_inbound_message_fee_200_response::EstimateInboundMessageFee200Response;
+pub mod estimate_inbound_message_fee_request;
+pub use self::estimate_inbound_message_fee_request::EstimateInboundMessageFeeRequest;
 pub mod get_validator_storage_locations_200_response;
 pub use self::get_validator_storage_locations_200_response::GetValidatorStorageLocations200Response;
 pub mod get_validator_storage_locations_200_response_validator_storage_locations_inner;

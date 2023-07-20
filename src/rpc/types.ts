@@ -21,3 +21,8 @@ export type IsInboxMessageDeliveredRequestBody =
   operations["isInboxMessageDelivered"]["requestBody"]["content"]["application/json"];
 export type IsInboxMessageDeliveredResponseBody =
   operations["isInboxMessageDelivered"]["responses"]["200"]["content"]["application/json"];
+
+export type EstimateInboxMessageFeeRequestBody =
+  operations["estimateInboundMessageFee"]["requestBody"]["content"]["application/json"];
+export type EstimateInboxMessageFeeResponseBody =
+  operations["estimateInboundMessageFee"]["responses"]["200"]["content"]["application/json"];

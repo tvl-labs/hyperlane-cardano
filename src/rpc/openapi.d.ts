@@ -29,6 +29,10 @@ export interface paths {
     /** Check if an inbox message was delivered */
     post: operations["isInboxMessageDelivered"];
   };
+  "/api/inbox/estimate-message-fee": {
+    /** Estimate the fee in ADA to deliver an inbound message */
+    post: operations["estimateInboundMessageFee"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -163,6 +167,40 @@ export interface operations {
         content: {
           "application/json": {
             isDelivered: boolean;
+          };
+        };
+      };
+    };
+  };
+  /** Estimate the fee in ADA to deliver an inbound message */
+  estimateInboundMessageFee: {
+    requestBody: {
+      content: {
+        "application/json": {
+          relayerCardanoAddress: string;
+          origin: number;
+          originMailbox: string;
+          checkpointRoot: string;
+          checkpointIndex: number;
+          message: {
+            version: number;
+            nonce: number;
+            originDomain: number;
+            sender: string;
+            destinationDomain: number;
+            recipient: string;
+            message: string;
+          };
+          signatures: (string)[];
+        };
+      };
+    };
+    responses: {
+      /** @description The estimated fee in ADA to deliver the inbound message */
+      200: {
+        content: {
+          "application/json": {
+            feeADA: number;
           };
         };
       };

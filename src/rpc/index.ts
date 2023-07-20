@@ -6,6 +6,7 @@ import express, { type Request, type Response } from "express";
 import path from "path";
 import http from "http";
 import logger from "morgan";
+import * as helios from "@hyperionbt/helios";
 import type {
   GetValidatorStorageLocationsRequestBody,
   GetValidatorStorageLocationsResponseBody,
@@ -15,6 +16,8 @@ import type {
   InboxIsmParametersResponseType,
   IsInboxMessageDeliveredRequestBody,
   IsInboxMessageDeliveredResponseBody,
+  EstimateInboxMessageFeeRequestBody,
+  EstimateInboxMessageFeeResponseBody,
 } from "./types";
 import {
   lastFinalizedBlockNumberService,
@@ -23,11 +26,13 @@ import {
   validatorAnnouncement,
   inboxIsmParameters,
   isInboundMessageDelivered,
+  estimateInboundMessageFee,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
 import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
+import { Wallet } from "../offchain/wallet";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -136,6 +141,40 @@ app.post(
         message: MessagePayload.fromHexString(req.body.message),
       });
     res.status(200).json({ isDelivered });
+  }
+);
+
+// TODO: Better error handling, like when the tx
+// fails to build / doesn't validate
+app.post(
+  "/api/inbox/estimate-message-fee",
+  async function (
+    req: Request<EstimateInboxMessageFeeRequestBody>,
+    res: Response<EstimateInboxMessageFeeResponseBody>,
+    _
+  ) {
+    const feeADA = await estimateInboundMessageFee.estimateInboundMessageFee(
+      new Wallet(new helios.Address(req.body.relayerCardanoAddress)),
+      {
+        origin: req.body.origin,
+        originMailbox: Address.fromHex(req.body.originMailbox),
+        checkpointRoot: Uint8Array.from(
+          Buffer.from(req.body.checkpointRoot, "hex")
+        ),
+        checkpointIndex: req.body.checkpointIndex,
+        message: {
+          version: req.body.message.version,
+          nonce: req.body.message.nonce,
+          originDomain: req.body.message.originDomain,
+          sender: Address.fromHex(req.body.message.sender),
+          destinationDomain: req.body.message.destinationDomain,
+          recipient: Address.fromHex(req.body.message.recipient),
+          message: MessagePayload.fromHexString(req.body.message.message),
+        },
+      },
+      req.body.signatures.map((s) => Uint8Array.from(Buffer.from(s, "hex")))
+    );
+    res.status(200).json({ feeADA });
   }
 );
 
