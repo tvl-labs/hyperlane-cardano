@@ -1,0 +1,4 @@
+.idea
+.github
+generated-sources
+**/node_modules
