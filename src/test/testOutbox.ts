@@ -9,6 +9,7 @@ import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
 import createOutbox from "../offchain/tx/createOutbox";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
+import { getOutboundGasPayment } from "../offchain/indexer/getOutboundGasPayment";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 
 const outboundRelayerAddress = new helios.Address(
@@ -95,14 +96,31 @@ export async function testOutboxOnPreprodNetwork() {
   );
   await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
 
+  let paidGas = await getOutboundGasPayment(
+    outboundRelayerAddress,
+    createMsgRes.messageId
+  );
+  if (paidGas !== BigInt(0)) {
+    throw new Error("Expect unpaid outbound message");
+  }
+
+  const gas = BigInt(10_000_000);
   let txId = await payOutboundRelayer(
     preprodWallet,
     outboundRelayerAddress,
-    BigInt(10_000_000),
+    gas,
     createMsgRes.messageId
   );
   console.log(`Paid relayer for the first outbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
+
+  paidGas = await getOutboundGasPayment(
+    outboundRelayerAddress,
+    createMsgRes.messageId
+  );
+  if (paidGas !== gas) {
+    throw new Error("Expect paid outbound message");
+  }
 
   createMsgRes = await createOutboundMsg(1, createMsgRes.utxo);
   console.log(
@@ -120,6 +138,14 @@ export async function testOutboxOnPreprodNetwork() {
     `Paid relayer for the second outbound message at tx ${txId.hex}!`
   );
   await waitForTxConfirmation(txId.hex);
+
+  paidGas = await getOutboundGasPayment(
+    outboundRelayerAddress,
+    createMsgRes.messageId
+  );
+  if (paidGas !== gas) {
+    throw new Error("Expect paid outbound message");
+  }
 
   // Note: Not all messages are "text".
   const outboundMessages = (await getOutboundMessages()).map((m) =>
