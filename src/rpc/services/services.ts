@@ -16,6 +16,7 @@ import { InboxIsmParametersService } from "./inboxIsmParametersService";
 import { IsInboxMessageDeliveredService } from "./isInboxMessageDeliveredService";
 import { EstimateInboxMessageFeeService } from "./estimateInboxMessageFeeService";
 import { SubmitInboundMessageService } from "./submitInboundMessageService";
+import { GetOutboundGasPaymentService } from "./getOutboundGasPaymentService";
 
 export let lastFinalizedBlockNumberService: ILastFinalizedBlockNumberService;
 export let merkleTreeService: IMerkleTreeService;
@@ -26,6 +27,7 @@ export let inboxIsmParameters: IInboxIsmParametersService;
 export let isInboundMessageDelivered: IsInboxMessageDeliveredService;
 export let estimateInboundMessageFee: EstimateInboxMessageFeeService;
 export let submitInboundMessage: SubmitInboundMessageService;
+export let getOutboundGasPayment: GetOutboundGasPaymentService;
 
 if (IS_MOCK_ENVIRONMENT) {
   lastFinalizedBlockNumberService = new MockLastFinalizedBlockNumberService();
@@ -41,4 +43,5 @@ if (IS_MOCK_ENVIRONMENT) {
   isInboundMessageDelivered = new IsInboxMessageDeliveredService();
   estimateInboundMessageFee = new EstimateInboxMessageFeeService();
   submitInboundMessage = new SubmitInboundMessageService();
+  getOutboundGasPayment = new GetOutboundGasPaymentService();
 }

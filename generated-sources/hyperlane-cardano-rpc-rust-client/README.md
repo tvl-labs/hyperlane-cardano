@@ -26,6 +26,7 @@ All URIs are relative to *http://localhost*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**estimate_inbound_message_fee**](docs/DefaultApi.md#estimate_inbound_message_fee) | **POST** /api/inbox/estimate-message-fee | Estimate the fee in ADA to deliver an inbound message
+*DefaultApi* | [**get_outbound_gas_payment**](docs/DefaultApi.md#get_outbound_gas_payment) | **POST** /api/outbox/get-message-gas-payment | Get the outbound gas payment for a message to a relayer
 *DefaultApi* | [**get_validator_storage_locations**](docs/DefaultApi.md#get_validator_storage_locations) | **POST** /api/validator-announcement/get-storage-locations/ | Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters)
 *DefaultApi* | [**inbox_ism_parameters**](docs/DefaultApi.md#inbox_ism_parameters) | **GET** /api/inbox/ism-parameters | Get the inbox ISM parameters
 *DefaultApi* | [**is_inbox_message_delivered**](docs/DefaultApi.md#is_inbox_message_delivered) | **POST** /api/inbox/is-message-delivered | Check if an inbox message was delivered
@@ -39,6 +40,8 @@ Class | Method | HTTP request | Description
 
  - [EstimateInboundMessageFee200Response](docs/EstimateInboundMessageFee200Response.md)
  - [EstimateInboundMessageFeeRequest](docs/EstimateInboundMessageFeeRequest.md)
+ - [GetOutboundGasPayment200Response](docs/GetOutboundGasPayment200Response.md)
+ - [GetOutboundGasPaymentRequest](docs/GetOutboundGasPaymentRequest.md)
  - [GetValidatorStorageLocations200Response](docs/GetValidatorStorageLocations200Response.md)
  - [GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner](docs/GetValidatorStorageLocations200ResponseValidatorStorageLocationsInner.md)
  - [GetValidatorStorageLocationsRequest](docs/GetValidatorStorageLocationsRequest.md)

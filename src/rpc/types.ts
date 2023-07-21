@@ -31,3 +31,8 @@ export type SubmitInboundMessageRequestBody =
   operations["submitInboundMessage"]["requestBody"]["content"]["application/json"];
 export type SubmitInboundMessageResponseBody =
   operations["submitInboundMessage"]["responses"]["200"]["content"]["application/json"];
+
+export type GetOutboundGasPaymentRequestBody =
+  operations["getOutboundGasPayment"]["requestBody"]["content"]["application/json"];
+export type GetOutboundGasPaymentResponseBody =
+  operations["getOutboundGasPayment"]["responses"]["200"]["content"]["application/json"];

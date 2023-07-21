@@ -364,3 +364,33 @@ paths:
                     type: string
                 required:
                   - txId
+  /api/outbox/get-message-gas-payment:
+    post:
+      operationId: "getOutboundGasPayment"
+      summary: Get the outbound gas payment for a message to a relayer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                relayerAddress:
+                  type: string
+                messageId:
+                  type: string
+              required:
+                - relayerAddress
+                - messageId
+      responses:
+        200:
+          description: The total amount of gas paid to the relayer for the message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalGasADA:
+                    type: number
+                required:
+                  - totalGasADA

@@ -37,6 +37,10 @@ export interface paths {
     /** Submit an new inbound message */
     post: operations["submitInboundMessage"];
   };
+  "/api/outbox/get-message-gas-payment": {
+    /** Get the outbound gas payment for a message to a relayer */
+    post: operations["getOutboundGasPayment"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -240,6 +244,27 @@ export interface operations {
         content: {
           "application/json": {
             txId: string;
+          };
+        };
+      };
+    };
+  };
+  /** Get the outbound gas payment for a message to a relayer */
+  getOutboundGasPayment: {
+    requestBody: {
+      content: {
+        "application/json": {
+          relayerAddress: string;
+          messageId: string;
+        };
+      };
+    };
+    responses: {
+      /** @description The total amount of gas paid to the relayer for the message */
+      200: {
+        content: {
+          "application/json": {
+            totalGasADA: number;
           };
         };
       };

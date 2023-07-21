@@ -5,6 +5,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**estimate_inbound_message_fee**](DefaultApi.md#estimate_inbound_message_fee) | **POST** /api/inbox/estimate-message-fee | Estimate the fee in ADA to deliver an inbound message
+[**get_outbound_gas_payment**](DefaultApi.md#get_outbound_gas_payment) | **POST** /api/outbox/get-message-gas-payment | Get the outbound gas payment for a message to a relayer
 [**get_validator_storage_locations**](DefaultApi.md#get_validator_storage_locations) | **POST** /api/validator-announcement/get-storage-locations/ | Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters)
 [**inbox_ism_parameters**](DefaultApi.md#inbox_ism_parameters) | **GET** /api/inbox/ism-parameters | Get the inbox ISM parameters
 [**is_inbox_message_delivered**](DefaultApi.md#is_inbox_message_delivered) | **POST** /api/inbox/is-message-delivered | Check if an inbox message was delivered
@@ -30,6 +31,34 @@ Name | Type | Description  | Required | Notes
 ### Return type
 
 [**crate::models::EstimateInboundMessageFee200Response**](estimateInboundMessageFee_200_response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## get_outbound_gas_payment
+
+> crate::models::GetOutboundGasPayment200Response get_outbound_gas_payment(get_outbound_gas_payment_request)
+Get the outbound gas payment for a message to a relayer
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**get_outbound_gas_payment_request** | [**GetOutboundGasPaymentRequest**](GetOutboundGasPaymentRequest.md) |  | [required] |
+
+### Return type
+
+[**crate::models::GetOutboundGasPayment200Response**](getOutboundGasPayment_200_response.md)
 
 ### Authorization
 

@@ -20,6 +20,8 @@ import type {
   EstimateInboxMessageFeeResponseBody,
   SubmitInboundMessageRequestBody,
   SubmitInboundMessageResponseBody,
+  GetOutboundGasPaymentRequestBody,
+  GetOutboundGasPaymentResponseBody,
 } from "./types";
 import {
   lastFinalizedBlockNumberService,
@@ -30,6 +32,7 @@ import {
   isInboundMessageDelivered,
   estimateInboundMessageFee,
   submitInboundMessage,
+  getOutboundGasPayment,
 } from "./services/services";
 import { IS_MOCK_ENVIRONMENT } from "./environment";
 import { mockPrefillState } from "./mock/mockInitializer";
@@ -215,6 +218,21 @@ app.post(
       req.body.signatures.map((s) => Uint8Array.from(Buffer.from(s, "hex")))
     );
     res.status(200).json({ txId: txId.hex });
+  }
+);
+
+app.post(
+  "/api/outbox/get-message-gas-payment",
+  async function (
+    req: Request<GetOutboundGasPaymentRequestBody>,
+    res: Response<GetOutboundGasPaymentResponseBody>,
+    _
+  ) {
+    const totalGasADA = await getOutboundGasPayment.getOutboundGasPayment(
+      new helios.Address(req.body.relayerAddress),
+      new helios.ByteArray(req.body.messageId)
+    );
+    res.status(200).json({ totalGasADA });
   }
 );
 
