@@ -12,10 +12,10 @@ export interface ValidatorStorageLocation {
 
 export function hashValidatorStorageLocation(
   location: ValidatorStorageLocation
-): Uint8Array {
+): Buffer {
   const bufMailboxDomain = Buffer.alloc(4);
   bufMailboxDomain.writeUInt32BE(location.mailboxDomain);
-  return ethers.getBytes(
+  return Buffer.from(
     ethers.keccak256(
       Buffer.concat([
         Buffer.from(
@@ -30,7 +30,8 @@ export function hashValidatorStorageLocation(
         ),
         Buffer.from(location.storageLocation),
       ])
-    )
+    ),
+    "hex"
   );
 }
 

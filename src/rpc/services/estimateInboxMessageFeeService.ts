@@ -12,7 +12,7 @@ export class EstimateInboxMessageFeeService
   async estimateInboundMessageFee(
     wallet: Wallet,
     checkpoint: Checkpoint,
-    signatures: Uint8Array[]
+    signatures: Buffer[]
   ): Promise<number> {
     const fee = await estimateInboundMessageFee(
       getIsmParamsHelios(),

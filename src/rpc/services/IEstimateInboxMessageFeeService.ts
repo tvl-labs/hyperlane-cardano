@@ -5,6 +5,6 @@ export interface IEstimateInboxMessageFee {
   estimateInboundMessageFee: (
     wallet: Wallet,
     checkpoint: Checkpoint,
-    signatures: Uint8Array[]
+    signatures: Buffer[]
   ) => Promise<number>;
 }

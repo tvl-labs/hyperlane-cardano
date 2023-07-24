@@ -39,7 +39,7 @@ const checkpoint: Checkpoint = {
   originMailbox: Address.fromHex(
     "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
   ),
-  checkpointRoot: new Uint8Array(32).fill(0),
+  checkpointRoot: Buffer.alloc(32).fill(0),
   checkpointIndex: 0,
   message,
 };
@@ -51,9 +51,7 @@ const ismParams = getIsmParamsHelios();
 async function createInboundMsg(isEmulated: boolean = false) {
   const checkpointHash = hashCheckpoint(checkpoint);
   const validatorPrivateKeys = [1, 2, 3].map((i) =>
-    Uint8Array.from(
-      Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
-    )
+    Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
   );
   const signatures = validatorPrivateKeys.map(
     (k) => secp256k1.ecdsaSign(checkpointHash, k).signature

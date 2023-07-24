@@ -15,7 +15,7 @@ import {
 async function buildInboundMessageTx(
   ismParams: IsmParamsHelios,
   checkpoint: Checkpoint,
-  signatures: Uint8Array[],
+  signatures: Buffer[],
   wallet: Wallet
 ): Promise<helios.Tx> {
   const tx = new helios.Tx();
@@ -70,7 +70,7 @@ async function buildInboundMessageTx(
 export async function estimateInboundMessageFee(
   ismParams: IsmParamsHelios,
   checkpoint: Checkpoint,
-  signatures: Uint8Array[],
+  signatures: Buffer[],
   wallet: Wallet
 ): Promise<bigint> {
   const tx = await buildInboundMessageTx(
@@ -85,7 +85,7 @@ export async function estimateInboundMessageFee(
 export async function createInboundMessage(
   ismParams: IsmParamsHelios,
   checkpoint: Checkpoint,
-  signatures: Uint8Array[],
+  signatures: Buffer[],
   wallet: Wallet
 ): Promise<helios.TxId> {
   const tx = await buildInboundMessageTx(

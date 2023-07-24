@@ -164,9 +164,7 @@ app.post(
       {
         origin: req.body.origin,
         originMailbox: Address.fromHex(req.body.originMailbox),
-        checkpointRoot: Uint8Array.from(
-          Buffer.from(req.body.checkpointRoot, "hex")
-        ),
+        checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
         checkpointIndex: req.body.checkpointIndex,
         message: {
           version: req.body.message.version,
@@ -178,7 +176,7 @@ app.post(
           message: MessagePayload.fromHexString(req.body.message.message),
         },
       },
-      req.body.signatures.map((s) => Uint8Array.from(Buffer.from(s, "hex")))
+      req.body.signatures.map((s) => Buffer.from(s, "hex"))
     );
     res.status(200).json({ feeADA });
   }
@@ -201,9 +199,7 @@ app.post(
       {
         origin: req.body.origin,
         originMailbox: Address.fromHex(req.body.originMailbox),
-        checkpointRoot: Uint8Array.from(
-          Buffer.from(req.body.checkpointRoot, "hex")
-        ),
+        checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
         checkpointIndex: req.body.checkpointIndex,
         message: {
           version: req.body.message.version,
@@ -215,7 +211,7 @@ app.post(
           message: MessagePayload.fromHexString(req.body.message.message),
         },
       },
-      req.body.signatures.map((s) => Uint8Array.from(Buffer.from(s, "hex")))
+      req.body.signatures.map((s) => Buffer.from(s, "hex"))
     );
     res.status(200).json({ txId: txId.hex });
   }

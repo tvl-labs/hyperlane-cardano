@@ -8,7 +8,7 @@ export class SubmitInboundMessageService implements ISubmitInboundMessage {
   async submitInboundMessage(
     wallet: Wallet,
     checkpoint: Checkpoint,
-    signatures: Uint8Array[]
+    signatures: Buffer[]
   ): Promise<helios.TxId> {
     return await createInboundMessage(
       getIsmParamsHelios(),

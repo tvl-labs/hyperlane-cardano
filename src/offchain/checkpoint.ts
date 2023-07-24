@@ -10,7 +10,7 @@ export interface Checkpoint {
   // The address of the origin mailbox as bytes32.
   originMailbox: Address;
   // The root of the checkpoint.
-  checkpointRoot: Uint8Array; // 32 bytes
+  checkpointRoot: Buffer; // 32 bytes
   // The index of the checkpoint.
   checkpointIndex: number;
   // The message of the checkpoint.
@@ -18,12 +18,12 @@ export interface Checkpoint {
 }
 
 // TODO: Use more unified data types and conversion code...
-export function hashCheckpoint(checkpoint: Checkpoint): Uint8Array {
+export function hashCheckpoint(checkpoint: Checkpoint): Buffer {
   const origin = Buffer.alloc(4);
   origin.writeUInt32BE(checkpoint.origin);
   const checkpointIndex = Buffer.alloc(4);
   checkpointIndex.writeUInt32BE(checkpoint.checkpointIndex);
-  return new Uint8Array(
+  return Buffer.from(
     helios.Crypto.blake2b(
       helios.Crypto.blake2b([
         ...Buffer.concat([

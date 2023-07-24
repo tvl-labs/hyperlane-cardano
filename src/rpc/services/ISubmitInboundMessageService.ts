@@ -6,6 +6,6 @@ export interface ISubmitInboundMessage {
   submitInboundMessage: (
     wallet: Wallet,
     checkpoint: Checkpoint,
-    signatures: Uint8Array[]
+    signatures: Buffer[]
   ) => Promise<helios.TxId>;
 }
