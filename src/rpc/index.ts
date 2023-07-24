@@ -58,40 +58,45 @@ app.use(
 app.use(logger("dev"));
 app.use("/spec", express.static(openapiSpec));
 
-app.use((err, req, res, _) => {
-  res.status(err.status ?? 500).json({
-    message: err.message,
-    errors: err.errors,
-  });
-});
-
 app.get(
   "/api/indexer/lastFinalizedBlock",
-  async function (req, res: Response<LastFinalizedBlockResponseType>, _) {
-    const response =
-      await lastFinalizedBlockNumberService.getLastFinalizedBlockNumber();
-    res.status(200).json(response);
+  async function (req, res: Response<LastFinalizedBlockResponseType>, next) {
+    try {
+      const response =
+        await lastFinalizedBlockNumberService.getLastFinalizedBlockNumber();
+      res.status(200).json(response);
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
 app.get(
   "/api/indexer/merkleTree",
-  async function (req, res: Response<MerkleTreeResponseType>, _) {
-    const response = await merkleTreeService.getLatestMerkleTree();
-    res.json(response);
+  async function (req, res: Response<MerkleTreeResponseType>, next) {
+    try {
+      const response = await merkleTreeService.getLatestMerkleTree();
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
 app.get(
   "/api/indexer/messages/:fromBlock/:toBlock",
-  async function (req, res: Response<MessagesByBlockRangeResponseType>, _) {
-    const fromBlock = parseInt(req.params.fromBlock);
-    const toBlock = parseInt(req.params.toBlock);
-    const response = await messagesService.getMessagesInBlockRange(
-      fromBlock,
-      toBlock
-    );
-    res.json(response);
+  async function (req, res: Response<MessagesByBlockRangeResponseType>, next) {
+    try {
+      const fromBlock = parseInt(req.params.fromBlock);
+      const toBlock = parseInt(req.params.toBlock);
+      const response = await messagesService.getMessagesInBlockRange(
+        fromBlock,
+        toBlock
+      );
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
@@ -100,32 +105,40 @@ app.post(
   async function (
     req: Request<GetValidatorStorageLocationsRequestBody>,
     res: Response<GetValidatorStorageLocationsResponseBody>,
-    _
+    next
   ) {
     // TODO[RPC]: better request validation, respond with 400 if invalid request body.
-    const validatorEvmAddresses = req.body.validatorAddresses.map((address) =>
-      Address.fromHex(address)
-    );
-    const validatorStorageLocations =
-      await validatorAnnouncement.getValidatorStorageLocations(
-        validatorEvmAddresses
+    try {
+      const validatorEvmAddresses = req.body.validatorAddresses.map((address) =>
+        Address.fromHex(address)
       );
-    res.json({
-      validatorStorageLocations: validatorStorageLocations.map(
-        ({ validatorAddress, storageLocation }) => ({
-          storageLocation,
-          validatorAddress: validatorAddress.toHex(),
-        })
-      ),
-    });
+      const validatorStorageLocations =
+        await validatorAnnouncement.getValidatorStorageLocations(
+          validatorEvmAddresses
+        );
+      res.json({
+        validatorStorageLocations: validatorStorageLocations.map(
+          ({ validatorAddress, storageLocation }) => ({
+            storageLocation,
+            validatorAddress: validatorAddress.toHex(),
+          })
+        ),
+      });
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
 app.get(
   "/api/inbox/ism-parameters",
-  async function (req, res: Response<InboxIsmParametersResponseType>, _) {
-    const response = await inboxIsmParameters.getInboxIsmParameters();
-    res.status(200).json(response);
+  async function (req, res: Response<InboxIsmParametersResponseType>, next) {
+    try {
+      const response = await inboxIsmParameters.getInboxIsmParameters();
+      res.status(200).json(response);
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
@@ -134,19 +147,23 @@ app.post(
   async function (
     req: Request<IsInboxMessageDeliveredRequestBody>,
     res: Response<IsInboxMessageDeliveredResponseBody>,
-    _
+    next
   ) {
-    const isDelivered =
-      await isInboundMessageDelivered.getIsInboxMessageDelivered({
-        version: req.body.version,
-        nonce: req.body.nonce,
-        originDomain: req.body.originDomain,
-        sender: Address.fromHex(req.body.sender),
-        destinationDomain: req.body.destinationDomain,
-        recipient: Address.fromHex(req.body.recipient),
-        message: MessagePayload.fromHexString(req.body.message),
-      });
-    res.status(200).json({ isDelivered });
+    try {
+      const isDelivered =
+        await isInboundMessageDelivered.getIsInboxMessageDelivered({
+          version: req.body.version,
+          nonce: req.body.nonce,
+          originDomain: req.body.originDomain,
+          sender: Address.fromHex(req.body.sender),
+          destinationDomain: req.body.destinationDomain,
+          recipient: Address.fromHex(req.body.recipient),
+          message: MessagePayload.fromHexString(req.body.message),
+        });
+      res.status(200).json({ isDelivered });
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
@@ -157,28 +174,32 @@ app.post(
   async function (
     req: Request<EstimateInboxMessageFeeRequestBody>,
     res: Response<EstimateInboxMessageFeeResponseBody>,
-    _
+    next
   ) {
-    const feeADA = await estimateInboundMessageFee.estimateInboundMessageFee(
-      new Wallet(new helios.Address(req.body.relayerCardanoAddress)),
-      {
-        origin: req.body.origin,
-        originMailbox: Address.fromHex(req.body.originMailbox),
-        checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
-        checkpointIndex: req.body.checkpointIndex,
-        message: {
-          version: req.body.message.version,
-          nonce: req.body.message.nonce,
-          originDomain: req.body.message.originDomain,
-          sender: Address.fromHex(req.body.message.sender),
-          destinationDomain: req.body.message.destinationDomain,
-          recipient: Address.fromHex(req.body.message.recipient),
-          message: MessagePayload.fromHexString(req.body.message.message),
+    try {
+      const feeADA = await estimateInboundMessageFee.estimateInboundMessageFee(
+        new Wallet(new helios.Address(req.body.relayerCardanoAddress)),
+        {
+          origin: req.body.origin,
+          originMailbox: Address.fromHex(req.body.originMailbox),
+          checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
+          checkpointIndex: req.body.checkpointIndex,
+          message: {
+            version: req.body.message.version,
+            nonce: req.body.message.nonce,
+            originDomain: req.body.message.originDomain,
+            sender: Address.fromHex(req.body.message.sender),
+            destinationDomain: req.body.message.destinationDomain,
+            recipient: Address.fromHex(req.body.message.recipient),
+            message: MessagePayload.fromHexString(req.body.message.message),
+          },
         },
-      },
-      req.body.signatures.map((s) => Buffer.from(s, "hex"))
-    );
-    res.status(200).json({ feeADA });
+        req.body.signatures.map((s) => Buffer.from(s, "hex"))
+      );
+      res.status(200).json({ feeADA });
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
@@ -189,31 +210,35 @@ app.post(
   async function (
     req: Request<SubmitInboundMessageRequestBody>,
     res: Response<SubmitInboundMessageResponseBody>,
-    _
+    next
   ) {
-    const txId = await submitInboundMessage.submitInboundMessage(
-      new Wallet(
-        new helios.Address(req.body.relayerCardanoAddress),
-        new helios.PrivateKey(req.body.privateKey)
-      ),
-      {
-        origin: req.body.origin,
-        originMailbox: Address.fromHex(req.body.originMailbox),
-        checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
-        checkpointIndex: req.body.checkpointIndex,
-        message: {
-          version: req.body.message.version,
-          nonce: req.body.message.nonce,
-          originDomain: req.body.message.originDomain,
-          sender: Address.fromHex(req.body.message.sender),
-          destinationDomain: req.body.message.destinationDomain,
-          recipient: Address.fromHex(req.body.message.recipient),
-          message: MessagePayload.fromHexString(req.body.message.message),
+    try {
+      const txId = await submitInboundMessage.submitInboundMessage(
+        new Wallet(
+          new helios.Address(req.body.relayerCardanoAddress),
+          new helios.PrivateKey(req.body.privateKey)
+        ),
+        {
+          origin: req.body.origin,
+          originMailbox: Address.fromHex(req.body.originMailbox),
+          checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
+          checkpointIndex: req.body.checkpointIndex,
+          message: {
+            version: req.body.message.version,
+            nonce: req.body.message.nonce,
+            originDomain: req.body.message.originDomain,
+            sender: Address.fromHex(req.body.message.sender),
+            destinationDomain: req.body.message.destinationDomain,
+            recipient: Address.fromHex(req.body.message.recipient),
+            message: MessagePayload.fromHexString(req.body.message.message),
+          },
         },
-      },
-      req.body.signatures.map((s) => Buffer.from(s, "hex"))
-    );
-    res.status(200).json({ txId: txId.hex });
+        req.body.signatures.map((s) => Buffer.from(s, "hex"))
+      );
+      res.status(200).json({ txId: txId.hex });
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
@@ -222,15 +247,25 @@ app.post(
   async function (
     req: Request<GetOutboundGasPaymentRequestBody>,
     res: Response<GetOutboundGasPaymentResponseBody>,
-    _
+    next
   ) {
-    const totalGasADA = await getOutboundGasPayment.getOutboundGasPayment(
-      new helios.Address(req.body.relayerAddress),
-      new helios.ByteArray(req.body.messageId)
-    );
-    res.status(200).json({ totalGasADA });
+    try {
+      const totalGasADA = await getOutboundGasPayment.getOutboundGasPayment(
+        new helios.Address(req.body.relayerAddress),
+        new helios.ByteArray(req.body.messageId)
+      );
+      res.status(200).json({ totalGasADA });
+    } catch (e) {
+      next(e);
+    }
   }
 );
+
+app.use((err, req, res, _) => {
+  res.status(err.status ?? 500).json({
+    message: err.message,
+  });
+});
 
 const PORT = process.env.PORT ?? 3000;
 console.log(
