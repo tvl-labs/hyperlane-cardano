@@ -22,10 +22,6 @@ export default async function createOutboundMessage(
 
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
-  for (let i = 0; i < utxos.length && tx.body.collateral.length < 3; i++) {
-    if (!utxos[i].value.assets.isZero()) continue;
-    tx.addCollateral(utxos[i]);
-  }
 
   tx.addInput(utxoOutbox, new helios.ConstrData(0, []));
 
