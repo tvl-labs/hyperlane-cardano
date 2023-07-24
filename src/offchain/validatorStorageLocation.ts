@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import { Address } from "./address";
-import keccak256 from "keccak256";
 
 export interface ValidatorStorageLocation {
   validator: Address;
@@ -16,17 +15,22 @@ export function hashValidatorStorageLocation(
 ): Uint8Array {
   const bufMailboxDomain = Buffer.alloc(4);
   bufMailboxDomain.writeUInt32BE(location.mailboxDomain);
-  return keccak256(
-    Buffer.concat([
-      keccak256(
-        Buffer.concat([
-          bufMailboxDomain,
-          location.mailboxAddress.toBuffer(),
-          Buffer.from("HYPERLANE_ANNOUNCEMENT"),
-        ])
-      ),
-      Buffer.from(location.storageLocation),
-    ])
+  return ethers.getBytes(
+    ethers.keccak256(
+      Buffer.concat([
+        Buffer.from(
+          ethers.keccak256(
+            Buffer.concat([
+              bufMailboxDomain,
+              location.mailboxAddress.toBuffer(),
+              Buffer.from("HYPERLANE_ANNOUNCEMENT"),
+            ])
+          ),
+          "hex"
+        ),
+        Buffer.from(location.storageLocation),
+      ])
+    )
   );
 }
 
