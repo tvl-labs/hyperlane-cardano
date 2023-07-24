@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@hyperionbt/helios": "https://github.com/kreate-community/Helios#dc1f353329a3d6e00006dc7d961ef7ad9b546b27",
-    "blakejs": "^1.2.1",
     "bufferutil": "^4.0.7",
     "ethers": "^6.6.4",
     "express": "^4.18.2",
