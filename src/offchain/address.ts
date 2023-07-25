@@ -13,9 +13,9 @@ export class Address {
   }
 
   static fromHex(hex: string): Address {
-    assert(hex.startsWith("0x"));
+    assert(hex.startsWith("0x"), `Invalid address ${hex}`);
     const bytes = Buffer.from(hex.substring(2), "hex");
-    assert(bytes.length === 32);
+    assert(bytes.length === 32, `Invalid address ${hex}`);
     return new Address(bytes);
   }
 
@@ -37,7 +37,7 @@ export class Address {
 
   toEvmAddress() {
     const hex = this.toHex();
-    assert(hex.startsWith("0x000000000000000000000000"));
+    assert(hex.startsWith("0x000000000000000000000000"), `Non EVM address ${hex}`);
     return "0x" + hex.substring(26);
   }
 
