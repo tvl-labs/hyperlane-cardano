@@ -1,0 +1,9 @@
+apiVersion: v2
+name: cardano-rpc
+description: A Helm chart for the Cardano RPC used by Hyperlane agents
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.16.0"

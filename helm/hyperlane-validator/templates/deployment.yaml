@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hyperlane-validator.fullname" . }}
+  labels:
+    {{- include "hyperlane-validator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "hyperlane-validator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "hyperlane-validator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "hyperlane-validator.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CONFIG_FILES
+              value: /app/config/cardano-test-config.json
+            - name: HYP_BASE_DB
+              value: /app/db/
+            - name: HYP_VALIDATOR_ORIGINCHAINNAME
+              value: {{ required "Validator chain" .Values.validator.originChain }}
+            - name: "HYP_BASE_CHAINS_{{ .Values.validator.originChainEnvName }}_CONNECTION_URL"
+              value: http://cardano-rpc.applications.svc.cluster.local:80
+
+            # Important for Cardano's validators.
+            - name: MERKLE_TREE_HASH_BLAKE2B
+              value: "true"
+
+            # Use hex key (test only).
+            - name: HYP_VALIDATOR_VALIDATOR_TYPE
+              value: hexKey
+            - name: HYP_VALIDATOR_VALIDATOR_KEY
+              value: {{ required "Validator private key" .Values.validator.privateKey }}
+
+            # Save checkpoints to S3 bucket.
+            - name: HYP_VALIDATOR_CHECKPOINTSYNCER_TYPE
+              value: localStorage
+            - name: HYP_VALIDATOR_CHECKPOINTSYNCER_PATH
+              value: /tmp/checkpoints/{{ .Values.validator.localCheckpointsSubPath }}
+
+            - name: HYP_VALIDATOR_REORGPERIOD
+              value: {{ .Values.validator.reorgPeriod | quote }}
+            - name: HYP_VALIDATOR_INTERVAL
+              value: {{ .Values.validator.interval | quote }}
+
+            # Logging
+            - name: HYP_BASE_METRICS
+              value: "9090"
+            - name: HYP_BASE_TRACING_LEVEL
+              value: debug
+            - name: HYP_BASE_TRACING_FMT
+              value: pretty
+          ports:
+            - name: metrics
+              containerPort: 9090
+          volumeMounts:
+            - name: cardano-test-config
+              mountPath: /app/config/cardano-test-config.json
+              subPath: cardano-test-config.json
+            - name: checkpoints-volume
+              mountPath: /tmp/checkpoints/{{ .Values.validator.localCheckpointsSubPath }}
+              subPath: {{ .Values.validator.localCheckpointsSubPath }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      volumes:
+        - name: checkpoints-volume
+          persistentVolumeClaim:
+            claimName: {{ include "hyperlane-validator.localCheckpointsPersistentVolumeClaimName" . }}
+        - name: cardano-test-config
+          configMap:
+            name: cardano-test-config
+            items:
+              - key: cardano-test-config.json
+                path: cardano-test-config.json
