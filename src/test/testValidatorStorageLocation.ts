@@ -44,6 +44,7 @@ export async function testValidatorStorageLocationOnPreprodNetwork() {
   await waitForTxConfirmation(txId.hex);
   const preprodStorageLocation = await getValidatorStorageLocation(validator);
   if (
+    preprodStorageLocation === undefined ||
     serializeValidatorStorageLocation(validatorStorageLocation).toCborHex() !==
     serializeValidatorStorageLocation(preprodStorageLocation).toCborHex()
   ) {
