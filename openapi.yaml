@@ -135,7 +135,7 @@ paths:
                 - validatorAddresses
       responses:
         200:
-          description: A list of validator addresses (0x prefix 32 bytes, total length of 66 characters) with their corresponding storage locations
+          description: A list of validator addresses (0x prefix 32 bytes, total length of 66 characters) with their corresponding storage locations. This list may not contain some addresses passed in the input, meaning that locations of those validators are not known.
           content:
             application/json:
               schema:

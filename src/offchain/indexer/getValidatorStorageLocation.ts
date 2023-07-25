@@ -4,15 +4,15 @@ import fetch from "node-fetch";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 import type { Address } from "../address";
 import {
-  type ValidatorStorageLocation,
   deserializeValidatorStorageLocation,
   hashValidatorStorageLocation,
+  type ValidatorStorageLocation,
 } from "../validatorStorageLocation";
 import ScriptLockForever from "../../onchain/scriptLockForever.hl";
 
 export async function getValidatorStorageLocation(
   validator: Address
-): Promise<ValidatorStorageLocation> {
+): Promise<ValidatorStorageLocation | undefined> {
   const addressLockForever = helios.Address.fromValidatorHash(
     new ScriptLockForever().compile(false).validatorHash
   );
@@ -45,9 +45,15 @@ export async function getValidatorStorageLocation(
         );
         if (utxos.length !== 1) continue;
 
-        const validatorStorageLocation = deserializeValidatorStorageLocation(
-          helios.ListData.fromCbor(helios.hexToBytes(utxos[0].inline_datum))
-        );
+        let validatorStorageLocation: ValidatorStorageLocation;
+        try {
+          validatorStorageLocation = deserializeValidatorStorageLocation(
+            helios.ListData.fromCbor(helios.hexToBytes(utxos[0].inline_datum))
+          );
+        } catch (e) {
+          // Most likely, the UTXO Datum is malformed.
+          continue;
+        }
         if (validatorStorageLocation.validator.toHex() !== validator.toHex()) {
           continue;
         }
@@ -67,11 +73,10 @@ export async function getValidatorStorageLocation(
 
         return validatorStorageLocation;
       } catch (e) {
-        console.warn(e);
+        console.warn(`[WARN] Failed to fetch location: ` + (e.message as string));
       }
     }
   }
 
-  // TODO: Better error handling instead of nuking the server
-  throw new Error("Validator storage location not found!");
+  return undefined;
 }

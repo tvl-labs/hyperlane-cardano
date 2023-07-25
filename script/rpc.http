@@ -1,14 +1,14 @@
 ### Last finalized block
-GET http://127.0.0.1:3000/api/indexer/lastFinalizedBlock
+GET http://127.0.0.1:3001/api/indexer/lastFinalizedBlock
 
 ### MerkleTree
-GET http://127.0.0.1:3000/api/indexer/merkleTree
+GET http://127.0.0.1:3001/api/indexer/merkleTree
 
 ### Messages
-GET http://127.0.0.1:3000/api/indexer/messages/9/10
+GET http://127.0.0.1:3001/api/indexer/messages/9/10
 
 ### Validator storage locations
-POST http://127.0.0.1:3000/api/validator-announcement/get-storage-locations/
+POST http://127.0.0.1:3001/api/validator-announcement/get-storage-locations/
 Content-Type: application/json
 
 {
