@@ -10,8 +10,7 @@ export class MockValidatorAnnouncement implements IValidatorAnnouncement {
   ): Promise<ValidatorStorageLocations> {
     return validators.map((validator) => ({
       validatorAddress: validator,
-      storageLocation:
-        "file:///tmp/test_cardano_checkpoints_" + validator.toEvmAddress(),
+      storageLocation: "file:///tmp/checkpoints/" + validator.toEvmAddress(),
     }));
   }
 }

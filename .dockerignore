@@ -1,4 +1,6 @@
 .idea
 .github
+helm
 generated-sources
 **/node_modules
+dist
