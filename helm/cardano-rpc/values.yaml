@@ -6,13 +6,13 @@ replicaCount: 1
 
 image:
   pullPolicy: Always
-# For production image.
-#  repository: ghcr.io/tvl-labs/hyperlane-cardano
-#  tag: "0ba7a406f1dc6542c5dfebb3b2aabc2c2588ccd8"
+# Use production image.
+  repository: ghcr.io/tvl-labs/hyperlane-cardano
+  tag: "04f334c98328d908cb6e42a50d43466239ceaee1"
 
-# For local development.
-  repository: host.docker.internal:5000/hyperlane-cardano-rpc-local
-  tag: "20230726154042"
+# Use the locally built image.
+#  Repository: host.docker.internal:5000/hyperlane-cardano-rpc-local
+#  tag: "20230726154042"
 
 imagePullSecrets:
   - name: ghcr-login-secret
