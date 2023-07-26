@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/tvl-labs/hyperlane-monorepo
   tag: "2a85153a17c846d292dd13ecc58059552144d7f1"
 
-# Use these image coordinates for local development
+# Use the locally built image.
 #  repository: host.docker.internal:5000/hyperlane-cardano-local
 #  tag: "20230726113624"
 
