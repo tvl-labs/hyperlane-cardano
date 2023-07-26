@@ -1,6 +1,8 @@
 import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import { Address } from "./address";
+import { keccak256Hasher } from '../merkle/hasher';
+import { type H256 } from '../merkle/h256';
 
 export interface ValidatorStorageLocation {
   validator: Address;
@@ -12,26 +14,20 @@ export interface ValidatorStorageLocation {
 
 export function hashValidatorStorageLocation(
   location: ValidatorStorageLocation
-): Buffer {
+): H256 {
   const bufMailboxDomain = Buffer.alloc(4);
   bufMailboxDomain.writeUInt32BE(location.mailboxDomain);
-  return Buffer.from(
-    ethers.keccak256(
-      Buffer.concat([
-        Buffer.from(
-          ethers.keccak256(
-            Buffer.concat([
-              bufMailboxDomain,
-              location.mailboxAddress.toBuffer(),
-              Buffer.from("HYPERLANE_ANNOUNCEMENT"),
-            ])
-          ),
-          "hex"
-        ),
-        Buffer.from(location.storageLocation),
-      ])
-    ),
-    "hex"
+  return keccak256Hasher(
+    Buffer.concat([
+      keccak256Hasher(
+        Buffer.concat([
+          bufMailboxDomain,
+          location.mailboxAddress.toBuffer(),
+          Buffer.from("HYPERLANE_ANNOUNCEMENT"),
+        ])
+      ).toBuffer(),
+      Buffer.from(location.storageLocation),
+    ])
   );
 }
 
@@ -41,7 +37,7 @@ export function signValidatorStorageLocation(
 ): ValidatorStorageLocation {
   const signer = new ethers.Wallet(privateKey);
   location.signature = signer.signMessageSync(
-    hashValidatorStorageLocation(location)
+    hashValidatorStorageLocation(location).toBuffer()
   );
   return location;
 }
