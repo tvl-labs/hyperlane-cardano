@@ -7,6 +7,7 @@ module.exports = {
     testIntegration: "./src/test/index.ts",
     rpc: "./src/rpc/index.ts",
     dispatchMessage: "./src/cli/dispatchMessage.ts",
+    announceValidatorStorage: "./src/cli/announceValidatorStorage.ts",
   },
   output: {
     filename: "[name].js",
