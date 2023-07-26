@@ -60,7 +60,7 @@ export async function getValidatorStorageLocation(
 
         const signedAddress = ethers
           .verifyMessage(
-            hashValidatorStorageLocation(validatorStorageLocation),
+            hashValidatorStorageLocation(validatorStorageLocation).toBuffer(),
             validatorStorageLocation.signature ?? ""
           )
           .toLowerCase();
