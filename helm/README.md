@@ -50,3 +50,8 @@ make create-cardano-test-config
 ```shell
 make install-validator
 ```
+
+##### Deploy relayer
+```shell
+make install-cardano-relayer
+```
