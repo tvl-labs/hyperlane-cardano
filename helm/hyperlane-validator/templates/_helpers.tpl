@@ -60,10 +60,3 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
-{{/*
-Local checkpoints volume claim name.
-*/}}
-{{- define "hyperlane-validator.localCheckpointsPersistentVolumeClaimName" -}}
-{{ include "hyperlane-validator.name" . }}-local-checkpoints
-{{- end }}
