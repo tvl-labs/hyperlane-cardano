@@ -78,4 +78,4 @@ upgrade-evm-relayer:
 	helm -n applications upgrade evm-relayer ./hyperlane-relayer --values ./evm-relayer-values.yaml
 
 uninstall-evm-relayer:
-	helm -n applications uninstall cardano-relayer
+	helm -n applications uninstall evm-relayer
