@@ -21,12 +21,13 @@ fullnameOverride: ""
 
 relayer:
   originChain: ""
-  originChainRpc: "http://cardano-rpc.applications.svc.cluster.local:80"
+  originChainRpc: ""
   destinationChain: ""
   destinationChainEnv: ""
   destinationChainRpc: ""
   privateKey: ""
   localCheckpointsSubPath: ""
+  useBlake2MerkleTree: false
 
 serviceAccount:
   create: true

@@ -69,3 +69,13 @@ upgrade-evm-validator:
 
 uninstall-evm-validator:
 	helm -n applications uninstall evm-validator
+
+# Hyperlane Relayer for messages dispatched from EVM to Cardano, which uses Cardano RPC library to build transactions.
+install-evm-relayer:
+	helm -n applications install evm-relayer ./hyperlane-relayer --values ./evm-relayer-values.yaml
+
+upgrade-evm-relayer:
+	helm -n applications upgrade evm-relayer ./hyperlane-relayer --values ./evm-relayer-values.yaml
+
+uninstall-evm-relayer:
+	helm -n applications uninstall cardano-relayer
