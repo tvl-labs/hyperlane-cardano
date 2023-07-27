@@ -33,26 +33,39 @@ install-local-checkpoints-storage:
 	kubectl -n applications apply -f local-checkpoints-storage/local-checkpoints-pvc.yaml
 
 uninstall-local-checkpoints-storage:
-	kubectl delete -f local-checkpoints-storage/local-checkpoints-pvc.yaml
+	kubectl delete pvc local-checkpoints-pvc -n applications
 	kubectl delete -f local-checkpoints-storage/local-checkpoints-pv.yaml
 	kubectl delete -f local-checkpoints-storage/storage-class.yaml
 
 # Hyperlane Validator for messages dispatched from Cardano
 install-validator:
-	helm -n applications install cardano-validator ./hyperlane-validator
+	helm -n applications install cardano-validator ./hyperlane-validator --values ./cardano-validator-values.yaml
 
 upgrade-validator:
-	helm -n applications upgrade cardano-validator ./hyperlane-validator
+	helm -n applications upgrade cardano-validator ./hyperlane-validator --values ./cardano-validator-values.yaml
 
 uninstall-validator:
 	helm -n applications uninstall cardano-validator
 
 # Hyperlane Relayer for messages dispatched from Cardano
 install-cardano-relayer:
-	helm -n applications install cardano-relayer ./hyperlane-relayer
+	helm -n applications install cardano-relayer ./hyperlane-relayer --values ./cardano-relayer-values.yaml
 
 upgrade-cardano-relayer:
-	helm -n applications upgrade cardano-relayer ./hyperlane-relayer
+	helm -n applications upgrade cardano-relayer ./hyperlane-relayer --values ./cardano-relayer-values.yaml
 
 uninstall-cardano-relayer:
 	helm -n applications uninstall cardano-relayer
+
+# Hyperlane Validator for messages dispatched from EVM to Cardano
+#  We could have reused publicly available validators for popular chains,
+#  but we need to have some modifications, which are not yet pushed to the upstream
+#  (for example, support of blake2b saved checkpoints).
+install-evm-validator:
+	helm -n applications install evm-validator ./hyperlane-validator --values ./evm-validator-values.yaml
+
+upgrade-evm-validator:
+	helm -n applications upgrade evm-validator ./hyperlane-validator --values ./evm-validator-values.yaml
+
+uninstall-evm-validator:
+	helm -n applications uninstall evm-validator

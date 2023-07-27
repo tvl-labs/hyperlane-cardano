@@ -47,7 +47,7 @@ spec:
               value: {{ required "Destination chain RPC" .Values.relayer.destinationChainRpc }}
 
             - name: "HYP_BASE_CHAINS_{{ .Values.relayer.originChain }}_CONNECTION_URL"
-              value: http://cardano-rpc.applications.svc.cluster.local:80
+              value: {{ required "Origin chain RPC" .Values.relayer.originChainRpc }}
 
             # Do not charge gas payments for now.
             - name: HYP_RELAYER_GASPAYMENTENFORCEMENT

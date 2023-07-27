@@ -39,19 +39,20 @@ spec:
             - name: HYP_BASE_DB
               value: /app/db/
             - name: HYP_VALIDATOR_ORIGINCHAINNAME
-              value: {{ required "Validator chain" .Values.validator.originChain }}
+              value: {{ required "Validator chain" .Values.validator.originChain | quote }}
             - name: "HYP_BASE_CHAINS_{{ .Values.validator.originChainEnvName }}_CONNECTION_URL"
-              value: http://cardano-rpc.applications.svc.cluster.local:80
+              value: {{ required "Validator chain RPC" .Values.validator.originChainRpc | quote }}
 
-            # Important for Cardano's validators.
+            {{- if .Values.validator.useBlake2MerkleTree }}
             - name: MERKLE_TREE_HASH_BLAKE2B
               value: "true"
+            {{- end }}
 
             # Use hex key (test only).
             - name: HYP_VALIDATOR_VALIDATOR_TYPE
               value: hexKey
             - name: HYP_VALIDATOR_VALIDATOR_KEY
-              value: {{ required "Validator private key" .Values.validator.privateKey }}
+              value: {{ required "Validator private key" .Values.validator.privateKey | quote }}
 
             # Save checkpoints to local storage (test only).
             - name: HYP_VALIDATOR_CHECKPOINTSYNCER_TYPE
