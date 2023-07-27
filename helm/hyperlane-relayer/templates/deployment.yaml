@@ -55,6 +55,10 @@ spec:
             - name: HYP_RELAYER_GASPAYMENTENFORCEMENTPOLICY_TYPE
               value: none
 
+            {{- if .Values.relayer.useBlake2MerkleTree }}
+            - name: MERKLE_TREE_HASH_BLAKE2B
+              value: "true"
+            {{- end }}
             # Important flag to enable Blake2b support.
             - name: MERKLE_TREE_HASH_BLAKE2B
               value: "true"
