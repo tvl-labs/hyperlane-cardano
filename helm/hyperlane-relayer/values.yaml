@@ -1,0 +1,57 @@
+# Default values for hyperlane-relayer.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  pullPolicy: Always
+
+  repository: ghcr.io/tvl-labs/hyperlane-monorepo
+  tag: "2a85153a17c846d292dd13ecc58059552144d7f1"
+
+# Use the locally built image.
+#  repository: host.docker.internal:5000/hyperlane-cardano-local
+#  tag: "20230726113624"
+
+imagePullSecrets:
+  - name: ghcr-login-secret
+nameOverride: ""
+fullnameOverride: ""
+
+relayer:
+  originChain: "cardanotest1"
+  destinationChain: "fuji"
+  destinationChainEnv: "FUJI"
+  destinationChainRpc: "https://rpc.ankr.com/avalanche_fuji"
+  # Relayer address: 0xeF15Cce9403021E0Ab594E942210f6544ced3565
+  # Has some Fuji tokens: https://testnet.snowtrace.io/address/0xeF15Cce9403021E0Ab594E942210f6544ced3565
+  privateKey: "0x0675c04edcb1cdf90e4e4bb17bd76c971a8a5a36f0b18f13b24133b52feb4dd2"
+  localCheckpointsSubPath: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+
+serviceAccount:
+  create: true
+
+podAnnotations: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  metrics:
+    port: 9090
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

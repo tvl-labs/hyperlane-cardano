@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hyperlane-validator.fullname" . }}
+  name: {{ include "hyperlane-relayer.fullname" . }}
   labels:
-    {{- include "hyperlane-validator.labels" . | nindent 4 }}
+    {{- include "hyperlane-relayer.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "hyperlane-validator.selectorLabels" . | nindent 6 }}
+      {{- include "hyperlane-relayer.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,17 +18,18 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "hyperlane-validator.selectorLabels" . | nindent 8 }}
+        {{- include "hyperlane-relayer.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "hyperlane-relayer.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      serviceAccountName: {{ include "hyperlane-validator.serviceAccountName" . }}
       containers:
         - name: {{ .Chart.Name }}
+          command: ["./relayer"]
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -38,33 +39,36 @@ spec:
               value: /app/config/cardano-test-config.json
             - name: HYP_BASE_DB
               value: /app/db/
-            - name: HYP_VALIDATOR_ORIGINCHAINNAME
-              value: {{ required "Validator chain" .Values.validator.originChain }}
-            - name: "HYP_BASE_CHAINS_{{ .Values.validator.originChainEnvName }}_CONNECTION_URL"
+            - name: HYP_RELAYER_ORIGINCHAINNAME
+              value: {{ required "Origin chain" .Values.relayer.originChain }}
+            - name: HYP_RELAYER_DESTINATIONCHAINNAMES
+              value: {{ required "Destination chain name" .Values.relayer.destinationChainEnv }}
+            - name: "HYP_BASE_CHAINS_{{ .Values.relayer.destinationChainEnv }}_CONNECTION_URL"
+              value: {{ required "Destination chain RPC" .Values.relayer.destinationChainRpc }}
+
+            - name: "HYP_BASE_CHAINS_{{ .Values.relayer.originChain }}_CONNECTION_URL"
               value: http://cardano-rpc.applications.svc.cluster.local:80
 
-            # Important for Cardano's validators.
+            # Do not charge gas payments for now.
+            - name: HYP_RELAYER_GASPAYMENTENFORCEMENT
+              value: '[{"type": "none"}]'
+            - name: HYP_RELAYER_GASPAYMENTENFORCEMENTPOLICY_TYPE
+              value: none
+
+            # Important flag to enable Blake2b support.
             - name: MERKLE_TREE_HASH_BLAKE2B
               value: "true"
 
             # Use hex key (test only).
-            - name: HYP_VALIDATOR_VALIDATOR_TYPE
+            - name: "HYP_BASE_CHAINS_{{ .Values.relayer.destinationChainEnv }}_SIGNER_TYPE"
               value: hexKey
-            - name: HYP_VALIDATOR_VALIDATOR_KEY
-              value: {{ required "Validator private key" .Values.validator.privateKey }}
+            - name: "HYP_BASE_CHAINS_{{ .Values.relayer.destinationChainEnv }}_SIGNER_KEY"
+              value: {{ required "Relayer private key" .Values.relayer.privateKey }}
 
-            # Save checkpoints to local storage (test only).
-            - name: HYP_VALIDATOR_CHECKPOINTSYNCER_TYPE
-              value: localStorage
-            - name: HYP_VALIDATOR_CHECKPOINTSYNCER_PATH
-              value: /tmp/checkpoints/{{ .Values.validator.localCheckpointsSubPath }}
+            # Allow downloading checkpoints from local storage (test only).
+            - name: HYP_BASE_ALLOWLOCALCHECKPOINTSYNCERS
+              value: "true"
 
-            - name: HYP_VALIDATOR_REORGPERIOD
-              value: {{ .Values.validator.reorgPeriod | quote }}
-            - name: HYP_VALIDATOR_INTERVAL
-              value: {{ .Values.validator.interval | quote }}
-
-            # Logging
             - name: HYP_BASE_METRICS
               value: "9090"
             - name: HYP_BASE_TRACING_LEVEL
@@ -79,8 +83,7 @@ spec:
               mountPath: /app/config/cardano-test-config.json
               subPath: cardano-test-config.json
             - name: checkpoints-volume
-              mountPath: /tmp/checkpoints/{{ .Values.validator.localCheckpointsSubPath }}
-              subPath: {{ .Values.validator.localCheckpointsSubPath }}
+              mountPath: /tmp/checkpoints/
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
