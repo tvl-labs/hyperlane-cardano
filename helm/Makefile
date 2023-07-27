@@ -30,8 +30,10 @@ delete-cardano-test-config:
 install-local-checkpoints-storage:
 	kubectl apply -f local-checkpoints-storage/storage-class.yaml
 	sed "s|HOME_PLACEHOLDER|$(HOME)|g" local-checkpoints-storage/local-checkpoints-pv.yaml | kubectl apply -f -
+	kubectl -n applications apply -f local-checkpoints-storage/local-checkpoints-pvc.yaml
 
 uninstall-local-checkpoints-storage:
+	kubectl delete -f local-checkpoints-storage/local-checkpoints-pvc.yaml
 	kubectl delete -f local-checkpoints-storage/local-checkpoints-pv.yaml
 	kubectl delete -f local-checkpoints-storage/storage-class.yaml
 
@@ -44,3 +46,13 @@ upgrade-validator:
 
 uninstall-validator:
 	helm -n applications uninstall cardano-validator
+
+# Hyperlane Relayer for messages dispatched from Cardano
+install-cardano-relayer:
+	helm -n applications install cardano-relayer ./hyperlane-relayer
+
+upgrade-cardano-relayer:
+	helm -n applications upgrade cardano-relayer ./hyperlane-relayer
+
+uninstall-cardano-relayer:
+	helm -n applications uninstall cardano-relayer
