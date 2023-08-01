@@ -46,7 +46,7 @@ export async function testValidatorStorageLocationOnPreprodNetwork() {
   if (
     preprodStorageLocation === undefined ||
     serializeValidatorStorageLocation(validatorStorageLocation).toCborHex() !==
-    serializeValidatorStorageLocation(preprodStorageLocation).toCborHex()
+      serializeValidatorStorageLocation(preprodStorageLocation).toCborHex()
   ) {
     throw new Error("Invalid validator storage location");
   }

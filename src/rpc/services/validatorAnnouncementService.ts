@@ -1,4 +1,7 @@
-import { type IValidatorAnnouncement, type ValidatorStorageLocations, } from "./IValidatorAnnouncement";
+import {
+  type IValidatorAnnouncement,
+  type ValidatorStorageLocations,
+} from "./IValidatorAnnouncement";
 import { type Address } from "../../offchain/address";
 import { getValidatorStorageLocation } from "../../offchain/indexer/getValidatorStorageLocation";
 
@@ -14,11 +17,9 @@ export class ValidatorAnnouncementService implements IValidatorAnnouncement {
       return arg !== undefined;
     }
 
-    return validatorStorageLocations
-      .filter(isDefined)
-      .map((validator) => ({
-        validatorAddress: validator.validator,
-        storageLocation: validator.storageLocation
-      }));
+    return validatorStorageLocations.filter(isDefined).map((validator) => ({
+      validatorAddress: validator.validator,
+      storageLocation: validator.storageLocation,
+    }));
   }
 }

@@ -15,7 +15,7 @@ import {
   createInboundMessage,
 } from "../offchain/inbox";
 import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
-import type { Message } from "../offchain/message";
+import { calculateMessageId, type Message } from "../offchain/message";
 
 // TODO: Build several edge cases.
 
@@ -32,7 +32,7 @@ const message: Message = {
   recipient: Address.fromHex(
     "0x0000000000000000000000000000000000000000000000000000000000000CA1"
   ),
-  message: MessagePayload.fromString(inboundMsg),
+  body: MessagePayload.fromString(inboundMsg),
 };
 const checkpoint: Checkpoint = {
   origin: FUJI_DOMAIN,
@@ -57,7 +57,10 @@ async function createInboundMsg(isEmulated: boolean = false) {
     (k) => secp256k1.ecdsaSign(checkpointHash, k).signature
   );
 
-  const isDelivered = await isInboundMessageDelivered(ismParams, message);
+  const isDelivered = await isInboundMessageDelivered(
+    ismParams,
+    calculateMessageId(message)
+  );
   if (isDelivered) {
     throw new Error("Message must not be delivered already");
   }
@@ -90,7 +93,10 @@ export async function testInboxOnPreprodNetwork() {
   console.log(`Submitted inbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
 
-  const isDelivered = await isInboundMessageDelivered(ismParams, message);
+  const isDelivered = await isInboundMessageDelivered(
+    ismParams,
+    calculateMessageId(message)
+  );
   if (!isDelivered) {
     throw new Error("Message must have been delivered already");
   }

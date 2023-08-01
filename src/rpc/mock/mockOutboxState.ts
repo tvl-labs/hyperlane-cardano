@@ -38,7 +38,7 @@ export function* outboxStatesGenerator(): Generator<
       sender: Address.fromHex(
         "0x0000000000000000000000000000000000000000000000000000000000000EF1"
       ),
-      message: dispatchPayload.message.message,
+      body: dispatchPayload.message.body,
     };
     const messageId = calculateMessageId(message);
     merkleTree.ingest(messageId);

@@ -190,18 +190,17 @@ pub async fn inbox_ism_parameters(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn is_inbox_message_delivered(configuration: &configuration::Configuration, is_inbox_message_delivered_request: crate::models::IsInboxMessageDeliveredRequest) -> Result<crate::models::IsInboxMessageDelivered200Response, Error<IsInboxMessageDeliveredError>> {
+pub async fn is_inbox_message_delivered(configuration: &configuration::Configuration, message_id: &str) -> Result<crate::models::IsInboxMessageDelivered200Response, Error<IsInboxMessageDeliveredError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/inbox/is-message-delivered", local_var_configuration.base_path);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+    let local_var_uri_str = format!("{}/api/inbox/is-message-delivered/${messageId}", local_var_configuration.base_path, messageId=crate::apis::urlencode(message_id));
+    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
     }
-    local_var_req_builder = local_var_req_builder.json(&is_inbox_message_delivered_request);
 
     let local_var_req = local_var_req_builder.build()?;
     let local_var_resp = local_var_client.execute(local_var_req).await?;

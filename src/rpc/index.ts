@@ -15,13 +15,12 @@ import type {
   GetValidatorStorageLocationsRequestBody,
   GetValidatorStorageLocationsResponseBody,
   InboxIsmParametersResponseType,
-  IsInboxMessageDeliveredRequestBody,
   IsInboxMessageDeliveredResponseBody,
   LastFinalizedBlockResponseType,
   MerkleTreeResponseType,
   MessagesByBlockRangeResponseType,
   SubmitInboundMessageRequestBody,
-  SubmitInboundMessageResponseBody
+  SubmitInboundMessageResponseBody,
 } from "./types";
 import {
   estimateInboundMessageFee,
@@ -39,6 +38,7 @@ import { mockPrefillState } from "./mock/mockInitializer";
 import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
 import { Wallet } from "../offchain/wallet";
+import { H256 } from "../merkle/h256";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -143,23 +143,17 @@ app.get(
 );
 
 app.post(
-  "/api/inbox/is-message-delivered",
+  "/api/inbox/is-message-delivered/:messageId",
   async function (
-    req: Request<IsInboxMessageDeliveredRequestBody>,
+    req,
     res: Response<IsInboxMessageDeliveredResponseBody>,
     next
   ) {
     try {
       const isDelivered =
-        await isInboundMessageDelivered.getIsInboxMessageDelivered({
-          version: req.body.version,
-          nonce: req.body.nonce,
-          originDomain: req.body.originDomain,
-          sender: Address.fromHex(req.body.sender),
-          destinationDomain: req.body.destinationDomain,
-          recipient: Address.fromHex(req.body.recipient),
-          message: MessagePayload.fromHexString(req.body.message),
-        });
+        await isInboundMessageDelivered.getIsInboxMessageDelivered(
+          H256.from(Buffer.from(req.params.messageId, "hex"))
+        );
       res.status(200).json({ isDelivered });
     } catch (e) {
       next(e);
@@ -191,7 +185,7 @@ app.post(
             sender: Address.fromHex(req.body.message.sender),
             destinationDomain: req.body.message.destinationDomain,
             recipient: Address.fromHex(req.body.message.recipient),
-            message: MessagePayload.fromHexString(req.body.message.message),
+            body: MessagePayload.fromHexString(req.body.message.message),
           },
         },
         req.body.signatures.map((s) => Buffer.from(s, "hex"))
@@ -230,7 +224,7 @@ app.post(
             sender: Address.fromHex(req.body.message.sender),
             destinationDomain: req.body.message.destinationDomain,
             recipient: Address.fromHex(req.body.message.recipient),
-            message: MessagePayload.fromHexString(req.body.message.message),
+            body: MessagePayload.fromHexString(req.body.message.message),
           },
         },
         req.body.signatures.map((s) => Buffer.from(s, "hex"))

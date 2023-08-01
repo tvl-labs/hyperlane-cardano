@@ -37,7 +37,10 @@ export class Address {
 
   toEvmAddress() {
     const hex = this.toHex();
-    assert(hex.startsWith("0x000000000000000000000000"), `Non EVM address ${hex}`);
+    assert(
+      hex.startsWith("0x000000000000000000000000"),
+      `Non EVM address ${hex}`
+    );
     return "0x" + hex.substring(26);
   }
 

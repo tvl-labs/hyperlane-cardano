@@ -73,7 +73,9 @@ export async function getValidatorStorageLocation(
 
         return validatorStorageLocation;
       } catch (e) {
-        console.warn(`[WARN] Failed to fetch location: ` + (e.message as string));
+        console.warn(
+          `[WARN] Failed to fetch location: ` + (e.message as string)
+        );
       }
     }
   }

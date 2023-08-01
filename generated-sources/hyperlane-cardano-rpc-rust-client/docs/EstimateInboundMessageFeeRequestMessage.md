@@ -1,4 +1,4 @@
-# IsInboxMessageDeliveredRequest
+# EstimateInboundMessageFeeRequestMessage
 
 ## Properties
 

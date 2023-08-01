@@ -25,9 +25,9 @@ export interface paths {
     /** Get the inbox ISM parameters */
     get: operations["inboxIsmParameters"];
   };
-  "/api/inbox/is-message-delivered": {
+  "/api/inbox/is-message-delivered/${messageId}": {
     /** Check if an inbox message was delivered */
-    post: operations["isInboxMessageDelivered"];
+    get: operations["isInboxMessageDelivered"];
   };
   "/api/inbox/estimate-message-fee": {
     /** Estimate the fee in ADA to deliver an inbound message */
@@ -77,7 +77,7 @@ export interface operations {
             merkleTree: {
               /** @example 1 */
               count: number;
-              branches: (string)[];
+              branches: string[];
             };
           };
         };
@@ -99,7 +99,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            messages: ({
+            messages: {
                 /** @example 3 */
                 block: number;
                 message: {
@@ -111,7 +111,7 @@ export interface operations {
                   recipient: string;
                   body: string;
                 };
-              })[];
+              }[];
           };
         };
       };
@@ -122,19 +122,19 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          validatorAddresses: (string)[];
+          validatorAddresses: string[];
         };
       };
     };
     responses: {
-      /** @description A list of validator addresses (0x prefix 32 bytes, total length of 66 characters) with their corresponding storage locations */
+      /** @description A list of validator addresses (0x prefix 32 bytes, total length of 66 characters) with their corresponding storage locations. This list may not contain some addresses passed in the input, meaning that locations of those validators are not known. */
       200: {
         content: {
           "application/json": {
-            validatorStorageLocations: ({
+            validatorStorageLocations: {
                 validatorAddress: string;
                 storageLocation: string;
-              })[];
+              }[];
           };
         };
       };
@@ -147,7 +147,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            validators: (string)[];
+            validators: string[];
             threshold: number;
           };
         };
@@ -156,17 +156,10 @@ export interface operations {
   };
   /** Check if an inbox message was delivered */
   isInboxMessageDelivered: {
-    requestBody: {
-      content: {
-        "application/json": {
-          version: number;
-          nonce: number;
-          originDomain: number;
-          sender: string;
-          destinationDomain: number;
-          recipient: string;
-          message: string;
-        };
+    parameters: {
+      path: {
+        /** @description The message id to check */
+        messageId: string;
       };
     };
     responses: {
@@ -199,7 +192,7 @@ export interface operations {
             recipient: string;
             message: string;
           };
-          signatures: (string)[];
+          signatures: string[];
         };
       };
     };
@@ -234,7 +227,7 @@ export interface operations {
             recipient: string;
             message: string;
           };
-          signatures: (string)[];
+          signatures: string[];
         };
       };
     };

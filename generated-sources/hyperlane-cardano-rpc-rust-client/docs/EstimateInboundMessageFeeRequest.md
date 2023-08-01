@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **origin_mailbox** | **String** |  | 
 **checkpoint_root** | **String** |  | 
 **checkpoint_index** | **f32** |  | 
-**message** | [**crate::models::IsInboxMessageDeliveredRequest**](isInboxMessageDelivered_request.md) |  | 
+**message** | [**crate::models::EstimateInboundMessageFeeRequestMessage**](estimateInboundMessageFee_request_message.md) |  | 
 **signatures** | **Vec<String>** |  | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

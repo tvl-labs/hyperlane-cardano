@@ -1,5 +1,5 @@
-import type { Message } from "../../offchain/message";
+import type { H256 } from "../../merkle/h256";
 
 export interface IIsInboxMessageDelivered {
-  getIsInboxMessageDelivered: (message: Message) => Promise<boolean>;
+  getIsInboxMessageDelivered: (message: H256) => Promise<boolean>;
 }

@@ -24,13 +24,13 @@ pub struct EstimateInboundMessageFeeRequest {
     #[serde(rename = "checkpointIndex")]
     pub checkpoint_index: f32,
     #[serde(rename = "message")]
-    pub message: Box<crate::models::IsInboxMessageDeliveredRequest>,
+    pub message: Box<crate::models::EstimateInboundMessageFeeRequestMessage>,
     #[serde(rename = "signatures")]
     pub signatures: Vec<String>,
 }
 
 impl EstimateInboundMessageFeeRequest {
-    pub fn new(relayer_cardano_address: String, origin: f32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: f32, message: crate::models::IsInboxMessageDeliveredRequest, signatures: Vec<String>) -> EstimateInboundMessageFeeRequest {
+    pub fn new(relayer_cardano_address: String, origin: f32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: f32, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> EstimateInboundMessageFeeRequest {
         EstimateInboundMessageFeeRequest {
             relayer_cardano_address,
             origin,

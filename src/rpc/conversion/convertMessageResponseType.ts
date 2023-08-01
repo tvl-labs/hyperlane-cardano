@@ -11,6 +11,6 @@ export function convertMessageResponseType(
     sender: outboxMessage.sender.toHex(),
     destinationDomain: outboxMessage.destinationDomain,
     recipient: outboxMessage.recipient.toHex(),
-    body: outboxMessage.message.toHex(),
+    body: outboxMessage.body.toHex(),
   };
 }

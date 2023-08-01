@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import { Address } from "./address";
-import { keccak256Hasher } from '../merkle/hasher';
-import { type H256 } from '../merkle/h256';
+import { keccak256Hasher } from "../merkle/hasher";
+import { type H256 } from "../merkle/h256";
 
 export interface ValidatorStorageLocation {
   validator: Address;

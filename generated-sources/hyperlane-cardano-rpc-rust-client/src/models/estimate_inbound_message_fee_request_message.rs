@@ -12,7 +12,7 @@
 
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct IsInboxMessageDeliveredRequest {
+pub struct EstimateInboundMessageFeeRequestMessage {
     #[serde(rename = "version")]
     pub version: f32,
     #[serde(rename = "nonce")]
@@ -29,9 +29,9 @@ pub struct IsInboxMessageDeliveredRequest {
     pub message: String,
 }
 
-impl IsInboxMessageDeliveredRequest {
-    pub fn new(version: f32, nonce: f32, origin_domain: f32, sender: String, destination_domain: f32, recipient: String, message: String) -> IsInboxMessageDeliveredRequest {
-        IsInboxMessageDeliveredRequest {
+impl EstimateInboundMessageFeeRequestMessage {
+    pub fn new(version: f32, nonce: f32, origin_domain: f32, sender: String, destination_domain: f32, recipient: String, message: String) -> EstimateInboundMessageFeeRequestMessage {
+        EstimateInboundMessageFeeRequestMessage {
             version,
             nonce,
             origin_domain,

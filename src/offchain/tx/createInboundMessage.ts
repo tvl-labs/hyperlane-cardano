@@ -3,7 +3,7 @@ import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH, type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
-import { serializeMessage } from "../messageSerialize";
+import { serializeMessage } from "../message";
 import type { Checkpoint } from "../checkpoint";
 import {
   bufferToHeliosByteArray,

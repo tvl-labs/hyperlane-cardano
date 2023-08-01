@@ -1,10 +1,15 @@
 // Following Hyperlane as tight as possible
 // https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Message.sol
 
+import * as helios from "@hyperionbt/helios";
+import {
+  bufferToHeliosByteArray,
+  convertNumberToHeliosByteArray,
+} from "./outbox/heliosByteArrayUtils";
 import { blake2bHasher } from "../merkle/hasher";
-import type { Address } from "./address";
+import { Address } from "./address";
 import { Buffer } from "buffer";
-import type { MessagePayload } from "./messagePayload";
+import { MessagePayload } from "./messagePayload";
 
 const VERSION_SIZE = 1;
 const NONCE_SIZE = 4;
@@ -17,7 +22,7 @@ export interface Message {
   /**
    * 1-byte version of the messaging protocol.
    */
-  version: 0;
+  version: number;
   /**
    * 4-byte nonce sequential number of the message equal to the Outbox's MerkleTree count.
    */
@@ -41,7 +46,7 @@ export interface Message {
   /**
    * Message payload, arbitrary size below ~1Kb.
    */
-  message: MessagePayload;
+  body: MessagePayload;
 }
 
 export function calculateMessageId(message: Message) {
@@ -52,7 +57,7 @@ export function calculateMessageId(message: Message) {
       SENDER_SIZE +
       DESTINATION_DOMAIN_SIZE +
       RECIPIENT_SIZE +
-      message.message.sizeInBytes()
+      message.body.sizeInBytes()
   );
   let offset = 0;
   buffer.writeUint8(message.version, offset);
@@ -67,6 +72,41 @@ export function calculateMessageId(message: Message) {
   offset += DESTINATION_DOMAIN_SIZE;
   message.recipient.toBuffer().copy(buffer, offset);
   offset += RECIPIENT_SIZE;
-  message.message.toBuffer().copy(buffer, offset);
+  message.body.toBuffer().copy(buffer, offset);
   return blake2bHasher(buffer);
+}
+
+export function serializeMessage(message: Message) {
+  return new helios.ListData([
+    convertNumberToHeliosByteArray(message.version, 1)._toUplcData(),
+    convertNumberToHeliosByteArray(message.nonce, 4)._toUplcData(),
+    convertNumberToHeliosByteArray(message.originDomain, 4)._toUplcData(),
+    bufferToHeliosByteArray(message.sender.toBuffer())._toUplcData(),
+    convertNumberToHeliosByteArray(message.destinationDomain, 4)._toUplcData(),
+    bufferToHeliosByteArray(message.recipient.toBuffer())._toUplcData(),
+    bufferToHeliosByteArray(message.body.toBuffer())._toUplcData(),
+  ]);
+}
+
+export function deserializeMessage(message: helios.ListData): Message {
+  return {
+    version: parseInt(helios.bytesToHex(message.list[0].bytes), 16),
+    nonce: parseInt(helios.bytesToHex(message.list[1].bytes), 16),
+    originDomain: parseInt(helios.bytesToHex(message.list[2].bytes), 16),
+    sender: Address.fromHex(`0x${helios.bytesToHex(message.list[3].bytes)}`),
+    destinationDomain: parseInt(helios.bytesToHex(message.list[4].bytes), 16),
+    recipient: Address.fromHex(`0x${helios.bytesToHex(message.list[5].bytes)}`),
+    body: MessagePayload.fromHexString(
+      `0x${helios.bytesToHex(message.list[6].bytes)}`
+    ),
+  };
+}
+
+export function toJsonMessage(message: Message) {
+  return {
+    ...message,
+    sender: message.sender.toJSON(),
+    recipient: message.recipient.toJSON(),
+    body: message.recipient.toJSON(),
+  };
 }

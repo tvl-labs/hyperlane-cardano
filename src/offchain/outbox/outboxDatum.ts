@@ -1,8 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import type { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { deserializeMerkleTree, serializeMerkleTree } from "./outboxMerkle";
-import type { Message } from "../message";
-import { serializeMessage } from "../messageSerialize";
+import { type Message, serializeMessage } from "../message";
 
 export function serializeOutboxDatum(
   merkleTree: HeliosMerkleTree,

@@ -7,6 +7,7 @@ import {
   blockfrostPrefix,
   blockfrostProjectId,
 } from "../../offchain/indexer/blockfrost";
+import { deserializeMessage, toJsonMessage } from "../../offchain/message";
 
 export class MessagesService implements IMessagesService {
   async getMessagesInBlockRange(
@@ -16,7 +17,6 @@ export class MessagesService implements IMessagesService {
     const addressOutbox = helios.Address.fromValidatorHash(
       new ScriptOutbox().compile(true).validatorHash
     );
-
     const messages: any = [];
 
     for (let page = 1; true; page++) {
@@ -49,23 +49,14 @@ export class MessagesService implements IMessagesService {
           );
           if (outbox == null) continue;
 
-          const message = helios.ListData.fromCbor(
-            helios.hexToBytes(outbox.inline_datum)
-          ).list[1].fields[0].list;
+          const message = new helios.ListData(
+            helios.ListData.fromCbor(
+              helios.hexToBytes(outbox.inline_datum)
+            ).list[1].fields[0].list
+          );
           messages.push({
             block: tx.block_height,
-            message: {
-              version: parseInt(helios.bytesToHex(message[0].bytes), 16),
-              nonce: parseInt(helios.bytesToHex(message[1].bytes), 16),
-              originDomain: parseInt(helios.bytesToHex(message[2].bytes), 16),
-              sender: helios.bytesToHex(message[3].bytes),
-              destinationDomain: parseInt(
-                helios.bytesToHex(message[4].bytes),
-                16
-              ),
-              recipient: helios.bytesToHex(message[5].bytes),
-              body: helios.bytesToHex(message[6].bytes),
-            },
+            message: toJsonMessage(deserializeMessage(message)),
           });
         } catch (e) {
           console.warn(e);

@@ -37,20 +37,20 @@ export function mockPrefillState() {
     sender: SENDER,
     recipient: FUJI_RECIPIENT,
     destinationDomain: FUJI_DOMAIN,
-    message: getMockMessage(3),
+    body: getMockMessage(3),
   };
   dispatchNewMessage(messageTemplate);
 
   updateLastFinalizedBlock(5);
   dispatchNewMessage({
     ...messageTemplate,
-    message: getMockMessage(5),
+    body: getMockMessage(5),
   });
 
   updateLastFinalizedBlock(8);
   dispatchNewMessage({
     ...messageTemplate,
-    message: getMockMessage(8),
+    body: getMockMessage(8),
   });
 
   updateLastFinalizedBlock(10);

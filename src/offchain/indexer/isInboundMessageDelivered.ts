@@ -4,8 +4,8 @@ import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import { TOKEN_NAME_AUTH } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
-import type { Message } from "../message";
-import { serializeMessage } from "../messageSerialize";
+import { calculateMessageId, deserializeMessage } from "../message";
+import type { H256 } from "../../merkle/h256";
 
 // NOTE: This doesn't scale very well
 // NOTE: We must walk down the tx history if we allow dApps
@@ -13,11 +13,10 @@ import { serializeMessage } from "../messageSerialize";
 // Merkle Tree for inbound messages.
 export async function isInboundMessageDelivered(
   ismParams: IsmParamsHelios,
-  message: Message
+  messageId: H256
 ): Promise<boolean> {
   const authenticMPH = new MintingPolicyIsmMultiSig(ismParams).compile(true)
     .mintingPolicyHash.hex;
-  const messageDatum = serializeMessage(message).toCborHex();
 
   for (let page = 1; true; page++) {
     try {
@@ -35,7 +34,13 @@ export async function isInboundMessageDelivered(
       if (utxos.length === 0) break;
 
       for (const utxo of utxos) {
-        if (utxo.inline_datum === messageDatum) {
+        if (
+          calculateMessageId(
+            deserializeMessage(
+              helios.ListData.fromCbor(helios.hexToBytes(utxo.inline_datum))
+            )
+          ).hex() === messageId.hex()
+        ) {
           return true;
         }
       }

@@ -99,7 +99,7 @@ async function parseDispatchedMessage(): Promise<DispatchedMessage> {
   return {
     destinationDomain: argv.destinationDomain,
     recipient: Address.fromHex(argv.recipient),
-    message: MessagePayload.fromHexString(argv.message),
+    body: MessagePayload.fromHexString(argv.message),
   };
 }
 

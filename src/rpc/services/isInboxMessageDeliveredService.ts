@@ -1,14 +1,14 @@
 import { type IIsInboxMessageDelivered } from "./IIsInboxMessageDelivered";
-import { type Message } from "../../offchain/message";
 import {
   getIsmParamsHelios,
   isInboundMessageDelivered,
 } from "../../offchain/inbox";
+import type { H256 } from "../../merkle/h256";
 
 export class IsInboxMessageDeliveredService
   implements IIsInboxMessageDelivered
 {
-  async getIsInboxMessageDelivered(message: Message): Promise<boolean> {
-    return await isInboundMessageDelivered(getIsmParamsHelios(), message);
+  async getIsInboxMessageDelivered(messageId: H256): Promise<boolean> {
+    return await isInboundMessageDelivered(getIsmParamsHelios(), messageId);
   }
 }

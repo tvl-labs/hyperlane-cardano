@@ -27,7 +27,7 @@ let lastOutboundMsg: Message = {
   recipient: Address.fromHex(
     "0x0000000000000000000000000000000000000000000000000000000000000EF1"
   ),
-  message: MessagePayload.fromString(""),
+  body: MessagePayload.fromString(""),
 };
 
 interface OutboundMessageRes {
@@ -43,7 +43,7 @@ async function createOutboundMsg(
   lastOutboundMsg = {
     ...lastOutboundMsg,
     nonce,
-    message: MessagePayload.fromString(`[${Date.now()}] Outbound message!`),
+    body: MessagePayload.fromString(`[${Date.now()}] Outbound message!`),
   };
   const utxo = await createOutboundMessage(
     utxoOutbox,
@@ -154,7 +154,7 @@ export async function testOutboxOnPreprodNetwork() {
   console.log("(Latest) Outbound Messages:", outboundMessages);
   if (
     outboundMessages[outboundMessages.length - 1] !==
-    helios.bytesToText([...lastOutboundMsg.message.toBuffer()])
+    helios.bytesToText([...lastOutboundMsg.body.toBuffer()])
   ) {
     throw new Error("Outbound message not found");
   }
