@@ -11,10 +11,10 @@ uninstall-local-docker-registry:
 
 # Cardano RPC
 install-cardano-rpc:
-	helm -n applications install cardano-rpc ./cardano-rpc
+	helm -n applications install cardano-rpc ./cardano-rpc --values ./cardano-rpc-values.yaml
 
 upgrade-cardano-rpc:
-	helm -n applications upgrade cardano-rpc ./cardano-rpc
+	helm -n applications upgrade cardano-rpc ./cardano-rpc --values ./cardano-rpc-values.yaml
 
 uninstall-cardano-rpc:
 	helm -n applications uninstall cardano-rpc

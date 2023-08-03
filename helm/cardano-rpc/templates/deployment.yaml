@@ -39,23 +39,21 @@ spec:
             - name: PORT
               value: {{ .Values.service.port | quote }}
             - name: BLOCKFROST_PREFIX
-              value: "https://cardano-preprod.blockfrost.io/api/v0"
+              value: {{ required "BLOCKFROST_PREFIX" .Values.cardanoRpc.BLOCKFROST_PREFIX | quote }}
             - name: BLOCKFROST_PROJECT_ID
-              value: "preprodbsnaSdm0tOwT9Ifr1ynCXnMpz9MBZhRm"
+              value: {{ required "BLOCKFROST_PROJECT_ID" .Values.cardanoRpc.BLOCKFROST_PROJECT_ID | quote }}
             - name: OUTBOX_AUTH_TOKEN
-              value: "59c5610462c406da578e1db73f1d2d8d0e8378add7351d80da9bc41f61757468"
+              value: {{ required "OUTBOX_AUTH_TOKEN" .Values.cardanoRpc.OUTBOX_AUTH_TOKEN | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_1
-              value: "035f49177825e10b520389c552cb22e114c6b4508a5387ff327b2e7fdd90d12410"
+              value: {{ required "ISM_VALIDATOR_PUB_KEY_1" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_1 | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_2
-              value: "028977e37b8af0384e1ea01a748bf7ef2b4a73c17c634910eb03c4ce0a38efa16d"
+              value: {{ required "ISM_VALIDATOR_PUB_KEY_2" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_2 | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_3
-              value: "03501e4f7eab5fad2409b66588be82e244073c9ca085c69e2ab69eb470346fbaeb"
+              value: {{ required "ISM_VALIDATOR_PUB_KEY_3" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_3 | quote }}
             - name: ISM_THRESHOLD
-              value: "2"
-            - name: WALLET_ADDRESS
-              value: "addr_test1vqvjvk3qezccu5a3gce65mqvg4tpfy47plv68wmh68paswqv3jaqe"
-            - name: WALLET_PRIVATE_KEY
-              value: "e8e34f6c74e22577d609803dfe9c8773f10e478e7dadf6d065a78ae42a21f912"
+              value: {{ required "ISM_THRESHOLD" .Values.cardanoRpc.ISM_THRESHOLD | quote }}
+            - name: ISM_NUMBER_OF_VALIDATORS
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.ISM_NUMBER_OF_VALIDATORS | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

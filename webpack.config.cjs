@@ -8,6 +8,7 @@ module.exports = {
     rpc: "./src/rpc/index.ts",
     dispatchMessage: "./src/cli/dispatchMessage.ts",
     announceValidatorStorage: "./src/cli/announceValidatorStorage.ts",
+    createValidatorKey: "./src/cli/createValidatorKey.ts",
   },
   output: {
     filename: "[name].js",

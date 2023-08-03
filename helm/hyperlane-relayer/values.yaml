@@ -7,12 +7,12 @@ replicaCount: 1
 image:
   pullPolicy: Always
 
-  repository: ghcr.io/tvl-labs/hyperlane-monorepo
-  tag: "2a85153a17c846d292dd13ecc58059552144d7f1"
+#  repository: ghcr.io/tvl-labs/hyperlane-monorepo
+#  tag: "2a85153a17c846d292dd13ecc58059552144d7f1"
 
 # Use the locally built image.
-#  repository: host.docker.internal:5000/hyperlane-cardano-local
-#  tag: "20230726113624"
+  repository: host.docker.internal:5000/hyperlane-cardano-local
+  tag: "20230803120840"
 
 imagePullSecrets:
   - name: ghcr-login-secret
@@ -26,7 +26,6 @@ relayer:
   destinationChainEnv: ""
   destinationChainRpc: ""
   privateKey: ""
-  localCheckpointsSubPath: ""
   useBlake2MerkleTree: false
 
 serviceAccount:

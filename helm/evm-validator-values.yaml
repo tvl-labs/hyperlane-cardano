@@ -2,9 +2,9 @@ validator:
   originChain: "fuji"
   originChainRpc: "https://rpc.ankr.com/avalanche_fuji"
   originChainEnvName: "FUJI"
-  # Private key of validator 0x2064dfa3a7dc4F6Bb6523B56Fa6C46611799058A
-  privateKey: "0xa7fa3c72ee7bd14c684d8f29cebd1893f1da5a02926de44fe294734fc9594911"
-  localCheckpointsSubPath: "0x2064dfa3a7dc4F6Bb6523B56Fa6C46611799058A"
+  # Private key of validator 0x268A18f088F32567Ae70e7dd74dc658AC98F322F
+  privateKey: "0x1f0a8216679a21914782570ce9ea5453d0ffa8262c47f01bd36611c7225fc0b8"
+  localCheckpointsSubPath: "0x268A18f088F32567Ae70e7dd74dc658AC98F322F"
   useBlake2MerkleTree: false
   # TODO: check these values.
   reorgPeriod: 1
