@@ -195,7 +195,7 @@ pub async fn is_inbox_message_delivered(configuration: &configuration::Configura
 
     let local_var_client = &local_var_configuration.client;
 
-    let local_var_uri_str = format!("{}/api/inbox/is-message-delivered/${messageId}", local_var_configuration.base_path, messageId=crate::apis::urlencode(message_id));
+    let local_var_uri_str = format!("{}/api/inbox/is-message-delivered/{messageId}", local_var_configuration.base_path, messageId=crate::apis::urlencode(message_id));
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {

@@ -176,7 +176,7 @@ paths:
                 required:
                   - validators
                   - threshold
-  /api/inbox/is-message-delivered/${messageId}:
+  /api/inbox/is-message-delivered/{messageId}:
     get:
       operationId: "isInboxMessageDelivered"
       summary: Check if an inbox message was delivered
@@ -265,10 +265,10 @@ paths:
               schema:
                 type: object
                 properties:
-                  feeADA:
+                  feeLovelace:
                     type: number
                 required:
-                  - feeADA
+                  - feeLovelace
   /api/inbox/submit-message:
     post:
       operationId: "submitInboundMessage"

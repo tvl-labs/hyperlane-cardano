@@ -25,7 +25,7 @@ export interface paths {
     /** Get the inbox ISM parameters */
     get: operations["inboxIsmParameters"];
   };
-  "/api/inbox/is-message-delivered/${messageId}": {
+  "/api/inbox/is-message-delivered/{messageId}": {
     /** Check if an inbox message was delivered */
     get: operations["isInboxMessageDelivered"];
   };
@@ -201,7 +201,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            feeADA: number;
+            feeLovelace: number;
           };
         };
       };

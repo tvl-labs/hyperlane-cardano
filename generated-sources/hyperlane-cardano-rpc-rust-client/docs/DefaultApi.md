@@ -8,7 +8,7 @@ Method | HTTP request | Description
 [**get_outbound_gas_payment**](DefaultApi.md#get_outbound_gas_payment) | **POST** /api/outbox/get-message-gas-payment | Get the outbound gas payment for a message to a relayer
 [**get_validator_storage_locations**](DefaultApi.md#get_validator_storage_locations) | **POST** /api/validator-announcement/get-storage-locations/ | Returns storage locations for the given validators addresses (0x prefixed 32 bytes, total length of 66 characters)
 [**inbox_ism_parameters**](DefaultApi.md#inbox_ism_parameters) | **GET** /api/inbox/ism-parameters | Get the inbox ISM parameters
-[**is_inbox_message_delivered**](DefaultApi.md#is_inbox_message_delivered) | **GET** /api/inbox/is-message-delivered/${messageId} | Check if an inbox message was delivered
+[**is_inbox_message_delivered**](DefaultApi.md#is_inbox_message_delivered) | **GET** /api/inbox/is-message-delivered/{messageId} | Check if an inbox message was delivered
 [**last_finalized_block**](DefaultApi.md#last_finalized_block) | **GET** /api/indexer/lastFinalizedBlock | Get the last finalized block
 [**merkle_tree**](DefaultApi.md#merkle_tree) | **GET** /api/indexer/merkleTree | Retrieve the MerkleTree of the latest (finalized) alive Outbox (UTXO)
 [**messages_by_block_range**](DefaultApi.md#messages_by_block_range) | **GET** /api/indexer/messages/{fromBlock}/{toBlock} | Get messages from fromBlock to toBlock

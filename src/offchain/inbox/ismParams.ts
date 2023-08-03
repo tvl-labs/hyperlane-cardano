@@ -3,7 +3,8 @@ import * as helios from "@hyperionbt/helios";
 import { Address } from "../address";
 import ScriptLockForever from "../../onchain/scriptLockForever.hl";
 
-// TODO: Read the number of validators from env
+// TODO: Read the number of validators from env.
+// TODO: Test with more than 1 validator.
 
 // For relayers's offchain usage
 export interface IsmParams {
@@ -13,7 +14,7 @@ export interface IsmParams {
 
 export function getIsmParams(): IsmParams {
   return {
-    validators: [1, 2, 3].map((i) =>
+    validators: [1].map((i) =>
       Address.fromEvmAddress(
         ethers.computeAddress(
           `0x${process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? ""}`
@@ -38,7 +39,7 @@ export function getIsmParamsHelios(): IsmParamsHelios {
     new ScriptLockForever().compile(true).validatorHash
   );
   return {
-    VALIDATOR_VKEYS: [1, 2, 3].map(
+    VALIDATOR_VKEYS: [1].map(
       (i) =>
         new helios.ByteArray(process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? "")
     ),

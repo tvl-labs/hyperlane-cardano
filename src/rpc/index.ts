@@ -142,7 +142,7 @@ app.get(
   }
 );
 
-app.post(
+app.get(
   "/api/inbox/is-message-delivered/:messageId",
   async function (
     req,
@@ -171,26 +171,29 @@ app.post(
     next
   ) {
     try {
-      const feeADA = await estimateInboundMessageFee.estimateInboundMessageFee(
-        new Wallet(new helios.Address(req.body.relayerCardanoAddress)),
-        {
-          origin: req.body.origin,
-          originMailbox: Address.fromHex(req.body.originMailbox),
-          checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
-          checkpointIndex: req.body.checkpointIndex,
-          message: {
-            version: req.body.message.version,
-            nonce: req.body.message.nonce,
-            originDomain: req.body.message.originDomain,
-            sender: Address.fromHex(req.body.message.sender),
-            destinationDomain: req.body.message.destinationDomain,
-            recipient: Address.fromHex(req.body.message.recipient),
-            body: MessagePayload.fromHexString(req.body.message.message),
+      const feeLovelace =
+        await estimateInboundMessageFee.estimateInboundMessageFee(
+          new Wallet(new helios.Address(req.body.relayerCardanoAddress)),
+          {
+            origin: req.body.origin,
+            originMailbox: Address.fromHex(req.body.originMailbox),
+            checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
+            checkpointIndex: req.body.checkpointIndex,
+            message: {
+              version: req.body.message.version,
+              nonce: req.body.message.nonce,
+              originDomain: req.body.message.originDomain,
+              sender: Address.fromHex(req.body.message.sender),
+              destinationDomain: req.body.message.destinationDomain,
+              recipient: Address.fromHex(req.body.message.recipient),
+              body: MessagePayload.fromHexString(
+                `0x${req.body.message.message as string}`
+              ),
+            },
           },
-        },
-        req.body.signatures.map((s) => Buffer.from(s, "hex"))
-      );
-      res.status(200).json({ feeADA });
+          req.body.signatures.map((s) => Buffer.from(s, "hex"))
+        );
+      res.status(200).json({ feeLovelace });
     } catch (e) {
       next(e);
     }
@@ -224,7 +227,9 @@ app.post(
             sender: Address.fromHex(req.body.message.sender),
             destinationDomain: req.body.message.destinationDomain,
             recipient: Address.fromHex(req.body.message.recipient),
-            body: MessagePayload.fromHexString(req.body.message.message),
+            body: MessagePayload.fromHexString(
+              `0x${req.body.message.message as string}`
+            ),
           },
         },
         req.body.signatures.map((s) => Buffer.from(s, "hex"))
