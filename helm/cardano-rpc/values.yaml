@@ -8,7 +8,7 @@ image:
   pullPolicy: Always
 # Use production image.
   repository: ghcr.io/tvl-labs/hyperlane-cardano
-  tag: "04f334c98328d908cb6e42a50d43466239ceaee1"
+  tag: "25378fdec106160749035ee700d750afc4f64ff8"
 
 # Use the locally built image.
 #  Repository: host.docker.internal:5000/hyperlane-cardano-rpc-local
@@ -16,6 +16,9 @@ image:
 
 imagePullSecrets:
   - name: ghcr-login-secret
+
+cardanoRpc:
+  mockEnv: false
 
 nameOverride: ""
 fullnameOverride: ""
