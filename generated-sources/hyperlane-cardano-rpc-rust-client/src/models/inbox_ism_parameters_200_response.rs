@@ -16,11 +16,11 @@ pub struct InboxIsmParameters200Response {
     #[serde(rename = "validators")]
     pub validators: Vec<String>,
     #[serde(rename = "threshold")]
-    pub threshold: f32,
+    pub threshold: u32,
 }
 
 impl InboxIsmParameters200Response {
-    pub fn new(validators: Vec<String>, threshold: f32) -> InboxIsmParameters200Response {
+    pub fn new(validators: Vec<String>, threshold: u32) -> InboxIsmParameters200Response {
         InboxIsmParameters200Response {
             validators,
             threshold,

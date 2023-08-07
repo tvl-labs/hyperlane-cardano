@@ -18,13 +18,13 @@ pub struct SubmitInboundMessageRequest {
     #[serde(rename = "privateKey")]
     pub private_key: String,
     #[serde(rename = "origin")]
-    pub origin: f32,
+    pub origin: u32,
     #[serde(rename = "originMailbox")]
     pub origin_mailbox: String,
     #[serde(rename = "checkpointRoot")]
     pub checkpoint_root: String,
     #[serde(rename = "checkpointIndex")]
-    pub checkpoint_index: f32,
+    pub checkpoint_index: u32,
     #[serde(rename = "message")]
     pub message: Box<crate::models::EstimateInboundMessageFeeRequestMessage>,
     #[serde(rename = "signatures")]
@@ -32,7 +32,7 @@ pub struct SubmitInboundMessageRequest {
 }
 
 impl SubmitInboundMessageRequest {
-    pub fn new(relayer_cardano_address: String, private_key: String, origin: f32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: f32, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> SubmitInboundMessageRequest {
+    pub fn new(relayer_cardano_address: String, private_key: String, origin: u32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: u32, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> SubmitInboundMessageRequest {
         SubmitInboundMessageRequest {
             relayer_cardano_address,
             private_key,

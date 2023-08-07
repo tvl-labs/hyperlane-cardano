@@ -213,8 +213,8 @@ Get messages from fromBlock to toBlock
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**from_block** | **i32** | Start block number | [required] |
-**to_block** | **i32** | End block number | [required] |
+**from_block** | **u32** | Start block number | [required] |
+**to_block** | **u32** | End block number | [required] |
 
 ### Return type
 

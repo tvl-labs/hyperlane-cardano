@@ -14,15 +14,15 @@
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct EstimateInboundMessageFeeRequestMessage {
     #[serde(rename = "version")]
-    pub version: f32,
+    pub version: u32,
     #[serde(rename = "nonce")]
-    pub nonce: f32,
+    pub nonce: u32,
     #[serde(rename = "originDomain")]
-    pub origin_domain: f32,
+    pub origin_domain: u32,
     #[serde(rename = "sender")]
     pub sender: String,
     #[serde(rename = "destinationDomain")]
-    pub destination_domain: f32,
+    pub destination_domain: u32,
     #[serde(rename = "recipient")]
     pub recipient: String,
     #[serde(rename = "message")]
@@ -30,7 +30,7 @@ pub struct EstimateInboundMessageFeeRequestMessage {
 }
 
 impl EstimateInboundMessageFeeRequestMessage {
-    pub fn new(version: f32, nonce: f32, origin_domain: f32, sender: String, destination_domain: f32, recipient: String, message: String) -> EstimateInboundMessageFeeRequestMessage {
+    pub fn new(version: u32, nonce: u32, origin_domain: u32, sender: String, destination_domain: u32, recipient: String, message: String) -> EstimateInboundMessageFeeRequestMessage {
         EstimateInboundMessageFeeRequestMessage {
             version,
             nonce,

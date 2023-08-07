@@ -14,15 +14,15 @@
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct MessagesByBlockRange200ResponseMessagesInnerMessage {
     #[serde(rename = "version")]
-    pub version: i32,
+    pub version: u32,
     #[serde(rename = "nonce")]
-    pub nonce: i32,
+    pub nonce: u32,
     #[serde(rename = "originDomain")]
-    pub origin_domain: i32,
+    pub origin_domain: u32,
     #[serde(rename = "sender")]
     pub sender: String,
     #[serde(rename = "destinationDomain")]
-    pub destination_domain: i32,
+    pub destination_domain: u32,
     #[serde(rename = "recipient")]
     pub recipient: String,
     #[serde(rename = "body")]
@@ -30,7 +30,7 @@ pub struct MessagesByBlockRange200ResponseMessagesInnerMessage {
 }
 
 impl MessagesByBlockRange200ResponseMessagesInnerMessage {
-    pub fn new(version: i32, nonce: i32, origin_domain: i32, sender: String, destination_domain: i32, recipient: String, body: String) -> MessagesByBlockRange200ResponseMessagesInnerMessage {
+    pub fn new(version: u32, nonce: u32, origin_domain: u32, sender: String, destination_domain: u32, recipient: String, body: String) -> MessagesByBlockRange200ResponseMessagesInnerMessage {
         MessagesByBlockRange200ResponseMessagesInnerMessage {
             version,
             nonce,

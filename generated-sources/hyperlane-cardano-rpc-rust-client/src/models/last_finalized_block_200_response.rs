@@ -14,7 +14,7 @@
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct LastFinalizedBlock200Response {
     #[serde(rename = "lastFinalizedBlock", skip_serializing_if = "Option::is_none")]
-    pub last_finalized_block: Option<i32>,
+    pub last_finalized_block: Option<u32>,
 }
 
 impl LastFinalizedBlock200Response {

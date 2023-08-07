@@ -13,14 +13,14 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct GetOutboundGasPayment200Response {
-    #[serde(rename = "totalGasADA")]
-    pub total_gas_ada: f32,
+    #[serde(rename = "totalGasLovelace")]
+    pub total_gas_lovelace: u32,
 }
 
 impl GetOutboundGasPayment200Response {
-    pub fn new(total_gas_ada: f32) -> GetOutboundGasPayment200Response {
+    pub fn new(total_gas_lovelace: u32) -> GetOutboundGasPayment200Response {
         GetOutboundGasPayment200Response {
-            total_gas_ada,
+            total_gas_lovelace,
         }
     }
 }

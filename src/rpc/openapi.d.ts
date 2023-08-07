@@ -257,7 +257,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            totalGasADA: number;
+            totalGasLovelace: number;
           };
         };
       };

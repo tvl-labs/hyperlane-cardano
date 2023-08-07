@@ -5,10 +5,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **relayer_cardano_address** | **String** |  | 
-**origin** | **f32** |  | 
+**origin** | **u32** |  | 
 **origin_mailbox** | **String** |  | 
 **checkpoint_root** | **String** |  | 
-**checkpoint_index** | **f32** |  | 
+**checkpoint_index** | **u32** |  | 
 **message** | [**crate::models::EstimateInboundMessageFeeRequestMessage**](estimateInboundMessageFee_request_message.md) |  | 
 **signatures** | **Vec<String>** |  | 
 

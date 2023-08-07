@@ -4,11 +4,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**version** | **i32** |  | 
-**nonce** | **i32** |  | 
-**origin_domain** | **i32** |  | 
+**version** | **u32** |  | 
+**nonce** | **u32** |  | 
+**origin_domain** | **u32** |  | 
 **sender** | **String** |  | 
-**destination_domain** | **i32** |  | 
+**destination_domain** | **u32** |  | 
 **recipient** | **String** |  | 
 **body** | **String** |  | 
 

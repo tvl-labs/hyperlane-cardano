@@ -249,11 +249,12 @@ app.post(
     next
   ) {
     try {
-      const totalGasADA = await getOutboundGasPayment.getOutboundGasPayment(
-        new helios.Address(req.body.relayerAddress),
-        new helios.ByteArray(req.body.messageId)
-      );
-      res.status(200).json({ totalGasADA });
+      const totalGasLovelace =
+        await getOutboundGasPayment.getOutboundGasPayment(
+          new helios.Address(req.body.relayerAddress),
+          new helios.ByteArray(req.body.messageId)
+        );
+      res.status(200).json({ totalGasLovelace });
     } catch (e) {
       next(e);
     }

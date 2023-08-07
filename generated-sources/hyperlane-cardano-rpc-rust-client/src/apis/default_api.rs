@@ -271,7 +271,7 @@ pub async fn merkle_tree(configuration: &configuration::Configuration, ) -> Resu
     }
 }
 
-pub async fn messages_by_block_range(configuration: &configuration::Configuration, from_block: i32, to_block: i32) -> Result<crate::models::MessagesByBlockRange200Response, Error<MessagesByBlockRangeError>> {
+pub async fn messages_by_block_range(configuration: &configuration::Configuration, from_block: u32, to_block: u32) -> Result<crate::models::MessagesByBlockRange200Response, Error<MessagesByBlockRangeError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;

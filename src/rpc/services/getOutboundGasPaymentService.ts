@@ -8,6 +8,6 @@ export class GetOutboundGasPaymentService implements IGetOutboundGasPayment {
     messageId: helios.ByteArray
   ): Promise<number> {
     const fee = await getOutboundGasPayment(relayerAddress, messageId);
-    return Number(fee) / 1_000_000;
+    return Number(fee);
   }
 }

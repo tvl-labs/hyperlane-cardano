@@ -14,11 +14,11 @@
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct EstimateInboundMessageFee200Response {
     #[serde(rename = "feeLovelace")]
-    pub fee_lovelace: f32,
+    pub fee_lovelace: u32,
 }
 
 impl EstimateInboundMessageFee200Response {
-    pub fn new(fee_lovelace: f32) -> EstimateInboundMessageFee200Response {
+    pub fn new(fee_lovelace: u32) -> EstimateInboundMessageFee200Response {
         EstimateInboundMessageFee200Response {
             fee_lovelace,
         }
