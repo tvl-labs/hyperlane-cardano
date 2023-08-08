@@ -31,7 +31,7 @@ export async function isInboundMessageDelivered(
         }
       ).then(async (r) => await r.json());
 
-      if (utxos.length === 0) break;
+      if (!Array.isArray(utxos) || utxos.length === 0) break;
 
       for (const utxo of utxos) {
         if (

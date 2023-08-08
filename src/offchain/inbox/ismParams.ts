@@ -3,9 +3,6 @@ import * as helios from "@hyperionbt/helios";
 import { Address } from "../address";
 import ScriptLockForever from "../../onchain/scriptLockForever.hl";
 
-// TODO: Read the number of validators from env.
-// TODO: Test with more than 1 validator.
-
 // For relayers's offchain usage
 export interface IsmParams {
   validators: Address[];
@@ -13,14 +10,18 @@ export interface IsmParams {
 }
 
 export function getIsmParams(): IsmParams {
-  return {
-    validators: [1].map((i) =>
+  const validators: Address[] = [];
+  for (let i = 1; i <= parseInt(process.env.ISM_NUM_VALIDATORS ?? "1"); i++) {
+    validators.push(
       Address.fromEvmAddress(
         ethers.computeAddress(
           `0x${process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? ""}`
         )
       )
-    ),
+    );
+  }
+  return {
+    validators,
     threshold: BigInt(process.env.ISM_THRESHOLD ?? 2),
   };
 }
@@ -38,11 +39,14 @@ export function getIsmParamsHelios(): IsmParamsHelios {
   const addressMessage = helios.Address.fromValidatorHash(
     new ScriptLockForever().compile(true).validatorHash
   );
+  const VALIDATOR_VKEYS: helios.ByteArray[] = [];
+  for (let i = 1; i <= parseInt(process.env.ISM_NUM_VALIDATORS ?? "1"); i++) {
+    VALIDATOR_VKEYS.push(
+      new helios.ByteArray(process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? "")
+    );
+  }
   return {
-    VALIDATOR_VKEYS: [1].map(
-      (i) =>
-        new helios.ByteArray(process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? "")
-    ),
+    VALIDATOR_VKEYS,
     THRESHOLD: BigInt(process.env.ISM_THRESHOLD ?? 2),
     RECIPIENT_ADDRESS: addressMessage,
   };
