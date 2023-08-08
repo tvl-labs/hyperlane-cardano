@@ -173,7 +173,7 @@ app.post(
     try {
       const feeLovelace =
         await estimateInboundMessageFee.estimateInboundMessageFee(
-          new Wallet(new helios.Address(req.body.relayerCardanoAddress)),
+          new Wallet(new helios.Address(process.env.WALLET_ADDRESS ?? "")),
           {
             origin: req.body.origin,
             originMailbox: Address.fromHex(req.body.originMailbox),
@@ -212,8 +212,8 @@ app.post(
     try {
       const txId = await submitInboundMessage.submitInboundMessage(
         new Wallet(
-          new helios.Address(req.body.relayerCardanoAddress),
-          new helios.PrivateKey(req.body.privateKey)
+          new helios.Address(process.env.WALLET_ADDRESS ?? ""),
+          new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
         ),
         {
           origin: req.body.origin,

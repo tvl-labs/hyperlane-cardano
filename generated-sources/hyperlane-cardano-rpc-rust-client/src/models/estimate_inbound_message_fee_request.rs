@@ -13,8 +13,6 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct EstimateInboundMessageFeeRequest {
-    #[serde(rename = "relayerCardanoAddress")]
-    pub relayer_cardano_address: String,
     #[serde(rename = "origin")]
     pub origin: u32,
     #[serde(rename = "originMailbox")]
@@ -30,9 +28,8 @@ pub struct EstimateInboundMessageFeeRequest {
 }
 
 impl EstimateInboundMessageFeeRequest {
-    pub fn new(relayer_cardano_address: String, origin: u32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: u32, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> EstimateInboundMessageFeeRequest {
+    pub fn new(origin: u32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: u32, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> EstimateInboundMessageFeeRequest {
         EstimateInboundMessageFeeRequest {
-            relayer_cardano_address,
             origin,
             origin_mailbox,
             checkpoint_root,

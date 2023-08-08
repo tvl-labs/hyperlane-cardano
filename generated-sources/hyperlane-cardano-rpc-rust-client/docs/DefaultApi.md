@@ -234,7 +234,7 @@ No authorization required
 
 ## submit_inbound_message
 
-> crate::models::SubmitInboundMessage200Response submit_inbound_message(submit_inbound_message_request)
+> crate::models::SubmitInboundMessage200Response submit_inbound_message(estimate_inbound_message_fee_request)
 Submit an new inbound message
 
 ### Parameters
@@ -242,7 +242,7 @@ Submit an new inbound message
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**submit_inbound_message_request** | [**SubmitInboundMessageRequest**](SubmitInboundMessageRequest.md) |  | [required] |
+**estimate_inbound_message_fee_request** | [**EstimateInboundMessageFeeRequest**](EstimateInboundMessageFeeRequest.md) |  | [required] |
 
 ### Return type
 

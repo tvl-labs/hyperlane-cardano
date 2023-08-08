@@ -221,8 +221,6 @@ paths:
             schema:
               type: object
               properties:
-                relayerCardanoAddress:
-                  type: string
                 origin:
                   type: integer
                   minimum: 0
@@ -267,7 +265,6 @@ paths:
                   items:
                     type: string # hex
               required:
-                - relayerCardanoAddress
                 - origin
                 - originMailbox
                 - checkpointRoot
@@ -298,10 +295,6 @@ paths:
             schema:
               type: object
               properties:
-                relayerCardanoAddress:
-                  type: string
-                privateKey:
-                  type: string
                 origin:
                   type: integer
                   minimum: 0
@@ -346,8 +339,6 @@ paths:
                   items:
                     type: string # hex
               required:
-                - relayerCardanoAddress
-                - privateKey
                 - origin
                 - originMailbox
                 - checkpointRoot

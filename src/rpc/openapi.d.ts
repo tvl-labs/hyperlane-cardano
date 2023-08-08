@@ -178,7 +178,6 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          relayerCardanoAddress: string;
           origin: number;
           originMailbox: string;
           checkpointRoot: string;
@@ -212,8 +211,6 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          relayerCardanoAddress: string;
-          privateKey: string;
           origin: number;
           originMailbox: string;
           checkpointRoot: string;

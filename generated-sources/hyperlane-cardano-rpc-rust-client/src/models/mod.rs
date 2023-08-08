@@ -32,5 +32,3 @@ pub mod messages_by_block_range_200_response_messages_inner_message;
 pub use self::messages_by_block_range_200_response_messages_inner_message::MessagesByBlockRange200ResponseMessagesInnerMessage;
 pub mod submit_inbound_message_200_response;
 pub use self::submit_inbound_message_200_response::SubmitInboundMessage200Response;
-pub mod submit_inbound_message_request;
-pub use self::submit_inbound_message_request::SubmitInboundMessageRequest;

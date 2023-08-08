@@ -298,7 +298,7 @@ pub async fn messages_by_block_range(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn submit_inbound_message(configuration: &configuration::Configuration, submit_inbound_message_request: crate::models::SubmitInboundMessageRequest) -> Result<crate::models::SubmitInboundMessage200Response, Error<SubmitInboundMessageError>> {
+pub async fn submit_inbound_message(configuration: &configuration::Configuration, estimate_inbound_message_fee_request: crate::models::EstimateInboundMessageFeeRequest) -> Result<crate::models::SubmitInboundMessage200Response, Error<SubmitInboundMessageError>> {
     let local_var_configuration = configuration;
 
     let local_var_client = &local_var_configuration.client;
@@ -309,7 +309,7 @@ pub async fn submit_inbound_message(configuration: &configuration::Configuration
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
     }
-    local_var_req_builder = local_var_req_builder.json(&submit_inbound_message_request);
+    local_var_req_builder = local_var_req_builder.json(&estimate_inbound_message_fee_request);
 
     let local_var_req = local_var_req_builder.build()?;
     let local_var_resp = local_var_client.execute(local_var_req).await?;

@@ -4,7 +4,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**relayer_cardano_address** | **String** |  | 
 **origin** | **u32** |  | 
 **origin_mailbox** | **String** |  | 
 **checkpoint_root** | **String** |  | 
