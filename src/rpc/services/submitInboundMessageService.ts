@@ -1,5 +1,5 @@
-import type * as helios from "@hyperionbt/helios";
 import { type ISubmitInboundMessage } from "./ISubmitInboundMessageService";
+import type { SubmitInboundMessageResponseBody } from "../types";
 import { getIsmParamsHelios, createInboundMessage } from "../../offchain/inbox";
 import type { Checkpoint } from "../../offchain/checkpoint";
 import type { Wallet } from "../../offchain/wallet";
@@ -9,7 +9,7 @@ export class SubmitInboundMessageService implements ISubmitInboundMessage {
     wallet: Wallet,
     checkpoint: Checkpoint,
     signatures: Buffer[]
-  ): Promise<helios.TxId> {
+  ): Promise<SubmitInboundMessageResponseBody> {
     return await createInboundMessage(
       getIsmParamsHelios(),
       checkpoint,

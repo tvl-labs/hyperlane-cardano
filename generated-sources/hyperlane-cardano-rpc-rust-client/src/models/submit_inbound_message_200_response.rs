@@ -15,12 +15,15 @@
 pub struct SubmitInboundMessage200Response {
     #[serde(rename = "txId")]
     pub tx_id: String,
+    #[serde(rename = "feeLovelace")]
+    pub fee_lovelace: u32,
 }
 
 impl SubmitInboundMessage200Response {
-    pub fn new(tx_id: String) -> SubmitInboundMessage200Response {
+    pub fn new(tx_id: String, fee_lovelace: u32) -> SubmitInboundMessage200Response {
         SubmitInboundMessage200Response {
             tx_id,
+            fee_lovelace,
         }
     }
 }

@@ -1,4 +1,4 @@
-import type * as helios from "@hyperionbt/helios";
+import type { SubmitInboundMessageResponseBody } from "../types";
 import type { Checkpoint } from "../../offchain/checkpoint";
 import type { Wallet } from "../../offchain/wallet";
 
@@ -7,5 +7,5 @@ export interface ISubmitInboundMessage {
     wallet: Wallet,
     checkpoint: Checkpoint,
     signatures: Buffer[]
-  ) => Promise<helios.TxId>;
+  ) => Promise<SubmitInboundMessageResponseBody>;
 }

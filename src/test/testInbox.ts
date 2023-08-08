@@ -89,9 +89,9 @@ export async function testInboxOnEmulatedNetwork() {
 }
 
 export async function testInboxOnPreprodNetwork() {
-  const txId = await createInboundMsg();
-  console.log(`Submitted inbound message at tx ${txId.hex}!`);
-  await waitForTxConfirmation(txId.hex);
+  const txOutcome = await createInboundMsg();
+  console.log(`Submitted inbound message at tx ${txOutcome.txId}!`);
+  await waitForTxConfirmation(txOutcome.txId);
 
   const isDelivered = await isInboundMessageDelivered(
     ismParams,

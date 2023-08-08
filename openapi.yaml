@@ -347,7 +347,7 @@ paths:
                 - signatures
       responses:
         200:
-          description: The tx id of the inbound message on Cardano
+          description: The outcome of submitting the inbound message on Cardano
           content:
             application/json:
               schema:
@@ -355,8 +355,12 @@ paths:
                 properties:
                   txId:
                     type: string
+                  feeLovelace:
+                    type: integer
+                    minimum: 0
                 required:
                   - txId
+                  - feeLovelace
   /api/outbox/get-message-gas-payment:
     post:
       operationId: "getOutboundGasPayment"

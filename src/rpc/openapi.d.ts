@@ -229,11 +229,12 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The tx id of the inbound message on Cardano */
+      /** @description The outcome of submitting the inbound message on Cardano */
       200: {
         content: {
           "application/json": {
             txId: string;
+            feeLovelace: number;
           };
         };
       };

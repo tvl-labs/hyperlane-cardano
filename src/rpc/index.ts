@@ -210,7 +210,7 @@ app.post(
     next
   ) {
     try {
-      const txId = await submitInboundMessage.submitInboundMessage(
+      const txOutcome = await submitInboundMessage.submitInboundMessage(
         new Wallet(
           new helios.Address(process.env.WALLET_ADDRESS ?? ""),
           new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
@@ -234,7 +234,7 @@ app.post(
         },
         req.body.signatures.map((s) => Buffer.from(s, "hex"))
       );
-      res.status(200).json({ txId: txId.hex });
+      res.status(200).json(txOutcome);
     } catch (e) {
       next(e);
     }
