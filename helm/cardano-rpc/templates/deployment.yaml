@@ -52,8 +52,12 @@ spec:
               value: {{ required "ISM_VALIDATOR_PUB_KEY_3" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_3 | quote }}
             - name: ISM_THRESHOLD
               value: {{ required "ISM_THRESHOLD" .Values.cardanoRpc.ISM_THRESHOLD | quote }}
-            - name: ISM_NUMBER_OF_VALIDATORS
-              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.ISM_NUMBER_OF_VALIDATORS | quote }}
+            - name: ISM_NUM_VALIDATORS
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.ISM_NUM_VALIDATORS | quote }}
+            - name: WALLET_ADDRESS
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.WALLET_ADDRESS | quote }}
+            - name: WALLET_PRIVATE_KEY
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.WALLET_PRIVATE_KEY | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

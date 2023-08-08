@@ -12,7 +12,7 @@ image:
 
 # Use the locally built image.
   repository: host.docker.internal:5000/hyperlane-cardano-rpc-local
-  tag: "20230803145549"
+  tag: "20230808111555"
 
 imagePullSecrets:
   - name: ghcr-login-secret
@@ -26,7 +26,9 @@ cardanoRpc:
   ISM_VALIDATOR_PUB_KEY_2: ""
   ISM_VALIDATOR_PUB_KEY_3: ""
   ISM_THRESHOLD: ""
-  ISM_NUMBER_OF_VALIDATORS: ""
+  ISM_NUM_VALIDATORS: ""
+  WALLET_ADDRESS: ""
+  WALLET_PRIVATE_KEY: ""
 
 nameOverride: ""
 fullnameOverride: ""

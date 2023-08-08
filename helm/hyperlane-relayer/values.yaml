@@ -12,7 +12,7 @@ image:
 
 # Use the locally built image.
   repository: host.docker.internal:5000/hyperlane-cardano-local
-  tag: "20230803120840"
+  tag: "20230808102044"
 
 imagePullSecrets:
   - name: ghcr-login-secret

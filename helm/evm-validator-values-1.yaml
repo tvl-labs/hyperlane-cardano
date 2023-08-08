@@ -1,8 +1,9 @@
 validator:
   originChain: "fuji"
-  originChainRpc: "https://rpc.ankr.com/avalanche_fuji"
+  originChainRpc: "https://avalanche-fuji.infura.io/v3/388d2c2a7e0847e1bff2999a29b14a57"
   originChainEnvName: "FUJI"
   # Private key of validator 0x268A18f088F32567Ae70e7dd74dc658AC98F322F
+  # Public key of validator 0x034da0d80b91cec2c523493bf8a0ed65021ebe10cf08cb01ce1b3bba8951730127
   privateKey: "0x1f0a8216679a21914782570ce9ea5453d0ffa8262c47f01bd36611c7225fc0b8"
   localCheckpointsSubPath: "0x268A18f088F32567Ae70e7dd74dc658AC98F322F"
   useBlake2MerkleTree: false
