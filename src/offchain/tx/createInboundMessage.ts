@@ -1,6 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
+import ScriptInbox from "../../onchain/scriptInbox.hl";
 import { TOKEN_NAME_AUTH, type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { serializeMessage } from "../message";
@@ -10,7 +11,11 @@ import {
   convertNumberToHeliosByteArray,
 } from "../outbox/heliosByteArrayUtils";
 
-// TODO: Expose API to "share" the tx between functions.
+console.log(
+  helios.Address.fromValidatorHash(
+    new ScriptInbox().compile(true).validatorHash
+  )
+);
 
 async function buildInboundMessageTx(
   ismParams: IsmParamsHelios,

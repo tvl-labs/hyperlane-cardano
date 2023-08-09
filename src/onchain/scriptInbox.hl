@@ -1,0 +1,53 @@
+spending lock_forever
+
+struct DatumInbox {
+  delivered_message_hashes: []ByteArray
+}
+
+func main(datum: DatumInbox, _, ctx: ScriptContext) -> Bool {
+  current_output: TxOutput = ctx.get_current_input().output;
+
+  // (1) Can consume only one inbox
+  inbox_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
+    input.output.address == current_output.address
+  });
+  assert(inbox_inputs.length == 1, "Can only consume one inbox");
+
+  // (2) Can produce only one inbox
+  inbox_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
+    output.address == current_output.address
+  });
+  assert(inbox_outputs.length == 1, "Can only produce one inbox");
+
+  next_output: TxOutput = inbox_outputs.head;
+
+  // (3) Cannot change value
+  assert(current_output.value == next_output.value, "Cannot change value");
+
+  // (4) Must mint exactly one corresponding message
+  assets: Map[MintingPolicyHash]Map[ByteArray]Int = current_output.value.get_assets().to_map();
+  assert(assets.length == 1, "Must hold only one asset");
+  inbox_mph: MintingPolicyHash = assets.head_key;
+  minted: Map[MintingPolicyHash]Map[ByteArray]Int = ctx.tx.minted.get_assets().to_map();
+  assert(minted.length == 1, "Must hold only one asset");
+  minted_mph: MintingPolicyHash = minted.head_key;
+  assert(inbox_mph == minted_mph, "Must mint the same mph");
+  minted_token: Map[ByteArray]Int = minted.head_value;
+  assert(minted_token.length == 1 && minted_token.head_value == 1, "Must mint only one token");
+  message_hash: ByteArray = minted_token.head_key;
+
+  // (5) Must not mint a minted message
+  assert(
+    !datum.delivered_message_hashes.any((mh: ByteArray) -> {
+      mh == message_hash
+    }),
+    "Must not mint a minted message"
+  );
+
+  // (6) Must update the datum correctly
+  next_datum: DatumInbox = next_output.datum.switch {
+    i: Inline => DatumInbox::from_data(i.data),
+    else => error("Invalid inbox output: missing inline datum")
+  };
+  next_datum.delivered_message_hashes == datum.delivered_message_hashes.prepend(message_hash)
+}
