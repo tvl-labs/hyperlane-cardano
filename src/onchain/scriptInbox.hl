@@ -1,4 +1,6 @@
-spending lock_forever
+spending inbox
+
+import { TOKEN_NAME_AUTH } from "./constants.hl"
 
 struct DatumInbox {
   delivered_message_hashes: []ByteArray
@@ -21,13 +23,24 @@ func main(datum: DatumInbox, _, ctx: ScriptContext) -> Bool {
 
   next_output: TxOutput = inbox_outputs.head;
 
-  // (3) Cannot change value
-  assert(current_output.value == next_output.value, "Cannot change value");
+  // (3) Cannot "steal" value
+  assert(
+    next_output.value.get_lovelace() >= current_output.value.get_lovelace() &&
+    next_output.value.get_assets() == current_output.value.get_assets(),
+    "Cannot steal value"
+  );
 
   // (4) Must mint exactly one corresponding message
   assets: Map[MintingPolicyHash]Map[ByteArray]Int = current_output.value.get_assets().to_map();
   assert(assets.length == 1, "Must hold only one asset");
   inbox_mph: MintingPolicyHash = assets.head_key;
+  auth_token: Map[ByteArray]Int = assets.head_value;
+  assert(
+    auth_token.length == 1 &&
+    auth_token.head_key == TOKEN_NAME_AUTH &&
+    auth_token.head_value == 1,
+    "Must hold only one auth token"
+  );
   minted: Map[MintingPolicyHash]Map[ByteArray]Int = ctx.tx.minted.get_assets().to_map();
   assert(minted.length == 1, "Must hold only one asset");
   minted_mph: MintingPolicyHash = minted.head_key;

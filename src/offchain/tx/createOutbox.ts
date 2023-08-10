@@ -16,20 +16,15 @@ export default async function createOutbox(
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
-  const mpMaster = new MintingPolicyNFT({
+  const mpNFT = new MintingPolicyNFT({
     OUTPUT_ID: new helios.TxOutputId([utxos[0].txId, utxos[0].utxoIdx]),
   }).compile(true);
-  tx.attachScript(mpMaster);
-  tx.addSigner(wallet.address.pubKeyHash);
+  tx.attachScript(mpNFT);
 
   const tokens: [number[], bigint][] = [
     [helios.textToBytes("auth"), BigInt(1)],
   ];
-  tx.mintTokens(
-    mpMaster.mintingPolicyHash,
-    tokens,
-    new helios.ConstrData(0, [])
-  );
+  tx.mintTokens(mpNFT.mintingPolicyHash, tokens, new helios.ConstrData(0, []));
 
   const addressOutbox = helios.Address.fromValidatorHash(
     new ScriptOutbox().compile(true).validatorHash
@@ -41,7 +36,7 @@ export default async function createOutbox(
       addressOutbox,
       new helios.Value(
         BigInt(0),
-        new helios.Assets([[mpMaster.mintingPolicyHash, tokens]])
+        new helios.Assets([[mpNFT.mintingPolicyHash, tokens]])
       ),
       helios.Datum.inline(serializeOutboxDatum(merkleTree))
     )

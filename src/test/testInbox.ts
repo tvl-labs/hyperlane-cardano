@@ -4,18 +4,19 @@ import * as helios from "@hyperionbt/helios";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import secp256k1 from "secp256k1";
 import { Address } from "../offchain/address";
+import type { Wallet } from "../offchain/wallet";
 import { MessagePayload } from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
 import {
-  getIsmParams,
-  getIsmParamsHelios,
   isInboundMessageDelivered,
   estimateInboundMessageFee,
   createInboundMessage,
 } from "../offchain/inbox";
 import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
 import { calculateMessageId, type Message } from "../offchain/message";
+import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
+import createInbox from "../offchain/tx/createInbox";
 
 // TODO: Build several edge cases.
 
@@ -44,11 +45,12 @@ const checkpoint: Checkpoint = {
   message,
 };
 
-console.log(getIsmParams());
-const ismParams = getIsmParamsHelios();
-
 // TODO: Better interface & names here...
-async function createInboundMsg(isEmulated: boolean = false) {
+async function createInboundMsg(
+  wallet: Wallet,
+  ismParams: IsmParamsHelios,
+  utxoInbox: helios.UTxO
+) {
   const checkpointHash = hashCheckpoint(checkpoint);
   const validatorPrivateKeys = [1, 2, 3].map((i) =>
     Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
@@ -67,9 +69,10 @@ async function createInboundMsg(isEmulated: boolean = false) {
 
   const fee = await estimateInboundMessageFee(
     ismParams,
+    utxoInbox,
     checkpoint,
     signatures,
-    isEmulated ? emulatedWallet : preprodWallet
+    wallet
   );
   if (fee < 300_000n) {
     throw new Error("Invalid fee? Fee too low.");
@@ -77,19 +80,26 @@ async function createInboundMsg(isEmulated: boolean = false) {
 
   return await createInboundMessage(
     ismParams,
+    utxoInbox,
     checkpoint,
     signatures,
-    isEmulated ? emulatedWallet : preprodWallet
+    wallet
   );
 }
 
 export async function testInboxOnEmulatedNetwork() {
   emulatedNetwork.tick(1n);
-  await createInboundMsg(true);
+  const { ismParams, utxoInbox } = await createInbox(emulatedWallet);
+  emulatedNetwork.tick(1n);
+  await createInboundMsg(emulatedWallet, ismParams, utxoInbox);
 }
 
 export async function testInboxOnPreprodNetwork() {
-  const txOutcome = await createInboundMsg();
+  const { ismParams, utxoInbox } = await createInbox(preprodWallet);
+  console.log(`Created inbox at tx ${utxoInbox.txId.hex}!`);
+  await waitForTxConfirmation(utxoInbox.txId.hex);
+
+  const txOutcome = await createInboundMsg(preprodWallet, ismParams, utxoInbox);
   console.log(`Submitted inbound message at tx ${txOutcome.txId}!`);
   await waitForTxConfirmation(txOutcome.txId);
 

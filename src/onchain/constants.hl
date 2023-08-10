@@ -1,0 +1,5 @@
+module constants
+
+// Constants
+const TOKEN_NAME_AUTH: ByteArray = #61757468 // auth
+const LABEL_HYPERLANE: ByteArray = #48595045524c414e45 // HYPERLANE

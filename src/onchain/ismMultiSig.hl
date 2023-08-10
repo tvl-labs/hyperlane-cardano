@@ -1,10 +1,7 @@
 minting ism_multi_sig
 
+import { TOKEN_NAME_AUTH, LABEL_HYPERLANE } from "./constants.hl"
 import { Message } from "./message.hl"
-
-// Constants
-const TOKEN_NAME_AUTH: ByteArray = #61757468 // auth
-const LABEL_HYPERLANE: ByteArray = #48595045524c414e45 // HYPERLANE
 
 // Parameters
 // The verification keys whose signatures are acknowledged.
@@ -12,6 +9,15 @@ const VALIDATOR_VKEYS: []ByteArray = []ByteArray{}
 
 // The number of signatures needed to pass a transaction.
 const THRESHOLD: Int = 0
+
+// A spent UTxO to identify and securely set up this inbox.
+// The key is to enforce ISM initialization only once.
+const OUTPUT_ID: TxOutputId = TxOutputId::new(TxId::new(#), 0)
+
+// The inbox address of the script that guards delivered messages.
+const INBOX_ADDRESS: Address = Address::new(
+  Credential::new_validator(ValidatorHash::new(#)), Option[StakingCredential]::None
+)
 
 // The recipient address where messages are posted to.
 // Owners must decide to post inbound messages to a pre-defined address
@@ -24,70 +30,97 @@ const RECIPIENT_ADDRESS: Address = Address::new(
 // End of Parameters
 
 // Redeemer
-// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/CheckpointLib.sol
-// "Int" is unbounded in Plutus so we use "ByteArray" for "origin"
-// and "checkpoint_index" to easier handle padding.
-struct RedeemerIsmMultiSig {
-  // The origin domain of the checkpoint
-  origin: ByteArray
-  // The address of the origin mailbox
-  origin_mailbox: ByteArray
-  // The root of the checkpoint
-  checkpoint_root: ByteArray
-  // The index of the checkpoint
-  checkpoint_index: ByteArray
-  // The signatures signed on the hash
-  signatures: []ByteArray
+enum Redeemer {
+  // Initialize a unique authentic inbox.
+  Init
+  // https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/CheckpointLib.sol
+  // "Int" is unbounded in Plutus so we use "ByteArray" for "origin"
+  // and "checkpoint_index" to easier handle padding.
+  IssueMessage {
+    // The origin domain of the checkpoint
+    origin: ByteArray
+    // The address of the origin mailbox
+    origin_mailbox: ByteArray
+    // The root of the checkpoint
+    checkpoint_root: ByteArray
+    // The index of the checkpoint
+    checkpoint_index: ByteArray
+    // The signatures signed on the hash
+    signatures: []ByteArray
+  }
 }
 
-// (1) & (2) are strict and make it easier to reason about the ISM.
-// We can loosen them as there are demands from dApp developers
-// for more advanced integrations.
-func main(redeemer: RedeemerIsmMultiSig, ctx: ScriptContext) -> Bool {
-  // (0) Validate redeemers
-  assert(redeemer.origin.length == 4, "invalid origin");
-  assert(redeemer.origin_mailbox.length == 32, "invalid origin_mailbox");
-  assert(redeemer.checkpoint_root.length == 32, "invalid checkpoint_root");
-  assert(redeemer.checkpoint_index.length == 4, "invalid checkpoint_index");
+func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
+  own_mph: MintingPolicyHash = ctx.get_current_minting_policy_hash();
+  auth_token: AssetClass = AssetClass::new(own_mph, TOKEN_NAME_AUTH);
 
-  // (1) Must mint only a single auth token.
-  asset_class_auth_token: AssetClass = AssetClass::new(
-    ctx.get_current_minting_policy_hash(),
-    TOKEN_NAME_AUTH
-  );
-  value_single_auth_token: Value = Value::new(asset_class_auth_token, 1);
-  assert(ctx.tx.minted == value_single_auth_token, "invalid minting");
+  redeemer.switch {
+    Init => {
+      value_auth_token = Value::new(auth_token, 1);
 
-  // (2) Must produce a single valid message UTxO, which is the only
-  // output that can hold an authentic token.
-  authentic_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
-    output.value.get_safe(asset_class_auth_token) > 0
-  });
-  assert(authentic_outputs.length == 1, "invalid outputs");
-  output: TxOutput = authentic_outputs.head;
-  assert(
-    output.address == RECIPIENT_ADDRESS &&
-    output.value.get_assets() == value_single_auth_token,
-    "invalid output"
-  );
+      ctx.tx.inputs.any((input: TxInput) -> {
+        input.output_id == OUTPUT_ID
+      }) &&
+      ctx.tx.minted == value_auth_token &&
+      ctx.tx.outputs.any((output: TxOutput) -> {
+        output.value.get_assets() == value_auth_token
+        // TODO: Enforce datum?
+      })
+    },
+    checkpoint: IssueMessage => {
+      // (1) Validate checkpoint
+      // TODO: We can remove these checks to save space
+      // As we trust the provided signatures anyway.
+      assert(checkpoint.origin.length == 4, "invalid origin");
+      assert(checkpoint.origin_mailbox.length == 32, "invalid origin_mailbox");
+      assert(checkpoint.checkpoint_root.length == 32, "invalid checkpoint_root");
+      assert(checkpoint.checkpoint_index.length == 4, "invalid checkpoint_index");
 
-  message: Message = output.datum.switch {
-    i: Inline => Message::from_data(i.data),
-    else => error("Invalid message output: missing inline datum")
-  };
+      // (2) Must consume an authentic inbox
+      inbox_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
+        input.output.address == INBOX_ADDRESS
+      });
+      assert(inbox_inputs.length == 1, "Can only consume one inbox");
+      assert(
+        inbox_inputs.head.value.get(auth_token) == 1,
+        "Must consume an authentic inbox"
+      );
 
-  // (3) The submitted message is signed by the required number of "owners".
-  // NOTE: We can look up faster by adding the public key to each redeemer signature.
-  checkpoint_digest: ByteArray = (
-    (redeemer.origin + redeemer.origin_mailbox + LABEL_HYPERLANE).blake2b() +
-    redeemer.checkpoint_root +
-    redeemer.checkpoint_index +
-    message.id()
-  ).blake2b();
-  valid_signatures: []ByteArray = redeemer.signatures.filter((signature: ByteArray) -> {
-    VALIDATOR_VKEYS.any((vkey: ByteArray) -> {
-      vkey.verify_ecdsa_secp256k1_signature(checkpoint_digest, signature)
-    })
-  });
-  valid_signatures.length >= THRESHOLD
+      // (3) Must produce a single valid message UTxO, which is the only
+      // non-inbox output that can hold an ISM token.
+      authentic_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
+        output.address != INBOX_ADDRESS &&
+        output.value.contains_policy(own_mph)
+      });
+      assert(authentic_outputs.length == 1, "invalid outputs");
+      output: TxOutput = authentic_outputs.head;
+      assert(output.address == RECIPIENT_ADDRESS, "invalid output address");
+
+      message: Message = output.datum.switch {
+        i: Inline => Message::from_data(i.data),
+        else => error("Invalid message output: missing inline datum")
+      };
+      message_hash: ByteArray = message.id();
+
+      // (4) Must mint only a single message token and to the recipient address.
+      value_message_token = Value::new(AssetClass::new(own_mph, message_hash), 1);
+      assert(ctx.tx.minted == value_message_token, "invalid minting");
+      assert(output.value.get_assets() == value_message_token, "invalid message token");
+
+      // (5) The submitted message is signed by the required number of "owners".
+      // NOTE: We can look up faster by adding the public key to each checkpoint signature.
+      checkpoint_digest: ByteArray = (
+        (checkpoint.origin + checkpoint.origin_mailbox + LABEL_HYPERLANE).blake2b() +
+        checkpoint.checkpoint_root +
+        checkpoint.checkpoint_index +
+        message_hash
+      ).blake2b();
+      valid_signatures: []ByteArray = checkpoint.signatures.filter((signature: ByteArray) -> {
+        VALIDATOR_VKEYS.any((vkey: ByteArray) -> {
+          vkey.verify_ecdsa_secp256k1_signature(checkpoint_digest, signature)
+        })
+      });
+      valid_signatures.length >= THRESHOLD
+    }
+  }
 }

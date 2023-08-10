@@ -1,3 +1,4 @@
+import * as helios from "@hyperionbt/helios";
 import { type IEstimateInboxMessageFee } from "./IEstimateInboxMessageFeeService";
 import {
   getIsmParamsHelios,
@@ -5,6 +6,7 @@ import {
 } from "../../offchain/inbox";
 import type { Checkpoint } from "../../offchain/checkpoint";
 import type { Wallet } from "../../offchain/wallet";
+import { getInboxUTxO } from "../../offchain/indexer/getInboxUTxO";
 
 export class EstimateInboxMessageFeeService
   implements IEstimateInboxMessageFee
@@ -14,8 +16,12 @@ export class EstimateInboxMessageFeeService
     checkpoint: Checkpoint,
     signatures: Buffer[]
   ): Promise<number> {
+    const ismParams = getIsmParamsHelios(
+      new helios.TxOutputId(process.env.ISM_OUTPUT_ID ?? "")
+    );
     const fee = await estimateInboundMessageFee(
-      getIsmParamsHelios(),
+      ismParams,
+      await getInboxUTxO(ismParams),
       checkpoint,
       signatures,
       wallet

@@ -2,23 +2,18 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import ScriptInbox from "../../onchain/scriptInbox.hl";
-import { TOKEN_NAME_AUTH, type Wallet } from "../wallet";
+import { type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
-import { serializeMessage } from "../message";
+import { calculateMessageId, serializeMessage } from "../message";
 import type { Checkpoint } from "../checkpoint";
 import {
   bufferToHeliosByteArray,
   convertNumberToHeliosByteArray,
 } from "../outbox/heliosByteArrayUtils";
 
-console.log(
-  helios.Address.fromValidatorHash(
-    new ScriptInbox().compile(true).validatorHash
-  )
-);
-
 async function buildInboundMessageTx(
   ismParams: IsmParamsHelios,
+  utxoInbox: helios.UTxO,
   checkpoint: Checkpoint,
   signatures: Buffer[],
   wallet: Wallet
@@ -27,13 +22,19 @@ async function buildInboundMessageTx(
 
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
+  tx.addInput(utxoInbox, new helios.ConstrData(0, []));
+  const scriptInbox = new ScriptInbox().compile(true);
+  tx.attachScript(scriptInbox);
 
+  // Message hash
+  const messageHash = calculateMessageId(checkpoint.message).toByteArray();
   const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
   tx.attachScript(ismMultiSig);
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
-    [[TOKEN_NAME_AUTH, BigInt(1)]],
-    new helios.ListData([
+    [[messageHash, BigInt(1)]],
+    // TODO: Refactor code to (serialize)checkpoint.
+    new helios.ConstrData(1, [
       convertNumberToHeliosByteArray(checkpoint.origin, 4)._toUplcData(),
       bufferToHeliosByteArray(
         checkpoint.originMailbox.toBuffer()
@@ -51,13 +52,28 @@ async function buildInboundMessageTx(
     ])
   );
 
+  // Inbox
+  tx.addOutput(
+    new helios.TxOutput(
+      utxoInbox.origOutput.address,
+      new helios.Value(0n, utxoInbox.origOutput.value.assets),
+      helios.Datum.inline(
+        new helios.ListData([
+          new helios.ByteArray(messageHash)._toUplcData(),
+          ...utxoInbox.origOutput.datum.data.list,
+        ])
+      )
+    )
+  );
+
+  // Recipient
   tx.addOutput(
     new helios.TxOutput(
       ismParams.RECIPIENT_ADDRESS,
       new helios.Value(
         0n, // Let Helios calculate the min ADA!
         new helios.Assets([
-          [ismMultiSig.mintingPolicyHash, [[TOKEN_NAME_AUTH, BigInt(1)]]],
+          [ismMultiSig.mintingPolicyHash, [[messageHash, BigInt(1)]]],
         ])
       ),
       helios.Datum.inline(serializeMessage(checkpoint.message))
@@ -74,12 +90,14 @@ async function buildInboundMessageTx(
 // the relayer's UTxO set.
 export async function estimateInboundMessageFee(
   ismParams: IsmParamsHelios,
+  utxoInbox: helios.UTxO,
   checkpoint: Checkpoint,
   signatures: Buffer[],
   wallet: Wallet
 ): Promise<bigint> {
   const tx = await buildInboundMessageTx(
     ismParams,
+    utxoInbox,
     checkpoint,
     signatures,
     wallet
@@ -94,12 +112,14 @@ interface TxOutcome {
 
 export async function createInboundMessage(
   ismParams: IsmParamsHelios,
+  utxoInbox: helios.UTxO,
   checkpoint: Checkpoint,
   signatures: Buffer[],
   wallet: Wallet
 ): Promise<TxOutcome> {
   const tx = await buildInboundMessageTx(
     ismParams,
+    utxoInbox,
     checkpoint,
     signatures,
     wallet

@@ -1,25 +1,21 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import { TOKEN_NAME_AUTH } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 
-// Note: we can provide another interface that takes in a
-// trusted/cached minting policy hash instead of recompiling here.
+// TODO: Walk down the tx history as messages will be consumed for usage like USDC
 export async function getInboundMessages(
   ismParams: IsmParamsHelios
 ): Promise<helios.ByteArray[]> {
-  const authenticMPH = new MintingPolicyIsmMultiSig(ismParams).compile(true)
+  const mphISM = new MintingPolicyIsmMultiSig(ismParams).compile(true)
     .mintingPolicyHash.hex;
 
   const messages: helios.ByteArray[] = [];
 
   for (let page = 1; true; page++) {
     const utxos: any = await fetch(
-      `${blockfrostPrefix}/addresses/${ismParams.RECIPIENT_ADDRESS.toBech32()}/utxos/${
-        authenticMPH + helios.bytesToHex(TOKEN_NAME_AUTH)
-      }?page=${page}`,
+      `${blockfrostPrefix}/addresses/${ismParams.RECIPIENT_ADDRESS.toBech32()}/utxos/?page=${page}`,
       {
         headers: {
           project_id: blockfrostProjectId,
@@ -27,9 +23,12 @@ export async function getInboundMessages(
       }
     ).then(async (r) => await r.json());
 
-    if (utxos.length === 0) break;
+    if (!Array.isArray(utxos) || utxos.length === 0) break;
 
     for (const utxo of utxos) {
+      if (utxo.amount.find((a) => a.unit.substring(0, 56) === mphISM) == null) {
+        continue;
+      }
       try {
         messages.push(
           new helios.ByteArray(
