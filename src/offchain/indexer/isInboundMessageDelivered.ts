@@ -8,6 +8,7 @@ export async function isInboundMessageDelivered(
   messageId: H256
 ): Promise<boolean> {
   const inboxUTxO = await getInboxUTxO(ismParams);
+  if (inboxUTxO == null) return false;
   const deliveredMessages = inboxUTxO.origOutput.datum.data.list.map((ba) =>
     helios.bytesToHex(ba.bytes)
   );

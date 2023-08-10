@@ -7,14 +7,14 @@ import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 
 export async function getInboxUTxO(
   ismParams: IsmParamsHelios
-): Promise<helios.UTxO> {
+): Promise<helios.UTxO | null> {
   const addressInbox = helios.Address.fromValidatorHash(
     new ScriptInbox().compile(true).validatorHash
   );
   const mphISM = new MintingPolicyIsmMultiSig(ismParams).compile(true)
     .mintingPolicyHash.hex;
 
-  const [utxo]: any = await fetch(
+  const utxos: any = await fetch(
     `${blockfrostPrefix}/addresses/${addressInbox.toBech32()}/utxos/${mphISM}61757468`,
     {
       headers: {
@@ -22,6 +22,9 @@ export async function getInboxUTxO(
       },
     }
   ).then(async (r) => await r.json());
+
+  if (!Array.isArray(utxos) || utxos.length !== 1) return null;
+  const utxo = utxos[0];
 
   return new helios.UTxO(
     helios.TxId.fromHex(utxo.tx_hash),

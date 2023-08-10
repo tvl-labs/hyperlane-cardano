@@ -19,9 +19,13 @@ export class EstimateInboxMessageFeeService
     const ismParams = getIsmParamsHelios(
       new helios.TxOutputId(process.env.ISM_OUTPUT_ID ?? "")
     );
+    const utxoInbox = await getInboxUTxO(ismParams);
+    if (utxoInbox == null) {
+      throw new Error("Inbox not found");
+    }
     const fee = await estimateInboundMessageFee(
       ismParams,
-      await getInboxUTxO(ismParams),
+      utxoInbox,
       checkpoint,
       signatures,
       wallet
