@@ -106,7 +106,7 @@ export async function estimateInboundMessageFee(
 }
 
 interface TxOutcome {
-  txId: string;
+  utxoMessage: helios.UTxO;
   feeLovelace: number;
 }
 
@@ -126,5 +126,17 @@ export async function createInboundMessage(
   );
   tx.addSignatures(await wallet.signTx(tx));
   const txId = await wallet.submitTx(tx);
-  return { txId: txId.hex, feeLovelace: Number(tx.body.fee) };
+
+  const outputMessageIdx = tx.body.outputs.findIndex(
+    (o) => o.address === ismParams.RECIPIENT_ADDRESS
+  );
+
+  return {
+    utxoMessage: new helios.UTxO(
+      txId,
+      BigInt(outputMessageIdx),
+      tx.body.outputs[outputMessageIdx]
+    ),
+    feeLovelace: Number(tx.body.fee),
+  };
 }

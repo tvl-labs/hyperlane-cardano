@@ -12,6 +12,7 @@ import {
   isInboundMessageDelivered,
   estimateInboundMessageFee,
   createInboundMessage,
+  processInboundMessage,
 } from "../offchain/inbox";
 import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
 import { calculateMessageId, type Message } from "../offchain/message";
@@ -91,7 +92,13 @@ export async function testInboxOnEmulatedNetwork() {
   emulatedNetwork.tick(1n);
   const { ismParams, utxoInbox } = await createInbox(emulatedWallet);
   emulatedNetwork.tick(1n);
-  await createInboundMsg(emulatedWallet, ismParams, utxoInbox);
+  const { utxoMessage } = await createInboundMsg(
+    emulatedWallet,
+    ismParams,
+    utxoInbox
+  );
+  emulatedNetwork.tick(1n);
+  await processInboundMessage(ismParams, utxoMessage, emulatedWallet);
 }
 
 export async function testInboxOnPreprodNetwork() {
@@ -100,10 +107,12 @@ export async function testInboxOnPreprodNetwork() {
   await waitForTxConfirmation(utxoInbox.txId.hex);
 
   const txOutcome = await createInboundMsg(preprodWallet, ismParams, utxoInbox);
-  console.log(`Submitted inbound message at tx ${txOutcome.txId}!`);
-  await waitForTxConfirmation(txOutcome.txId);
+  console.log(
+    `Submitted inbound message at tx ${txOutcome.utxoMessage.txId.hex}!`
+  );
+  await waitForTxConfirmation(txOutcome.utxoMessage.txId.hex);
 
-  const isDelivered = await isInboundMessageDelivered(
+  let isDelivered = await isInboundMessageDelivered(
     ismParams,
     calculateMessageId(message)
   );
@@ -118,5 +127,23 @@ export async function testInboxOnPreprodNetwork() {
   console.log("Inbound Messages:", inboundMessages);
   if (inboundMessages[inboundMessages.length - 1] !== inboundMsg) {
     throw new Error("Inbound message not found");
+  }
+
+  const txId = await processInboundMessage(
+    ismParams,
+    txOutcome.utxoMessage,
+    preprodWallet
+  );
+  console.log(`Processed inbound message at tx ${txId.hex}!`);
+  await waitForTxConfirmation(txId.hex);
+
+  isDelivered = await isInboundMessageDelivered(
+    ismParams,
+    calculateMessageId(message)
+  );
+  if (!isDelivered) {
+    throw new Error(
+      "Message must still have been delivered after being burned"
+    );
   }
 }

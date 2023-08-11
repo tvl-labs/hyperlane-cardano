@@ -4,6 +4,7 @@ import {
   estimateInboundMessageFee,
   createInboundMessage,
 } from "../tx/createInboundMessage";
+import { processInboundMessage } from "../tx/processInboundMessage";
 
 export {
   getIsmParams,
@@ -11,4 +12,5 @@ export {
   isInboundMessageDelivered,
   estimateInboundMessageFee,
   createInboundMessage,
+  processInboundMessage,
 };

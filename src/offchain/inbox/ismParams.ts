@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import { Address } from "../address";
 import ScriptInbox from "../../onchain/scriptInbox.hl";
-import ScriptLockForever from "../../onchain/scriptLockForever.hl";
+import ScriptKhalani from "../../onchain/scriptKhalani.hl";
 
 const addressInbox = helios.Address.fromValidatorHash(
   new ScriptInbox().compile(true).validatorHash
@@ -46,7 +46,7 @@ export function getIsmParamsHelios(
   OUTPUT_ID: helios.TxOutputId
 ): IsmParamsHelios {
   const addressMessage = helios.Address.fromValidatorHash(
-    new ScriptLockForever().compile(true).validatorHash
+    new ScriptKhalani().compile(true).validatorHash
   );
   const VALIDATOR_VKEYS: helios.ByteArray[] = [];
   for (let i = 1; i <= parseInt(process.env.ISM_NUM_VALIDATORS ?? "1"); i++) {

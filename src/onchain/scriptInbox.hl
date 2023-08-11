@@ -42,7 +42,7 @@ func main(datum: DatumInbox, _, ctx: ScriptContext) -> Bool {
     "Must hold only one auth token"
   );
   minted: Map[MintingPolicyHash]Map[ByteArray]Int = ctx.tx.minted.get_assets().to_map();
-  assert(minted.length == 1, "Must hold only one asset");
+  assert(minted.length == 1, "Must mint only one asset");
   minted_mph: MintingPolicyHash = minted.head_key;
   assert(inbox_mph == minted_mph, "Must mint the same mph");
   minted_token: Map[ByteArray]Int = minted.head_value;

@@ -48,6 +48,8 @@ enum Redeemer {
     // The signatures signed on the hash
     signatures: []ByteArray
   }
+  // Burn a message as part of the process.
+  Burn
 }
 
 func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
@@ -121,6 +123,14 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
         })
       });
       valid_signatures.length >= THRESHOLD
+    },
+    Burn => {
+      minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(own_mph);
+      minted.all((tokeName: ByteArray, tokenValue: Int) -> {
+        // Cannot burn the inbox auth token itself
+        tokeName != TOKEN_NAME_AUTH &&
+        tokenValue < 0
+      })
     }
   }
 }

@@ -19,12 +19,16 @@ export class SubmitInboundMessageService implements ISubmitInboundMessage {
     if (utxoInbox == null) {
       throw new Error("Inbox not found");
     }
-    return await createInboundMessage(
+    const txOutcome = await createInboundMessage(
       ismParams,
       utxoInbox,
       checkpoint,
       signatures,
       wallet
     );
+    return {
+      txId: txOutcome.utxoMessage.txId.hex,
+      feeLovelace: txOutcome.feeLovelace,
+    };
   }
 }
