@@ -1,11 +1,14 @@
+import type * as helios from "@hyperionbt/helios";
+import secp256k1 from "secp256k1";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
-import * as helios from "@hyperionbt/helios";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
-import secp256k1 from "secp256k1";
 import { Address } from "../offchain/address";
 import type { Wallet } from "../offchain/wallet";
-import { MessagePayload } from "../offchain/messagePayload";
+import {
+  type InterchainToken,
+  createMessagePayloadMint,
+} from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
 import {
@@ -22,19 +25,28 @@ import createInbox from "../offchain/tx/createInbox";
 // TODO: Build several edge cases.
 
 // Mock inbound message
-const inboundMsg = `[${Date.now()}] Inbound Message!`;
+const sender = Address.fromHex(
+  "0x0000000000000000000000000000000000000000000000000000000000000EF1"
+);
+const recipient = Address.fromHex(
+  "0x0000000000000000000000000000000000000000000000000000000000000CA1"
+);
+const tokens: InterchainToken[] = [
+  [
+    // TODO: Khalani wrapped tokens policy id
+    "0x0000000000000000000000000000000000000000000000000000000055534443",
+    1,
+  ],
+];
+
 const message: Message = {
   version: 0,
   nonce: 0,
   originDomain: FUJI_DOMAIN,
-  sender: Address.fromHex(
-    "0x0000000000000000000000000000000000000000000000000000000000000EF1"
-  ),
+  sender,
   destinationDomain: DOMAIN_CARDANO,
-  recipient: Address.fromHex(
-    "0x0000000000000000000000000000000000000000000000000000000000000CA1"
-  ),
-  body: MessagePayload.fromString(inboundMsg),
+  recipient,
+  body: createMessagePayloadMint(FUJI_DOMAIN, sender, tokens, recipient),
 };
 const checkpoint: Checkpoint = {
   origin: FUJI_DOMAIN,
@@ -121,11 +133,11 @@ export async function testInboxOnPreprodNetwork() {
   }
 
   // Note: Not all messages are "text".
-  const inboundMessages = (await getInboundMessages(ismParams)).map((m) =>
-    helios.bytesToText(m.bytes)
-  );
-  console.log("Inbound Messages:", inboundMessages);
-  if (inboundMessages[inboundMessages.length - 1] !== inboundMsg) {
+  const inboundMessages = await getInboundMessages(ismParams);
+  if (
+    inboundMessages[inboundMessages.length - 1].hex !==
+    message.body.toHex().substring(2)
+  ) {
     throw new Error("Inbound message not found");
   }
 

@@ -1,4 +1,8 @@
 import { Buffer } from "buffer";
+import { ethers } from "ethers";
+import type { Address } from "../offchain/address";
+
+export type InterchainToken = [string, number];
 
 export class MessagePayload {
   private readonly bytes: Buffer;
@@ -34,4 +38,19 @@ export class MessagePayload {
   toString() {
     return this.toHex();
   }
+}
+
+export function createMessagePayloadMint(
+  rootChainId: number,
+  rootSender: Address,
+  tokens: InterchainToken[],
+  target: Address
+): MessagePayload {
+  const abiCoder = new ethers.AbiCoder();
+  return MessagePayload.fromHexString(
+    abiCoder.encode(
+      ["uint256", "bytes32", "tuple(bytes, uint256)[]", "bytes32"],
+      [rootChainId, rootSender.toHex(), tokens, target.toHex()]
+    )
+  );
 }
