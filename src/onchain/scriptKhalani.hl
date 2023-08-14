@@ -1,10 +1,11 @@
 spending khalani
 
-import { Message } from "./message.hl"
+import { Message, MessagePayloadMint } from "./message.hl"
 
 // The (default) recipient address for Khalani messages.
 // TODO: Add a message datum and enforces that a message is handled correctly
 // via different kinds of Redeemers.
+// TODO: Do we need to ban same tokens in the inputs?
 func main(datum: Message, _, ctx: ScriptContext) -> Bool {
   current_output: TxOutput = ctx.get_current_input().output;
 
@@ -20,5 +21,14 @@ func main(datum: Message, _, ctx: ScriptContext) -> Bool {
 
   // (2) Must mint Khalani tokens
   // TODO: Parse the message payload to guarantee mints
-  datum.message.length > 0
+  payload_mint: MessagePayloadMint = datum.get_mint_payload();
+  assert(
+    ctx.tx.minted.get(payload_mint.asset_class) == payload_mint.quantity,
+    "Must mint the requested tokens"
+  );
+
+  ctx.tx.outputs.any((output: TxOutput) -> {
+    output.address == payload_mint.recipient_address &&
+    output.value.get_safe(payload_mint.asset_class) == payload_mint.quantity
+  })
 }
