@@ -1,12 +1,14 @@
 spending khalani
 
+import { Message } from "./message.hl"
+
 // The (default) recipient address for Khalani messages.
 // TODO: Add a message datum and enforces that a message is handled correctly
 // via different kinds of Redeemers.
-func main(_, _, ctx: ScriptContext) -> Bool {
+func main(datum: Message, _, ctx: ScriptContext) -> Bool {
   current_output: TxOutput = ctx.get_current_input().output;
 
-  // Must burn all tokens (authentic included) to mark as processed.
+  // (1) Must burn the message (token) to mark as processed.
   current_output.value.get_assets().to_map().for_each((mph: MintingPolicyHash, tokens: Map[ByteArray]Int) -> {
     tokens.for_each((tokenName: ByteArray, tokenValue: Int) -> {
       assert(
@@ -16,5 +18,7 @@ func main(_, _, ctx: ScriptContext) -> Bool {
     })
   });
 
-  true
+  // (2) Must mint Khalani tokens
+  // TODO: Parse the message payload to guarantee mints
+  datum.message.length > 0
 }

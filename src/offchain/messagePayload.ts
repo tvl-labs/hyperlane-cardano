@@ -1,8 +1,7 @@
+import * as helios from "@hyperionbt/helios";
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
-import type { Address } from "../offchain/address";
-
-export type InterchainToken = [string, number];
+import { Address } from "../offchain/address";
 
 export class MessagePayload {
   private readonly bytes: Buffer;
@@ -40,17 +39,49 @@ export class MessagePayload {
   }
 }
 
-export function createMessagePayloadMint(
-  rootChainId: number,
-  rootSender: Address,
-  tokens: InterchainToken[],
-  target: Address
-): MessagePayload {
+export type InterchainToken = [string, number];
+export interface MessagePayloadMint {
+  rootChainId: number;
+  rootSender: Address;
+  tokens: InterchainToken[];
+  target: helios.Address;
+}
+const messagePayloadMintABITypes = [
+  "uint256",
+  "bytes32",
+  "tuple(bytes, uint256)[]",
+  "bytes",
+];
+
+export function createMessagePayloadMint({
+  rootChainId,
+  rootSender,
+  tokens,
+  target,
+}: MessagePayloadMint): MessagePayload {
   const abiCoder = new ethers.AbiCoder();
   return MessagePayload.fromHexString(
-    abiCoder.encode(
-      ["uint256", "bytes32", "tuple(bytes, uint256)[]", "bytes32"],
-      [rootChainId, rootSender.toHex(), tokens, target.toHex()]
-    )
+    abiCoder.encode(messagePayloadMintABITypes, [
+      rootChainId,
+      rootSender.toHex(),
+      tokens,
+      `0x${target.toHex()}`,
+    ])
   );
+}
+
+export function parseMessagePayloadMint(
+  payload: MessagePayload
+): MessagePayloadMint {
+  const abiCoder = new ethers.AbiCoder();
+  const [rootChainId, rootSender, tokens, target] = abiCoder.decode(
+    messagePayloadMintABITypes,
+    payload.toBuffer()
+  );
+  return {
+    rootChainId,
+    rootSender: Address.fromHex(rootSender),
+    tokens,
+    target: new helios.Address(target.substring(2)),
+  };
 }

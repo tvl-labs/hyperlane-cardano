@@ -1,14 +1,13 @@
-import type * as helios from "@hyperionbt/helios";
+import * as helios from "@hyperionbt/helios";
 import secp256k1 from "secp256k1";
+import MintingPolicyIsmMultiSig from "../onchain/ismMultiSig.hl";
+import MintingPolicyKhalaniTokens from "../onchain/mpKhalaniTokens.hl";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getInboundMessages } from "../offchain/indexer/getInboundMessages";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import { Address } from "../offchain/address";
 import type { Wallet } from "../offchain/wallet";
-import {
-  type InterchainToken,
-  createMessagePayloadMint,
-} from "../offchain/messagePayload";
+import { createMessagePayloadMint } from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
 import {
@@ -29,34 +28,44 @@ const sender = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
 const recipient = Address.fromHex(
+  // Message recipient
   "0x0000000000000000000000000000000000000000000000000000000000000CA1"
 );
-const tokens: InterchainToken[] = [
-  [
-    // TODO: Khalani wrapped tokens policy id
-    "0x0000000000000000000000000000000000000000000000000000000055534443",
-    1,
-  ],
-];
+// USDC recipient
+const target = new helios.Address(
+  "addr_test1qzq0qn4kywltmn37zc4gsgemuc9rjmz6pdrevklyvl8fg4k7ev8utalf2nv8976mcvy8rgdfssjvd9aaae4w93cp980q6xt9dc"
+);
 
-const message: Message = {
-  version: 0,
-  nonce: 0,
-  originDomain: FUJI_DOMAIN,
-  sender,
-  destinationDomain: DOMAIN_CARDANO,
-  recipient,
-  body: createMessagePayloadMint(FUJI_DOMAIN, sender, tokens, recipient),
-};
-const checkpoint: Checkpoint = {
-  origin: FUJI_DOMAIN,
-  originMailbox: Address.fromHex(
-    "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
-  ),
-  checkpointRoot: Buffer.alloc(32).fill(0),
-  checkpointIndex: 0,
-  message,
-};
+function mockCheckpoint(ismParams: IsmParamsHelios): Checkpoint {
+  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
+  const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
+    ISM_KHALANI: ismMultiSig.mintingPolicyHash,
+  }).compile(true);
+  const message: Message = {
+    version: 0,
+    nonce: 0,
+    originDomain: FUJI_DOMAIN,
+    sender,
+    destinationDomain: DOMAIN_CARDANO,
+    recipient,
+    body: createMessagePayloadMint({
+      rootChainId: FUJI_DOMAIN,
+      rootSender: sender,
+      // USDC
+      tokens: [[`0x${mpKhalaniTokens.mintingPolicyHash.hex}55534443`, 1]],
+      target,
+    }),
+  };
+  return {
+    origin: FUJI_DOMAIN,
+    originMailbox: Address.fromHex(
+      "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
+    ),
+    checkpointRoot: Buffer.alloc(32).fill(0),
+    checkpointIndex: 0,
+    message,
+  };
+}
 
 // TODO: Better interface & names here...
 async function createInboundMsg(
@@ -64,6 +73,7 @@ async function createInboundMsg(
   ismParams: IsmParamsHelios,
   utxoInbox: helios.UTxO
 ) {
+  const checkpoint = mockCheckpoint(ismParams);
   const checkpointHash = hashCheckpoint(checkpoint);
   const validatorPrivateKeys = [1, 2, 3].map((i) =>
     Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
@@ -74,7 +84,7 @@ async function createInboundMsg(
 
   const isDelivered = await isInboundMessageDelivered(
     ismParams,
-    calculateMessageId(message)
+    calculateMessageId(checkpoint.message)
   );
   if (isDelivered) {
     throw new Error("Message must not be delivered already");
@@ -118,6 +128,7 @@ export async function testInboxOnPreprodNetwork() {
   console.log(`Created inbox at tx ${utxoInbox.txId.hex}!`);
   await waitForTxConfirmation(utxoInbox.txId.hex);
 
+  const { message } = mockCheckpoint(ismParams);
   const txOutcome = await createInboundMsg(preprodWallet, ismParams, utxoInbox);
   console.log(
     `Submitted inbound message at tx ${txOutcome.utxoMessage.txId.hex}!`
