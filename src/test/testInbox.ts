@@ -52,7 +52,7 @@ function mockCheckpoint(ismParams: IsmParamsHelios): Checkpoint {
       rootChainId: FUJI_DOMAIN,
       rootSender: sender,
       // USDC
-      tokens: [[`0x${mpKhalaniTokens.mintingPolicyHash.hex}55534443`, 1]],
+      tokens: [[`0x${mpKhalaniTokens.mintingPolicyHash.hex}55534443`, 15]],
       target,
     }),
   };
