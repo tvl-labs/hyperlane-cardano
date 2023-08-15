@@ -16,6 +16,7 @@ import { MessagePayload } from "../offchain/messagePayload";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { type DispatchedMessage } from "../rpc/outbox/dispatchedMessage";
+import { parseBlockfrostUtxos } from '../offchain/indexer/parseBlockfrostUtxos';
 
 function createWallet(): Wallet {
   if (
@@ -35,7 +36,7 @@ async function fetchOutboxUtxo(): Promise<helios.UTxO> {
     new ScriptOutbox().compile(true).validatorHash
   );
 
-  const [utxo]: any = await fetch(
+  const utxos: any = await fetch(
     `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos/${
       process.env.OUTBOX_AUTH_TOKEN ?? ""
     }`,
@@ -46,20 +47,11 @@ async function fetchOutboxUtxo(): Promise<helios.UTxO> {
     }
   ).then(async (r) => await r.json());
 
-  // TODO: Write `parseUTxO` upstream in Helios
-  return new helios.UTxO(
-    helios.TxId.fromHex(utxo.tx_hash),
-    BigInt(utxo.output_index),
-    new helios.TxOutput(
-      addressOutbox,
-      helios.BlockfrostV0.parseValue(utxo.amount),
-      utxo.inline_datum != null
-        ? helios.Datum.inline(
-            helios.UplcData.fromCbor(helios.hexToBytes(utxo.inline_datum))
-          )
-        : undefined
-    )
-  );
+  const parsedUtxos = await parseBlockfrostUtxos(utxos, addressOutbox);
+  if (parsedUtxos.length !== 1) {
+    throw new Error(`Expected only one UTXO but found ${parsedUtxos.length}`)
+  }
+  return parsedUtxos[0]
 }
 
 async function parseDispatchedMessage(): Promise<DispatchedMessage> {

@@ -27,6 +27,8 @@ import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import createInbox from "../offchain/tx/createInbox";
 import { H256 } from "../merkle/h256";
 import ScriptKhalani from "../onchain/scriptKhalani.hl";
+import { getUsdcRequestUTxOs } from '../offchain/indexer/getUsdcRequestUTxOs';
+import { convertUtxoToJson } from './debug';
 
 // TODO: Build several edge cases.
 
@@ -179,9 +181,17 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
     throw new Error("Message must have been delivered already");
   }
 
+  const khalaniRecipient = message.recipient.toValidatorHash();
+  const usdcRequestsUtxos = await getUsdcRequestUTxOs(khalaniRecipient);
+  if (usdcRequestsUtxos.length !== 1) {
+    console.error(JSON.stringify(usdcRequestsUtxos.map(convertUtxoToJson), null, 2));
+    throw new Error(`Expected exactly 1 USDC minting request but found ${usdcRequestsUtxos.length}`)
+  }
+  const usdcRequestUtxo = usdcRequestsUtxos[0];
+
   const txId = await processInboundMessage(
     ismParams,
-    txOutcome.utxoMessage,
+    usdcRequestUtxo,
     hashMap,
     preprodRelayerWallet
   );
