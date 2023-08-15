@@ -1,9 +1,15 @@
+import type { Wallet } from "../offchain/wallet";
 import { calculateMessageId, type Message } from "../offchain/message";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
-import { MessagePayload } from "../offchain/messagePayload";
+import {
+  MessagePayload,
+  createMessagePayloadBurn,
+} from "../offchain/messagePayload";
 import * as helios from "@hyperionbt/helios";
+import MintingPolicyIsmMultiSig from "../onchain/ismMultiSig.hl";
+import MintingPolicyKhalaniTokens from "../onchain/mpKhalaniTokens.hl";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
 import createOutbox from "../offchain/tx/createOutbox";
@@ -11,22 +17,30 @@ import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
 import { getOutboundGasPayment } from "../offchain/indexer/getOutboundGasPayment";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
+import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 
 const outboundRelayerAddress = new helios.Address(
   "addr_test1qr9u63th5pct502hfeknstzjx8hcdsm963wp3g62qvthd6ssfm0wz2twevrknhhx4vgyf84gpk00xae7w7f3yjr95lcq30jfed"
+);
+
+// USDC "burner"
+const senderAddress = new helios.Address(
+  "addr_test1qzq0qn4kywltmn37zc4gsgemuc9rjmz6pdrevklyvl8fg4k7ev8utalf2nv8976mcvy8rgdfssjvd9aaae4w93cp980q6xt9dc"
+);
+const senderAddressHash = Address.fromHex(
+  `0x${helios.bytesToHex(helios.Crypto.blake2b(senderAddress.bytes))}`
+);
+const recipient = Address.fromHex(
+  "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
 
 let lastOutboundMsg: Message = {
   version: 0,
   nonce: 0,
   originDomain: DOMAIN_CARDANO,
-  sender: Address.fromHex(
-    "0x0000000000000000000000000000000000000000000000000000000000000CA1"
-  ),
+  sender: senderAddressHash,
   destinationDomain: FUJI_DOMAIN,
-  recipient: Address.fromHex(
-    "0x0000000000000000000000000000000000000000000000000000000000000EF1"
-  ),
+  recipient,
   body: MessagePayload.fromString(""),
 };
 
@@ -36,20 +50,29 @@ interface OutboundMessageRes {
 }
 
 async function createOutboundMsg(
+  ismParams: IsmParamsHelios,
   nonce: number,
   utxoOutbox: helios.UTxO,
-  isEmulated: boolean = false
+  wallet: Wallet
 ): Promise<OutboundMessageRes> {
+  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
+  const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
+    ISM_KHALANI: ismMultiSig.mintingPolicyHash,
+  }).compile(true);
   lastOutboundMsg = {
     ...lastOutboundMsg,
     nonce,
-    body: MessagePayload.fromString(`[${Date.now()}] Outbound message!`),
+    body: createMessagePayloadBurn({
+      senderAddressHash,
+      destinationChainId: FUJI_DOMAIN,
+      tokens: [[`0x${mpKhalaniTokens.mintingPolicyHash.hex}55534443`, 1]],
+      interchainLiquidityHubPayload: "",
+      isSwapWithAggregateToken: false,
+      recipientAddress: recipient,
+      message: "",
+    }),
   };
-  const utxo = await createOutboundMessage(
-    utxoOutbox,
-    lastOutboundMsg,
-    isEmulated ? emulatedWallet : preprodWallet
-  );
+  const utxo = await createOutboundMessage(utxoOutbox, lastOutboundMsg, wallet);
   return {
     messageId: new helios.ByteArray(
       calculateMessageId(lastOutboundMsg).toByteArray()
@@ -58,12 +81,17 @@ async function createOutboundMsg(
   };
 }
 
-export async function testOutboxOnEmulatedNetwork() {
+export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   emulatedNetwork.tick(1n);
   const emulatedUtxoOutbox = await createOutbox(emulatedWallet);
   emulatedNetwork.tick(1n);
 
-  let createMsgRes = await createOutboundMsg(0, emulatedUtxoOutbox, true);
+  let createMsgRes = await createOutboundMsg(
+    ismParams,
+    0,
+    emulatedUtxoOutbox,
+    emulatedWallet
+  );
   emulatedNetwork.tick(1n);
 
   await payOutboundRelayer(
@@ -74,7 +102,12 @@ export async function testOutboxOnEmulatedNetwork() {
   );
   emulatedNetwork.tick(1n);
 
-  createMsgRes = await createOutboundMsg(1, createMsgRes.utxo, true);
+  createMsgRes = await createOutboundMsg(
+    ismParams,
+    1,
+    createMsgRes.utxo,
+    emulatedWallet
+  );
   emulatedNetwork.tick(1n);
 
   return await payOutboundRelayer(
@@ -85,12 +118,17 @@ export async function testOutboxOnEmulatedNetwork() {
   );
 }
 
-export async function testOutboxOnPreprodNetwork() {
+export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   const preprodUtxoOutbox = await createOutbox(preprodWallet);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
-  let createMsgRes = await createOutboundMsg(0, preprodUtxoOutbox);
+  let createMsgRes = await createOutboundMsg(
+    ismParams,
+    0,
+    preprodUtxoOutbox,
+    preprodWallet
+  );
   console.log(
     `Submitted first outbound message at tx ${createMsgRes.utxo.txId.hex}!`
   );
@@ -122,7 +160,12 @@ export async function testOutboxOnPreprodNetwork() {
     throw new Error("Expect paid outbound message");
   }
 
-  createMsgRes = await createOutboundMsg(1, createMsgRes.utxo);
+  createMsgRes = await createOutboundMsg(
+    ismParams,
+    1,
+    createMsgRes.utxo,
+    preprodWallet
+  );
   console.log(
     `Submitted second outbound message at tx ${createMsgRes.utxo.txId.hex}!`
   );
@@ -147,14 +190,11 @@ export async function testOutboxOnPreprodNetwork() {
     throw new Error("Expect paid outbound message");
   }
 
-  // Note: Not all messages are "text".
-  const outboundMessages = (await getOutboundMessages()).map((m) =>
-    helios.bytesToText(m.bytes)
-  );
+  const outboundMessages = await getOutboundMessages();
   console.log("(Latest) Outbound Messages:", outboundMessages);
   if (
-    outboundMessages[outboundMessages.length - 1] !==
-    helios.bytesToText([...lastOutboundMsg.body.toBuffer()])
+    outboundMessages[outboundMessages.length - 1].hex !==
+    lastOutboundMsg.body.toHex().substring(2)
   ) {
     throw new Error("Outbound message not found");
   }

@@ -45,6 +45,7 @@ export interface MessagePayloadMint {
   rootSender: Address;
   tokens: InterchainToken[];
   recipientAddressHash: H256;
+  // TODO: Add another message body here?
 }
 const messagePayloadMintABITypes = [
   "uint256",
@@ -84,4 +85,46 @@ export function parseMessagePayloadMint(
     tokens,
     recipientAddressHash: H256.from(Buffer.from(target.substring(2), "hex")),
   };
+}
+
+export interface MessagePayloadBurn {
+  senderAddressHash: Address;
+  destinationChainId: number;
+  tokens: InterchainToken[];
+  interchainLiquidityHubPayload: string; // Always empty at the moment
+  isSwapWithAggregateToken: boolean; // Always false at the moment
+  recipientAddress: Address;
+  message: string; // Always empty at the moment
+}
+const messagePayloadBurnABITypes = [
+  "address",
+  "uint256",
+  "tuple(address, uint256)[]",
+  "bytes",
+  "bool",
+  "address",
+  "bytes",
+];
+
+export function createMessagePayloadBurn({
+  senderAddressHash,
+  destinationChainId,
+  tokens,
+  interchainLiquidityHubPayload,
+  isSwapWithAggregateToken,
+  recipientAddress,
+  message,
+}: MessagePayloadBurn): MessagePayload {
+  const abiCoder = new ethers.AbiCoder();
+  return MessagePayload.fromHexString(
+    abiCoder.encode(messagePayloadBurnABITypes, [
+      senderAddressHash.toHex(),
+      destinationChainId,
+      tokens,
+      interchainLiquidityHubPayload,
+      isSwapWithAggregateToken,
+      recipientAddress.toEvmAddress(),
+      message,
+    ])
+  );
 }

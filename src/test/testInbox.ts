@@ -117,7 +117,7 @@ async function createInboundMsg(
   );
 }
 
-export async function testInboxOnEmulatedNetwork() {
+export async function testInboxOnEmulatedNetwork(): Promise<IsmParamsHelios> {
   emulatedNetwork.tick(1n);
   const { ismParams, utxoInbox } = await createInbox(emulatedWallet);
   emulatedNetwork.tick(1n);
@@ -128,9 +128,10 @@ export async function testInboxOnEmulatedNetwork() {
   );
   emulatedNetwork.tick(1n);
   await processInboundMessage(ismParams, utxoMessage, hashMap, emulatedWallet);
+  return ismParams;
 }
 
-export async function testInboxOnPreprodNetwork() {
+export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
   const { ismParams, utxoInbox } = await createInbox(preprodWallet);
   console.log(`Created inbox at tx ${utxoInbox.txId.hex}!`);
   await waitForTxConfirmation(utxoInbox.txId.hex);
@@ -177,4 +178,5 @@ export async function testInboxOnPreprodNetwork() {
       "Message must still have been delivered after being burned"
     );
   }
+  return ismParams;
 }

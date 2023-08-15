@@ -23,11 +23,11 @@ export const preprodWallet = new Wallet(
   new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
 );
 
-await testInboxOnEmulatedNetwork();
-await testInboxOnPreprodNetwork();
+const emulatedIsmParams = await testInboxOnEmulatedNetwork();
+const preprodIsmParams = await testInboxOnPreprodNetwork();
 
 await testValidatorStorageLocationOnEmulatedNetwork();
 await testValidatorStorageLocationOnPreprodNetwork();
 
-await testOutboxOnEmulatedNetwork();
-await testOutboxOnPreprodNetwork();
+await testOutboxOnEmulatedNetwork(emulatedIsmParams);
+await testOutboxOnPreprodNetwork(preprodIsmParams);
