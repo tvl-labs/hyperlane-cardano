@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
 import { H256 } from "../merkle/h256";
-import { Address } from "../offchain/address";
 
 export class MessagePayload {
   private readonly bytes: Buffer;
@@ -42,7 +41,7 @@ export class MessagePayload {
 export type InterchainToken = [string, number];
 export interface MessagePayloadMint {
   rootChainId: number;
-  rootSender: Address;
+  rootSender: H256;
   tokens: InterchainToken[];
   recipientAddressHash: H256;
   // TODO: Add another message body here?
@@ -64,7 +63,7 @@ export function createMessagePayloadMint({
   return MessagePayload.fromHexString(
     abiCoder.encode(messagePayloadMintABITypes, [
       rootChainId,
-      rootSender.toHex(),
+      rootSender.hex(),
       tokens,
       recipientAddressHash.hex(),
     ])
@@ -75,34 +74,32 @@ export function parseMessagePayloadMint(
   payload: MessagePayload
 ): MessagePayloadMint {
   const abiCoder = new ethers.AbiCoder();
-  const [rootChainId, rootSender, tokens, target] = abiCoder.decode(
-    messagePayloadMintABITypes,
-    payload.toBuffer()
-  );
+  const [rootChainId, rootSender, tokens, recipientAddressHash] =
+    abiCoder.decode(messagePayloadMintABITypes, payload.toBuffer());
   return {
     rootChainId,
-    rootSender: Address.fromHex(rootSender),
+    rootSender: H256.fromHex(rootSender),
     tokens,
-    recipientAddressHash: H256.from(Buffer.from(target.substring(2), "hex")),
+    recipientAddressHash: H256.fromHex(recipientAddressHash),
   };
 }
 
 export interface MessagePayloadBurn {
-  senderAddressHash: Address;
+  senderAddressHash: H256;
   destinationChainId: number;
   tokens: InterchainToken[];
   interchainLiquidityHubPayload: string; // Always empty at the moment
   isSwapWithAggregateToken: boolean; // Always false at the moment
-  recipientAddress: Address;
+  recipientAddress: H256;
   message: string; // Always empty at the moment
 }
 const messagePayloadBurnABITypes = [
-  "address",
+  "bytes32",
   "uint256",
-  "tuple(address, uint256)[]",
+  "tuple(bytes, uint256)[]",
   "bytes",
   "bool",
-  "address",
+  "bytes32",
   "bytes",
 ];
 
@@ -118,12 +115,12 @@ export function createMessagePayloadBurn({
   const abiCoder = new ethers.AbiCoder();
   return MessagePayload.fromHexString(
     abiCoder.encode(messagePayloadBurnABITypes, [
-      senderAddressHash.toHex(),
+      senderAddressHash.hex(),
       destinationChainId,
       tokens,
       interchainLiquidityHubPayload,
       isSwapWithAggregateToken,
-      recipientAddress.toEvmAddress(),
+      recipientAddress.hex(),
       message,
     ])
   );

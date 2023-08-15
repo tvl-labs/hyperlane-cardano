@@ -1,7 +1,7 @@
 module message
 
 struct MessagePayloadMint {
-  asset_class: AssetClass
+  token_name: ByteArray
   quantity: Int
   recipient_address: Address
 }
@@ -46,6 +46,15 @@ struct Message {
     ).blake2b()
   }
 
+  func get_recipient(self) -> Address {
+    Address::new(
+      // TODO: Support pubkey address
+      Credential::new_validator(ValidatorHash::new(self.recipient.slice(4, 32))),
+      // TODO: Support staking credential
+      Option[StakingCredential]::None
+    )
+  }
+
   // TODO: Support multiple token mints at once
   // Assuming minting only one asset at the moment.
   func get_mint_payload(self, hash_map: Map[ByteArray]ByteArray) -> MessagePayloadMint {
@@ -72,13 +81,10 @@ struct Message {
     );
     // Skip 96 more bytes of offset
     quantity: Int = Int::from_big_endian(raw_token_bytes.slice(128, 160));
-    asset_id_length: Int = Int::from_big_endian(raw_token_bytes.slice(160, 192));
-    asset_class: AssetClass = AssetClass::new(
-      MintingPolicyHash::new(raw_token_bytes.slice(192, 220)),
-      raw_token_bytes.slice(220, 192 + asset_id_length) // 220 + asset_id_length - 28
-    );
+    token_name_length: Int = Int::from_big_endian(raw_token_bytes.slice(160, 192));
+    token_name: ByteArray = raw_token_bytes.slice(192, 192 + token_name_length);
     MessagePayloadMint {
-      asset_class,
+      token_name,
       quantity,
       recipient_address
     }

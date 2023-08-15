@@ -18,15 +18,6 @@ const OUTPUT_ID: TxOutputId = TxOutputId::new(TxId::new(#), 0)
 const INBOX_ADDRESS: Address = Address::new(
   Credential::new_validator(ValidatorHash::new(#)), Option[StakingCredential]::None
 )
-
-// The recipient address where messages are posted to.
-// Owners must decide to post inbound messages to a pre-defined address
-// to prevent bad guys stealing auth tokens from an authentic message
-// then post it with a malicious message to a dApp address, since tokens
-// and datums are not directly tied together.
-const RECIPIENT_ADDRESS: Address = Address::new(
-  Credential::new_pubkey(PubKeyHash::new(#)), Option[StakingCredential]::None
-)
 // End of Parameters
 
 // Redeemer
@@ -95,13 +86,13 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
         output.value.contains_policy(own_mph)
       });
       assert(authentic_outputs.length == 1, "invalid outputs");
-      output: TxOutput = authentic_outputs.head;
-      assert(output.address == RECIPIENT_ADDRESS, "invalid output address");
 
+      output: TxOutput = authentic_outputs.head;
       message: Message = output.datum.switch {
         i: Inline => Message::from_data(i.data),
         else => error("Invalid message output: missing inline datum")
       };
+      assert(output.address == message.get_recipient(), "invalid output address");
       message_hash: ByteArray = message.id();
 
       // (4) Must mint only a single message token and to the recipient address.

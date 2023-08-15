@@ -8,8 +8,6 @@ import {
   createMessagePayloadBurn,
 } from "../offchain/messagePayload";
 import * as helios from "@hyperionbt/helios";
-import MintingPolicyIsmMultiSig from "../onchain/ismMultiSig.hl";
-import MintingPolicyKhalaniTokens from "../onchain/mpKhalaniTokens.hl";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
 import createOutbox from "../offchain/tx/createOutbox";
@@ -18,6 +16,7 @@ import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
 import { getOutboundGasPayment } from "../offchain/indexer/getOutboundGasPayment";
 import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
+import { H256 } from "../merkle/h256";
 
 const outboundRelayerAddress = new helios.Address(
   "addr_test1qr9u63th5pct502hfeknstzjx8hcdsm963wp3g62qvthd6ssfm0wz2twevrknhhx4vgyf84gpk00xae7w7f3yjr95lcq30jfed"
@@ -55,23 +54,20 @@ async function createOutboundMsg(
   utxoOutbox: helios.UTxO,
   wallet: Wallet
 ): Promise<OutboundMessageRes> {
-  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
-  const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
-    ISM_KHALANI: ismMultiSig.mintingPolicyHash,
-  }).compile(true);
   lastOutboundMsg = {
     ...lastOutboundMsg,
     nonce,
     body: createMessagePayloadBurn({
-      senderAddressHash,
+      senderAddressHash: H256.from(senderAddressHash.toBuffer()),
       destinationChainId: FUJI_DOMAIN,
-      tokens: [[`0x${mpKhalaniTokens.mintingPolicyHash.hex}55534443`, 1]],
-      interchainLiquidityHubPayload: "",
+      tokens: [["0x55534443", 1]],
+      interchainLiquidityHubPayload: "0x",
       isSwapWithAggregateToken: false,
-      recipientAddress: recipient,
-      message: "",
+      recipientAddress: H256.from(recipient.toBuffer()),
+      message: "0x",
     }),
   };
+  // TODO: Burn the Khalani tokens with minting policy inferred from the ISM Params
   const utxo = await createOutboundMessage(utxoOutbox, lastOutboundMsg, wallet);
   return {
     messageId: new helios.ByteArray(
@@ -191,7 +187,6 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   }
 
   const outboundMessages = await getOutboundMessages();
-  console.log("(Latest) Outbound Messages:", outboundMessages);
   if (
     outboundMessages[outboundMessages.length - 1].hex !==
     lastOutboundMsg.body.toHex().substring(2)

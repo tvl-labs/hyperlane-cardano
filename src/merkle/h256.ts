@@ -30,6 +30,13 @@ export class H256 {
     return new H256(buffer);
   }
 
+  static fromHex(hex: string) {
+    assert(hex.startsWith("0x"), `Invalid bytestring ${hex}`);
+    const bytes = Buffer.from(hex.substring(2), "hex");
+    assert(bytes.length === 32, `Invalid bytestring ${hex}`);
+    return new H256(bytes);
+  }
+
   static zero(): H256 {
     return new H256(Buffer.alloc(32));
   }

@@ -2,6 +2,12 @@ spending khalani
 
 import { Message, MessagePayloadMint } from "./message.hl"
 
+// Parameters
+const MP_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
+
+// TODO: Map from ByteArray to Address?
+// This simplifies on-chain address construction greatly
+// But we must to make sure on-chain address hashing is sound.
 struct Redeemer {
   hash_map: Map[ByteArray]ByteArray
 }
@@ -25,14 +31,16 @@ func main(datum: Message, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
 
   // (2) Must mint Khalani tokens
   // TODO: Parse the message payload to guarantee mints
+  // TODO: Support minting multiple tokens in the same tx?
   payload_mint: MessagePayloadMint = datum.get_mint_payload(redeemer.hash_map);
+  mint_asset_class: AssetClass = AssetClass::new(MP_KHALANI, payload_mint.token_name);
   assert(
-    ctx.tx.minted.get(payload_mint.asset_class) == payload_mint.quantity,
+    ctx.tx.minted.get(mint_asset_class) == payload_mint.quantity,
     "Must mint the requested tokens"
   );
 
   ctx.tx.outputs.any((output: TxOutput) -> {
     output.address == payload_mint.recipient_address &&
-    output.value.get_safe(payload_mint.asset_class) == payload_mint.quantity
+    output.value.get_safe(mint_asset_class) == payload_mint.quantity
   })
 }

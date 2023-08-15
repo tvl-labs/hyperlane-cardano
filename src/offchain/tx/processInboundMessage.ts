@@ -18,17 +18,6 @@ export async function processInboundMessage(
 
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
-  tx.addInput(
-    utxoMessage,
-    new helios.MapData(
-      Object.entries(hashMap).map(([k, v]) => [
-        new helios.ByteArray(k)._toUplcData(),
-        new helios.ByteArray(v)._toUplcData(),
-      ])
-    )
-  );
-  const scriptKhalani = new ScriptKhalani().compile(true);
-  tx.attachScript(scriptKhalani);
 
   // Burn the ISM token
   const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
@@ -57,21 +46,26 @@ export async function processInboundMessage(
   tx.attachScript(mpKhalaniTokens);
   const payloadMint = parseMessagePayloadMint(message.body);
   const mintKhalaniTokens: [number[], number][] = payloadMint.tokens.map(
-    (token) => {
-      const tokenName = token[0].substring(2);
-      if (
-        tokenName.substring(0, 56) !== mpKhalaniTokens.mintingPolicyHash.hex
-      ) {
-        throw new Error("Mismatched minting policy");
-      }
-      return [helios.hexToBytes(tokenName.substring(56)), token[1]];
-    }
+    (token) => [helios.hexToBytes(token[0].substring(2)), token[1]]
   );
   tx.mintTokens(
     mpKhalaniTokens.mintingPolicyHash,
     mintKhalaniTokens,
     new helios.ConstrData(0, [])
   );
+  tx.addInput(
+    utxoMessage,
+    new helios.MapData(
+      Object.entries(hashMap).map(([k, v]) => [
+        new helios.ByteArray(k)._toUplcData(),
+        new helios.ByteArray(v)._toUplcData(),
+      ])
+    )
+  );
+  const scriptKhalani = new ScriptKhalani({
+    MP_KHALANI: mpKhalaniTokens.mintingPolicyHash,
+  }).compile(true);
+  tx.attachScript(scriptKhalani);
 
   tx.addOutput(
     new helios.TxOutput(

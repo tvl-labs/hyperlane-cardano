@@ -69,7 +69,8 @@ async function buildInboundMessageTx(
   // Recipient
   tx.addOutput(
     new helios.TxOutput(
-      ismParams.RECIPIENT_ADDRESS,
+      // Support: Stake credentials
+      new helios.Address(checkpoint.message.recipient.toHex().substr(-58)),
       new helios.Value(
         0n, // Let Helios calculate the min ADA!
         new helios.Assets([
@@ -127,16 +128,8 @@ export async function createInboundMessage(
   tx.addSignatures(await wallet.signTx(tx));
   const txId = await wallet.submitTx(tx);
 
-  const outputMessageIdx = tx.body.outputs.findIndex(
-    (o) => o.address === ismParams.RECIPIENT_ADDRESS
-  );
-
   return {
-    utxoMessage: new helios.UTxO(
-      txId,
-      BigInt(outputMessageIdx),
-      tx.body.outputs[outputMessageIdx]
-    ),
+    utxoMessage: new helios.UTxO(txId, BigInt(1), tx.body.outputs[1]),
     feeLovelace: Number(tx.body.fee),
   };
 }

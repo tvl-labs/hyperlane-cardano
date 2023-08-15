@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import { Address } from "../address";
 import ScriptInbox from "../../onchain/scriptInbox.hl";
-import ScriptKhalani from "../../onchain/scriptKhalani.hl";
 
 const addressInbox = helios.Address.fromValidatorHash(
   new ScriptInbox().compile(true).validatorHash
@@ -37,17 +36,11 @@ export interface IsmParamsHelios {
   THRESHOLD: bigint;
   OUTPUT_ID: helios.TxOutputId;
   INBOX_ADDRESS: helios.Address;
-  RECIPIENT_ADDRESS: helios.Address;
 }
 
-// TODO: Promote `RECIPIENT_ADDRESS` to parameter
-// for dApps to configure, per message!
 export function getIsmParamsHelios(
   OUTPUT_ID: helios.TxOutputId
 ): IsmParamsHelios {
-  const addressMessage = helios.Address.fromValidatorHash(
-    new ScriptKhalani().compile(true).validatorHash
-  );
   const VALIDATOR_VKEYS: helios.ByteArray[] = [];
   for (let i = 1; i <= parseInt(process.env.ISM_NUM_VALIDATORS ?? "1"); i++) {
     VALIDATOR_VKEYS.push(
@@ -59,6 +52,5 @@ export function getIsmParamsHelios(
     THRESHOLD: BigInt(process.env.ISM_THRESHOLD ?? 2),
     OUTPUT_ID,
     INBOX_ADDRESS: addressInbox,
-    RECIPIENT_ADDRESS: addressMessage,
   };
 }

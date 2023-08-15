@@ -42,6 +42,7 @@ export interface Message {
   /**
    * 32-byte address of the recipient.
    */
+  // TODO: Support address with stake credentials.
   recipient: Address;
   /**
    * Message payload, arbitrary size below ~1Kb.
