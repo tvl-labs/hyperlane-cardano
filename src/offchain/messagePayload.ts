@@ -1,6 +1,6 @@
-import * as helios from "@hyperionbt/helios";
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
+import { H256 } from "../merkle/h256";
 import { Address } from "../offchain/address";
 
 export class MessagePayload {
@@ -44,20 +44,20 @@ export interface MessagePayloadMint {
   rootChainId: number;
   rootSender: Address;
   tokens: InterchainToken[];
-  target: helios.Address;
+  recipientAddressHash: H256;
 }
 const messagePayloadMintABITypes = [
   "uint256",
   "bytes32",
   "tuple(bytes, uint256)[]",
-  "bytes",
+  "bytes32",
 ];
 
 export function createMessagePayloadMint({
   rootChainId,
   rootSender,
   tokens,
-  target,
+  recipientAddressHash,
 }: MessagePayloadMint): MessagePayload {
   const abiCoder = new ethers.AbiCoder();
   return MessagePayload.fromHexString(
@@ -65,7 +65,7 @@ export function createMessagePayloadMint({
       rootChainId,
       rootSender.toHex(),
       tokens,
-      `0x${target.toHex()}`,
+      recipientAddressHash.hex(),
     ])
   );
 }
@@ -82,6 +82,6 @@ export function parseMessagePayloadMint(
     rootChainId,
     rootSender: Address.fromHex(rootSender),
     tokens,
-    target: new helios.Address(target.substring(2)),
+    recipientAddressHash: H256.from(Buffer.from(target.substring(2), "hex")),
   };
 }

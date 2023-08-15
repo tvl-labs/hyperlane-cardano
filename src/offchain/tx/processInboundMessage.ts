@@ -11,13 +11,22 @@ import { parseMessagePayloadMint } from "../messagePayload";
 export async function processInboundMessage(
   ismParams: IsmParamsHelios,
   utxoMessage: helios.UTxO,
+  hashMap: Record<string, string>, // better type here?
   wallet: Wallet
 ): Promise<helios.TxId> {
   const tx = new helios.Tx();
 
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
-  tx.addInput(utxoMessage, new helios.ConstrData(0, []));
+  tx.addInput(
+    utxoMessage,
+    new helios.MapData(
+      Object.entries(hashMap).map(([k, v]) => [
+        new helios.ByteArray(k)._toUplcData(),
+        new helios.ByteArray(v)._toUplcData(),
+      ])
+    )
+  );
   const scriptKhalani = new ScriptKhalani().compile(true);
   tx.attachScript(scriptKhalani);
 
@@ -66,7 +75,9 @@ export async function processInboundMessage(
 
   tx.addOutput(
     new helios.TxOutput(
-      payloadMint.target,
+      new helios.Address(
+        hashMap[payloadMint.recipientAddressHash.hex().substring(2)]
+      ),
       new helios.Value(
         BigInt(0),
         new helios.Assets([

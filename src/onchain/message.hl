@@ -48,34 +48,34 @@ struct Message {
 
   // TODO: Support multiple token mints at once
   // Assuming minting only one asset at the moment.
-  func get_mint_payload(self) -> MessagePayloadMint {
-    // Skip the first 224 bytes of:
+  func get_mint_payload(self, hash_map: Map[ByteArray]ByteArray) -> MessagePayloadMint {
+    // Skip the first 96 bytes of:
     // - 32: root chain id
     // - 32: root sender
-    // - 160: offset
-    raw_token_bytes: ByteArray = self.message.slice(224, self.message.length);
-    quantity: Int = Int::from_big_endian(raw_token_bytes.slice(0, 32));
-    asset_id_length: Int = Int::from_big_endian(raw_token_bytes.slice(32, 64));
-    asset_class: AssetClass = AssetClass::new(
-      MintingPolicyHash::new(raw_token_bytes.slice(64, 92)),
-      raw_token_bytes.slice(92, 64 + asset_id_length) // 120 + asset_id_length - 28
-    );
-    recipient_address_length: Int = Int::from_big_endian(raw_token_bytes.slice(64 + asset_id_length, 96 + asset_id_length)) - 1;
+    // - 32: offset
+    raw_token_bytes: ByteArray = self.message.slice(96, self.message.length);
+    recipient_address_hash: ByteArray = raw_token_bytes.slice(0, 32);
+    recipient_address_raw: ByteArray = hash_map.get(recipient_address_hash);
     recipient_address: Address = Address::new(
       // TODO: Support validator address
-      Credential::new_pubkey(PubKeyHash::new(
-        raw_token_bytes.slice(97 + asset_id_length, 125 + asset_id_length)
-      )),
-      if (recipient_address_length > 28) {
+      Credential::new_pubkey(PubKeyHash::new(recipient_address_raw.slice(1, 29))),
+      if (recipient_address_raw.length > 29) {
         // TODO: Support stake validator
         Option[StakingCredential]::Some{
           StakingCredential::new_hash(StakingHash::new_stakekey(StakeKeyHash::new(
-            raw_token_bytes.slice(125 + asset_id_length, 97 + asset_id_length + recipient_address_length)
+            recipient_address_raw.slice(29, 57)
           )))
         }
       } else {
         Option[StakingCredential]::None
       }
+    );
+    // Skip 96 more bytes of offset
+    quantity: Int = Int::from_big_endian(raw_token_bytes.slice(128, 160));
+    asset_id_length: Int = Int::from_big_endian(raw_token_bytes.slice(160, 192));
+    asset_class: AssetClass = AssetClass::new(
+      MintingPolicyHash::new(raw_token_bytes.slice(192, 220)),
+      raw_token_bytes.slice(220, 192 + asset_id_length) // 220 + asset_id_length - 28
     );
     MessagePayloadMint {
       asset_class,

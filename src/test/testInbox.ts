@@ -20,6 +20,7 @@ import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
 import { calculateMessageId, type Message } from "../offchain/message";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import createInbox from "../offchain/tx/createInbox";
+import { H256 } from "../merkle/h256";
 
 // TODO: Build several edge cases.
 
@@ -32,9 +33,15 @@ const recipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000CA1"
 );
 // USDC recipient
-const target = new helios.Address(
+const recipientAddress = new helios.Address(
   "addr_test1qzq0qn4kywltmn37zc4gsgemuc9rjmz6pdrevklyvl8fg4k7ev8utalf2nv8976mcvy8rgdfssjvd9aaae4w93cp980q6xt9dc"
 );
+const recipientAddressHash = helios.bytesToHex(
+  helios.Crypto.blake2b(recipientAddress.bytes)
+);
+const hashMap = {
+  [recipientAddressHash]: recipientAddress.toHex(),
+};
 
 function mockCheckpoint(ismParams: IsmParamsHelios): Checkpoint {
   const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
@@ -53,7 +60,7 @@ function mockCheckpoint(ismParams: IsmParamsHelios): Checkpoint {
       rootSender: sender,
       // USDC
       tokens: [[`0x${mpKhalaniTokens.mintingPolicyHash.hex}55534443`, 15]],
-      target,
+      recipientAddressHash: H256.from(Buffer.from(recipientAddressHash, "hex")),
     }),
   };
   return {
@@ -120,7 +127,7 @@ export async function testInboxOnEmulatedNetwork() {
     utxoInbox
   );
   emulatedNetwork.tick(1n);
-  await processInboundMessage(ismParams, utxoMessage, emulatedWallet);
+  await processInboundMessage(ismParams, utxoMessage, hashMap, emulatedWallet);
 }
 
 export async function testInboxOnPreprodNetwork() {
@@ -155,6 +162,7 @@ export async function testInboxOnPreprodNetwork() {
   const txId = await processInboundMessage(
     ismParams,
     txOutcome.utxoMessage,
+    hashMap,
     preprodWallet
   );
   console.log(`Processed inbound message at tx ${txId.hex}!`);

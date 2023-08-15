@@ -2,11 +2,15 @@ spending khalani
 
 import { Message, MessagePayloadMint } from "./message.hl"
 
+struct Redeemer {
+  hash_map: Map[ByteArray]ByteArray
+}
+
 // The (default) recipient address for Khalani messages.
 // TODO: Add a message datum and enforces that a message is handled correctly
 // via different kinds of Redeemers.
 // TODO: Do we need to ban same tokens in the inputs?
-func main(datum: Message, _, ctx: ScriptContext) -> Bool {
+func main(datum: Message, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
   current_output: TxOutput = ctx.get_current_input().output;
 
   // (1) Must burn the message (token) to mark as processed.
@@ -21,7 +25,7 @@ func main(datum: Message, _, ctx: ScriptContext) -> Bool {
 
   // (2) Must mint Khalani tokens
   // TODO: Parse the message payload to guarantee mints
-  payload_mint: MessagePayloadMint = datum.get_mint_payload();
+  payload_mint: MessagePayloadMint = datum.get_mint_payload(redeemer.hash_map);
   assert(
     ctx.tx.minted.get(payload_mint.asset_class) == payload_mint.quantity,
     "Must mint the requested tokens"
