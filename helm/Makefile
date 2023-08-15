@@ -11,10 +11,10 @@ uninstall-local-docker-registry:
 
 # Cardano RPC
 install-cardano-rpc:
-	helm -n applications install cardano-rpc ./cardano-rpc
+	helm -n applications install cardano-rpc ./cardano-rpc --values ./cardano-rpc-values.yaml
 
 upgrade-cardano-rpc:
-	helm -n applications upgrade cardano-rpc ./cardano-rpc
+	helm -n applications upgrade cardano-rpc ./cardano-rpc --values ./cardano-rpc-values.yaml
 
 uninstall-cardano-rpc:
 	helm -n applications uninstall cardano-rpc
@@ -57,18 +57,21 @@ upgrade-cardano-relayer:
 uninstall-cardano-relayer:
 	helm -n applications uninstall cardano-relayer
 
-# Hyperlane Validator for messages dispatched from EVM to Cardano
-#  We could have reused publicly available validators for popular chains,
-#  but we need to have some modifications, which are not yet pushed to the upstream
-#  (for example, support of blake2b saved checkpoints).
-install-evm-validator:
-	helm -n applications install evm-validator ./hyperlane-validator --values ./evm-validator-values.yaml
+# Hyperlane Validators for messages dispatched from EVM to Cardano
+install-evm-validators:
+	helm -n applications install evm-validator-1 ./hyperlane-validator --values ./evm-validator-values-1.yaml
+	helm -n applications install evm-validator-2 ./hyperlane-validator --values ./evm-validator-values-2.yaml
+	helm -n applications install evm-validator-3 ./hyperlane-validator --values ./evm-validator-values-3.yaml
 
-upgrade-evm-validator:
-	helm -n applications upgrade evm-validator ./hyperlane-validator --values ./evm-validator-values.yaml
+upgrade-evm-validators:
+	helm -n applications upgrade evm-validator-1 ./hyperlane-validator --values ./evm-validator-values-1.yaml
+	helm -n applications upgrade evm-validator-2 ./hyperlane-validator --values ./evm-validator-values-2.yaml
+	helm -n applications upgrade evm-validator-3 ./hyperlane-validator --values ./evm-validator-values-3.yaml
 
-uninstall-evm-validator:
-	helm -n applications uninstall evm-validator
+uninstall-evm-validators:
+	helm -n applications uninstall evm-validator-1
+	helm -n applications uninstall evm-validator-2
+	helm -n applications uninstall evm-validator-3
 
 # Hyperlane Relayer for messages dispatched from EVM to Cardano, which uses Cardano RPC library to build transactions.
 install-evm-relayer:

@@ -1,10 +1,7 @@
 relayer:
   originChain: "fuji"
-  originChainRpc: "https://rpc.ankr.com/avalanche_fuji"
+  originChainRpc: "https://avalanche-fuji.infura.io/v3/388d2c2a7e0847e1bff2999a29b14a57"
   destinationChain: "cardanotest1"
   destinationChainEnv: "CARDANOTEST1"
   destinationChainRpc: "http://cardano-rpc.applications.svc.cluster.local:80"
-  # Relayer address: 0xeF15Cce9403021E0Ab594E942210f6544ced3565
-  # Has some Fuji tokens: https://testnet.snowtrace.io/address/0xeF15Cce9403021E0Ab594E942210f6544ced3565
   privateKey: "0x0675c04edcb1cdf90e4e4bb17bd76c971a8a5a36f0b18f13b24133b52feb4dd2"
-  localCheckpointsSubPath: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"

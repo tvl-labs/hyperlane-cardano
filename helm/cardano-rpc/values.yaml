@@ -7,15 +7,28 @@ replicaCount: 1
 image:
   pullPolicy: Always
 # Use production image.
-  repository: ghcr.io/tvl-labs/hyperlane-cardano
-  tag: "04f334c98328d908cb6e42a50d43466239ceaee1"
+#  repository: ghcr.io/tvl-labs/hyperlane-cardano
+#  tag: "25378fdec106160749035ee700d750afc4f64ff8"
 
 # Use the locally built image.
-#  Repository: host.docker.internal:5000/hyperlane-cardano-rpc-local
-#  tag: "20230726154042"
+  repository: host.docker.internal:5000/hyperlane-cardano-rpc-local
+  tag: "20230808111555"
 
 imagePullSecrets:
   - name: ghcr-login-secret
+
+cardanoRpc:
+  mockEnv: false
+  BLOCKFROST_PROJECT_ID: ""
+  BLOCKFROST_PREFIX: ""
+  OUTBOX_AUTH_TOKEN: ""
+  ISM_VALIDATOR_PUB_KEY_1: ""
+  ISM_VALIDATOR_PUB_KEY_2: ""
+  ISM_VALIDATOR_PUB_KEY_3: ""
+  ISM_THRESHOLD: ""
+  ISM_NUM_VALIDATORS: ""
+  WALLET_ADDRESS: ""
+  WALLET_PRIVATE_KEY: ""
 
 nameOverride: ""
 fullnameOverride: ""

@@ -4,3 +4,4 @@ helm
 generated-sources
 **/node_modules
 dist
+.env
