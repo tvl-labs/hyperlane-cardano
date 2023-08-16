@@ -14,13 +14,14 @@ import createOutbox from "../offchain/tx/createOutbox";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
 import { getOutboundGasPayment } from "../offchain/indexer/getOutboundGasPayment";
-import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
+import {
+  emulatedNetwork,
+  emulatedDappWallet,
+  preprodDappWallet,
+  preprodRelayerWallet,
+} from "./index";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { H256 } from "../merkle/h256";
-
-const outboundRelayerAddress = new helios.Address(
-  "addr_test1qr9u63th5pct502hfeknstzjx8hcdsm963wp3g62qvthd6ssfm0wz2twevrknhhx4vgyf84gpk00xae7w7f3yjr95lcq30jfed"
-);
 
 // USDC "burner"
 const senderAddress = new helios.Address(
@@ -60,15 +61,20 @@ async function createOutboundMsg(
     body: createMessagePayloadBurn({
       senderAddressHash: H256.from(senderAddressHash.toBuffer()),
       destinationChainId: FUJI_DOMAIN,
-      tokens: [["0x55534443", 1]],
+      tokens: [["0x55534443", nonce + 1]],
       interchainLiquidityHubPayload: "0x",
       isSwapWithAggregateToken: false,
       recipientAddress: H256.from(recipient.toBuffer()),
-      message: "0x",
+      // We want a unique message every run to test relayer payment
+      message: `0x${Buffer.from(Date.now().toString()).toString("hex")}`,
     }),
   };
-  // TODO: Burn the Khalani tokens with minting policy inferred from the ISM Params
-  const utxo = await createOutboundMessage(utxoOutbox, lastOutboundMsg, wallet);
+  const utxo = await createOutboundMessage(
+    utxoOutbox,
+    lastOutboundMsg,
+    wallet,
+    ismParams
+  );
   return {
     messageId: new helios.ByteArray(
       calculateMessageId(lastOutboundMsg).toByteArray()
@@ -79,20 +85,20 @@ async function createOutboundMsg(
 
 export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   emulatedNetwork.tick(1n);
-  const emulatedUtxoOutbox = await createOutbox(emulatedWallet);
+  const emulatedUtxoOutbox = await createOutbox(emulatedDappWallet);
   emulatedNetwork.tick(1n);
 
   let createMsgRes = await createOutboundMsg(
     ismParams,
     0,
     emulatedUtxoOutbox,
-    emulatedWallet
+    emulatedDappWallet
   );
   emulatedNetwork.tick(1n);
 
   await payOutboundRelayer(
-    emulatedWallet,
-    outboundRelayerAddress,
+    emulatedDappWallet,
+    preprodRelayerWallet.address,
     BigInt(10_000_000),
     createMsgRes.messageId
   );
@@ -102,20 +108,20 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
     ismParams,
     1,
     createMsgRes.utxo,
-    emulatedWallet
+    emulatedDappWallet
   );
   emulatedNetwork.tick(1n);
 
   return await payOutboundRelayer(
-    emulatedWallet,
-    outboundRelayerAddress,
+    emulatedDappWallet,
+    preprodRelayerWallet.address,
     BigInt(10_000_000),
     createMsgRes.messageId
   );
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const preprodUtxoOutbox = await createOutbox(preprodWallet);
+  const preprodUtxoOutbox = await createOutbox(preprodDappWallet);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
@@ -123,7 +129,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     ismParams,
     0,
     preprodUtxoOutbox,
-    preprodWallet
+    preprodDappWallet
   );
   console.log(
     `Submitted first outbound message at tx ${createMsgRes.utxo.txId.hex}!`
@@ -131,7 +137,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
 
   let paidGas = await getOutboundGasPayment(
-    outboundRelayerAddress,
+    preprodRelayerWallet.address,
     createMsgRes.messageId
   );
   if (paidGas !== BigInt(0)) {
@@ -140,8 +146,8 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
 
   const gas = BigInt(10_000_000);
   let txId = await payOutboundRelayer(
-    preprodWallet,
-    outboundRelayerAddress,
+    preprodDappWallet,
+    preprodRelayerWallet.address,
     gas,
     createMsgRes.messageId
   );
@@ -149,7 +155,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   await waitForTxConfirmation(txId.hex);
 
   paidGas = await getOutboundGasPayment(
-    outboundRelayerAddress,
+    preprodRelayerWallet.address,
     createMsgRes.messageId
   );
   if (paidGas !== gas) {
@@ -160,7 +166,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     ismParams,
     1,
     createMsgRes.utxo,
-    preprodWallet
+    preprodDappWallet
   );
   console.log(
     `Submitted second outbound message at tx ${createMsgRes.utxo.txId.hex}!`
@@ -168,8 +174,8 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
 
   txId = await payOutboundRelayer(
-    preprodWallet,
-    outboundRelayerAddress,
+    preprodDappWallet,
+    preprodRelayerWallet.address,
     BigInt(10_000_000),
     createMsgRes.messageId
   );
@@ -179,7 +185,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   await waitForTxConfirmation(txId.hex);
 
   paidGas = await getOutboundGasPayment(
-    outboundRelayerAddress,
+    preprodRelayerWallet.address,
     createMsgRes.messageId
   );
   if (paidGas !== gas) {

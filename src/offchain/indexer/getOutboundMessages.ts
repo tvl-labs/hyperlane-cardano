@@ -11,25 +11,33 @@ export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
     new ScriptOutbox().compile(true).validatorHash
   );
 
-  const utxos: any = await fetch(
-    `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos`,
-    {
-      headers: {
-        project_id: blockfrostProjectId,
-      },
-    }
-  ).then(async (r) => await r.json());
+  const messages: helios.ByteArray[] = [];
 
-  return utxos.flatMap((utxo) => {
-    try {
-      const text = new helios.ByteArray(
-        helios.ListData.fromCbor(
-          helios.hexToBytes(utxo.inline_datum)
-        ).list[1].fields[0].list[6].bytes
-      );
-      return text.bytes.length > 0 ? [text] : [];
-    } catch (_) {
-      return [];
+  for (let page = 1; true; page++) {
+    const utxos: any = await fetch(
+      `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos?page=${page}`,
+      {
+        headers: {
+          project_id: blockfrostProjectId,
+        },
+      }
+    ).then(async (r) => await r.json());
+
+    if (!Array.isArray(utxos) || utxos.length === 0) break;
+
+    for (const utxo of utxos) {
+      try {
+        const message = new helios.ByteArray(
+          helios.ListData.fromCbor(
+            helios.hexToBytes(utxo.inline_datum)
+          ).list[1].fields[0].list[6].bytes
+        );
+        if (message.bytes.length > 0) {
+          messages.push(message);
+        }
+      } catch (_) {}
     }
-  });
+  }
+
+  return messages;
 }

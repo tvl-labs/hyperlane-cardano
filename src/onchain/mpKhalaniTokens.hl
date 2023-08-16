@@ -7,9 +7,18 @@ const ISM_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
 // (Optional) Parameterize with Khalani script address to
 // add a strict address check?
 func main(_, ctx: ScriptContext) -> Bool {
-  // (1) Must burn exactly one authentic message
-  // TODO: Loosen the check to process multiple messages at once?
-  messages: Map[ByteArray]Int = ctx.tx.minted.get_policy(ISM_KHALANI);
-  assert(messages.length == 1, "Can process only one message");
-  messages.head_value == -1
+  // TODO: Should we ban the minting of other policies here?
+  own_minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(
+    ctx.get_current_minting_policy_hash()
+  );
+  if (own_minted.all((_, tokenValue: Int) -> { tokenValue < 0 })) {
+    // Can always burn
+    true
+  } else {
+    // For minting, must burn exactly one authentic message
+    // TODO: Loosen the check to process multiple messages at once?
+    messages: Map[ByteArray]Int = ctx.tx.minted.get_policy(ISM_KHALANI);
+    assert(messages.length == 1, "Can process only one message");
+    messages.head_value == -1
+  }
 }

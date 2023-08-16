@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
 async function main() {
   const hdNodeWallet = ethers.Wallet.createRandom();

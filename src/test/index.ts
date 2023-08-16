@@ -15,19 +15,34 @@ import {
 } from "./testValidatorStorageLocation";
 
 export const emulatedNetwork = new helios.NetworkEmulator(644);
-export const emulatedWallet = Wallet.fromEmulatedWallet(
+export const emulatedRelayerWallet = Wallet.fromEmulatedWallet(
   emulatedNetwork.createWallet(100_000_000n)
 );
-export const preprodWallet = new Wallet(
+export const emulatedDappWallet = Wallet.fromEmulatedWallet(
+  emulatedNetwork.createWallet(100_000_000n)
+);
+export const preprodRelayerWallet = new Wallet(
   new helios.Address(process.env.WALLET_ADDRESS ?? ""),
   new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
 );
+export const preprodDappWallet = new Wallet(
+  new helios.Address(process.env.DAPP_WALLET_ADDRESS ?? ""),
+  new helios.PrivateKey(process.env.DAPP_WALLET_PRIVATE_KEY ?? "")
+);
 
-const emulatedIsmParams = await testInboxOnEmulatedNetwork();
-const preprodIsmParams = await testInboxOnPreprodNetwork();
+// NOTE: For some reasons, our webpack'ed test started to
+// swallow errors and just exits gracefully on them..
+// Hence the need of this `try/catch/process.exit(1)`.
+try {
+  const emulatedIsmParams = await testInboxOnEmulatedNetwork();
+  const preprodIsmParams = await testInboxOnPreprodNetwork();
 
-await testValidatorStorageLocationOnEmulatedNetwork();
-await testValidatorStorageLocationOnPreprodNetwork();
+  await testValidatorStorageLocationOnEmulatedNetwork();
+  await testValidatorStorageLocationOnPreprodNetwork();
 
-await testOutboxOnEmulatedNetwork(emulatedIsmParams);
-await testOutboxOnPreprodNetwork(preprodIsmParams);
+  await testOutboxOnEmulatedNetwork(emulatedIsmParams);
+  await testOutboxOnPreprodNetwork(preprodIsmParams);
+} catch (e) {
+  console.error(e);
+  process.exit(1);
+}

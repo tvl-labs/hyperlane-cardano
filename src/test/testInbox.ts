@@ -3,7 +3,13 @@ import secp256k1 from "secp256k1";
 import MintingPolicyIsmMultiSig from "../onchain/ismMultiSig.hl";
 import MintingPolicyKhalaniTokens from "../onchain/mpKhalaniTokens.hl";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
-import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
+import {
+  emulatedNetwork,
+  emulatedRelayerWallet,
+  preprodRelayerWallet,
+  preprodDappWallet,
+  emulatedDappWallet,
+} from "./index";
 import { Address } from "../offchain/address";
 import type { Wallet } from "../offchain/wallet";
 import { createMessagePayloadMint } from "../offchain/messagePayload";
@@ -28,18 +34,16 @@ import ScriptKhalani from "../onchain/scriptKhalani.hl";
 const sender = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
-// USDC recipient
-const recipientAddress = new helios.Address(
-  "addr_test1qzq0qn4kywltmn37zc4gsgemuc9rjmz6pdrevklyvl8fg4k7ev8utalf2nv8976mcvy8rgdfssjvd9aaae4w93cp980q6xt9dc"
-);
-const recipientAddressHash = helios.bytesToHex(
-  helios.Crypto.blake2b(recipientAddress.bytes)
-);
-const hashMap = {
-  [recipientAddressHash]: recipientAddress.toHex(),
-};
+const hashMap = {};
 
-function mockCheckpoint(ismParams: IsmParamsHelios): Checkpoint {
+function mockCheckpoint(
+  ismParams: IsmParamsHelios,
+  recipientAddress: helios.Address
+): Checkpoint {
+  const recipientAddressHash = helios.bytesToHex(
+    helios.Crypto.blake2b(recipientAddress.bytes)
+  );
+  hashMap[recipientAddressHash] = recipientAddress.toHex();
   const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
   const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
     ISM_KHALANI: ismMultiSig.mintingPolicyHash,
@@ -80,11 +84,12 @@ function mockCheckpoint(ismParams: IsmParamsHelios): Checkpoint {
 
 // TODO: Better interface & names here...
 async function createInboundMsg(
-  wallet: Wallet,
   ismParams: IsmParamsHelios,
-  utxoInbox: helios.UTxO
+  recipientAddress: helios.Address,
+  utxoInbox: helios.UTxO,
+  wallet: Wallet
 ) {
-  const checkpoint = mockCheckpoint(ismParams);
+  const checkpoint = mockCheckpoint(ismParams, recipientAddress);
   const checkpointHash = hashCheckpoint(checkpoint);
   const validatorPrivateKeys = [1, 2, 3].map((i) =>
     Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
@@ -112,36 +117,55 @@ async function createInboundMsg(
     throw new Error("Invalid fee? Fee too low.");
   }
 
-  return await createInboundMessage(
+  const txOutcome = await createInboundMessage(
     ismParams,
     utxoInbox,
     checkpoint,
     signatures,
     wallet
   );
+  return {
+    checkpoint,
+    txOutcome,
+  };
 }
 
 export async function testInboxOnEmulatedNetwork(): Promise<IsmParamsHelios> {
   emulatedNetwork.tick(1n);
-  const { ismParams, utxoInbox } = await createInbox(emulatedWallet);
+  const { ismParams, utxoInbox } = await createInbox(emulatedRelayerWallet);
   emulatedNetwork.tick(1n);
-  const { utxoMessage } = await createInboundMsg(
-    emulatedWallet,
+  const {
+    txOutcome: { utxoMessage },
+  } = await createInboundMsg(
     ismParams,
-    utxoInbox
+    emulatedDappWallet.address,
+    utxoInbox,
+    emulatedRelayerWallet
   );
   emulatedNetwork.tick(1n);
-  await processInboundMessage(ismParams, utxoMessage, hashMap, emulatedWallet);
+  await processInboundMessage(
+    ismParams,
+    utxoMessage,
+    hashMap,
+    emulatedRelayerWallet
+  );
   return ismParams;
 }
 
 export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
-  const { ismParams, utxoInbox } = await createInbox(preprodWallet);
+  const { ismParams, utxoInbox } = await createInbox(preprodRelayerWallet);
   console.log(`Created inbox at tx ${utxoInbox.txId.hex}!`);
   await waitForTxConfirmation(utxoInbox.txId.hex);
 
-  const { message } = mockCheckpoint(ismParams);
-  const txOutcome = await createInboundMsg(preprodWallet, ismParams, utxoInbox);
+  const {
+    checkpoint: { message },
+    txOutcome,
+  } = await createInboundMsg(
+    ismParams,
+    preprodDappWallet.address,
+    utxoInbox,
+    preprodRelayerWallet
+  );
   console.log(
     `Submitted inbound message at tx ${txOutcome.utxoMessage.txId.hex}!`
   );
@@ -159,7 +183,7 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
     ismParams,
     txOutcome.utxoMessage,
     hashMap,
-    preprodWallet
+    preprodRelayerWallet
   );
   console.log(`Processed inbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);

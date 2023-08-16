@@ -7,7 +7,11 @@ import {
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
-import { emulatedNetwork, emulatedWallet, preprodWallet } from "./index";
+import {
+  emulatedNetwork,
+  emulatedRelayerWallet,
+  preprodRelayerWallet,
+} from "./index";
 import announceValidatorStorageLocation from "../offchain/tx/announceValidatorStorageLocation";
 import { getValidatorStorageLocation } from "../offchain/indexer/getValidatorStorageLocation";
 
@@ -30,14 +34,14 @@ const validatorStorageLocation: ValidatorStorageLocation =
 export async function testValidatorStorageLocationOnEmulatedNetwork() {
   emulatedNetwork.tick(1n);
   await announceValidatorStorageLocation(
-    emulatedWallet,
+    emulatedRelayerWallet,
     validatorStorageLocation
   );
 }
 
 export async function testValidatorStorageLocationOnPreprodNetwork() {
   const txId = await announceValidatorStorageLocation(
-    preprodWallet,
+    preprodRelayerWallet,
     validatorStorageLocation
   );
   console.log(`Announce validator storage lcoation at tx ${txId.hex}!`);
