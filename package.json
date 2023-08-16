@@ -6,6 +6,7 @@
   "scripts": {
     "build": "npx webpack build",
     "test-integration": "npm run build && node dist/testIntegration.js",
+    "sendKhalaniToCardanoUsdcMintMessage": "npm run build && node dist/sendKhalaniToCardanoUsdcMintMessage.js",
     "start-rpc-mock": "PORT=3000 MOCK_ENV=true node dist/rpc.js",
     "start-rpc-preprod": "yarn build && node dist/rpc.js",
     "jest": "jest",

@@ -19,6 +19,25 @@
       "index": {
         "from": "1"
       }
+    },
+    "khalanitestnet": {
+      "name": "khalanitestnet",
+      "domain": 10012,
+      "protocol": "ethereum",
+      "rpcStyle": "ethereum",
+      "index": {
+        "from": "1"
+      },
+      "addresses": {
+        "mailbox": "0xcF239718B22E4df02bEA0E138efd7886951A918B",
+        "interchainGasPaymaster": "0x822919CCD40cd52815c260f74F0E409b9E4b7E30",
+        "validatorAnnounce": "0x0bcF747c53aB55FfCb400beB20c373d1046c5c4c"
+      },
+      "finalityBlocks": "3",
+      "connection": {
+        "url": "https://testnet.khalani.network/",
+        "type": "http"
+      }
     }
   },
   "tracing": {
