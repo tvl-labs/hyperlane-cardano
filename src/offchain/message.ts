@@ -108,6 +108,6 @@ export function toJsonMessage(message: Message) {
     ...message,
     sender: message.sender.toJSON(),
     recipient: message.recipient.toJSON(),
-    body: message.recipient.toJSON(),
+    body: message.body.toJSON(),
   };
 }
