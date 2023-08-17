@@ -1,15 +1,17 @@
 import * as helios from "@hyperionbt/helios";
+import { getProgramOutbox } from "../../onchain/programs";
 import MintingPolicyNFT from "../../onchain/mpNFT.hl";
-import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
 import { type Wallet } from "../wallet";
 import { blake2bHasher } from "../../merkle/hasher";
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
+import type { IsmParamsHelios } from "../inbox/ismParams";
 
 export default async function createOutbox(
-  wallet: Wallet
+  wallet: Wallet,
+  ismParams?: IsmParamsHelios
 ): Promise<helios.UTxO> {
   const tx = new helios.Tx();
 
@@ -27,7 +29,7 @@ export default async function createOutbox(
   tx.mintTokens(mpNFT.mintingPolicyHash, tokens, new helios.ConstrData(0, []));
 
   const addressOutbox = helios.Address.fromValidatorHash(
-    new ScriptOutbox().compile(true).validatorHash
+    getProgramOutbox(ismParams).validatorHash
   );
   const merkleTree = new HeliosMerkleTree(blake2bHasher);
 

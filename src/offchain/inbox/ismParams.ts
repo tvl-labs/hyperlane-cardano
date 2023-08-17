@@ -39,7 +39,9 @@ export interface IsmParamsHelios {
 }
 
 export function getIsmParamsHelios(
-  OUTPUT_ID: helios.TxOutputId
+  OUTPUT_ID: helios.TxOutputId = new helios.TxOutputId(
+    process.env.ISM_OUTPUT_ID ?? ""
+  )
 ): IsmParamsHelios {
   const VALIDATOR_VKEYS: helios.ByteArray[] = [];
   for (let i = 1; i <= parseInt(process.env.ISM_NUM_VALIDATORS ?? "1"); i++) {

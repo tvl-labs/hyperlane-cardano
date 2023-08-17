@@ -1,4 +1,3 @@
-import * as helios from "@hyperionbt/helios";
 import { type ISubmitInboundMessage } from "./ISubmitInboundMessageService";
 import type { SubmitInboundMessageResponseBody } from "../types";
 import { getIsmParamsHelios, createInboundMessage } from "../../offchain/inbox";
@@ -12,9 +11,7 @@ export class SubmitInboundMessageService implements ISubmitInboundMessage {
     checkpoint: Checkpoint,
     signatures: Buffer[]
   ): Promise<SubmitInboundMessageResponseBody> {
-    const ismParams = getIsmParamsHelios(
-      new helios.TxOutputId(process.env.ISM_OUTPUT_ID ?? "")
-    );
+    const ismParams = getIsmParamsHelios();
     const utxoInbox = await getInboxUTxO(ismParams);
     if (utxoInbox == null) {
       throw new Error("Inbox not found");

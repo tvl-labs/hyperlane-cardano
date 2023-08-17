@@ -1,11 +1,13 @@
-import * as helios from '@hyperionbt/helios';
+import * as helios from "@hyperionbt/helios";
 
 export async function parseBlockfrostUtxos(
   utxos: any,
   address: helios.Address
 ) {
   if (!Array.isArray(utxos)) {
-    throw new Error(`Expected UTXOs, but received ${JSON.stringify(utxos, null, 2)}`)
+    throw new Error(
+      `Expected UTXOs, but received ${JSON.stringify(utxos, null, 2)}`
+    );
   }
   return utxos.map((utxo) => {
     return new helios.UTxO(
@@ -19,5 +21,5 @@ export async function parseBlockfrostUtxos(
         )
       )
     );
-  })
+  });
 }

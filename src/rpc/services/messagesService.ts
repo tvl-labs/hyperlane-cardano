@@ -1,6 +1,6 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import ScriptOutbox from "../../onchain/scriptOutbox.hl";
+import { getProgramOutbox } from "../../onchain/programs";
 import type { MessagesByBlockRangeResponseType } from "../types";
 import { type IMessagesService } from "./IMessagesService";
 import {
@@ -15,7 +15,7 @@ export class MessagesService implements IMessagesService {
     toBlock: number
   ): Promise<MessagesByBlockRangeResponseType> {
     const addressOutbox = helios.Address.fromValidatorHash(
-      new ScriptOutbox().compile(true).validatorHash
+      getProgramOutbox().validatorHash
     );
     const messages: any = [];
 

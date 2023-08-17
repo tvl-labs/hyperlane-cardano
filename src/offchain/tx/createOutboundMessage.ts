@@ -2,7 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import MintingPolicyKhalaniTokens from "../../onchain/mpKhalaniTokens.hl";
-import ScriptOutbox from "../../onchain/scriptOutbox.hl";
+import { getProgramOutbox } from "../../onchain/programs";
 import type { Wallet } from "../wallet";
 import {
   deserializeOutboxDatum,
@@ -50,8 +50,11 @@ export default async function createOutboundMessage(
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
-  tx.addInput(utxoOutbox, new helios.ConstrData(0, []));
-  const scriptOutbox = new ScriptOutbox().compile(true);
+  tx.addInput(
+    utxoOutbox,
+    new helios.ConstrData(payloadBurn !== null ? 1 : 0, [])
+  );
+  const scriptOutbox = getProgramOutbox(ismParams);
   tx.attachScript(scriptOutbox);
   tx.addOutput(
     new helios.TxOutput(

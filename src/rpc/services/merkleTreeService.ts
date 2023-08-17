@@ -1,6 +1,6 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import ScriptOutbox from "../../onchain/scriptOutbox.hl";
+import { getProgramOutbox } from "../../onchain/programs";
 import type { MerkleTreeResponseType } from "../types";
 import { type IMerkleTreeService } from "./IMerkleTreeService";
 import {
@@ -12,8 +12,9 @@ export class MerkleTreeService implements IMerkleTreeService {
   // TODO: Better error handling
   async getLatestMerkleTree(): Promise<MerkleTreeResponseType> {
     const addressOutbox = helios.Address.fromValidatorHash(
-      new ScriptOutbox().compile(true).validatorHash
+      getProgramOutbox().validatorHash
     );
+    console.log(addressOutbox.toBech32());
 
     // NOTE: We assume only a single UTxO exists for an NFT auth token
     const [utxo]: any = await fetch(

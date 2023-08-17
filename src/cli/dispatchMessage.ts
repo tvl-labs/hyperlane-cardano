@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import "dotenv/config";
 import fetch from "node-fetch";
-import ScriptOutbox from "../onchain/scriptOutbox.hl";
+import { getProgramOutbox } from "../onchain/programs";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import { type Message } from "../offchain/message";
 import {
@@ -16,7 +16,7 @@ import { MessagePayload } from "../offchain/messagePayload";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { type DispatchedMessage } from "../rpc/outbox/dispatchedMessage";
-import { parseBlockfrostUtxos } from '../offchain/indexer/parseBlockfrostUtxos';
+import { parseBlockfrostUtxos } from "../offchain/indexer/parseBlockfrostUtxos";
 
 function createWallet(): Wallet {
   if (
@@ -33,7 +33,7 @@ function createWallet(): Wallet {
 
 async function fetchOutboxUtxo(): Promise<helios.UTxO> {
   const addressOutbox = helios.Address.fromValidatorHash(
-    new ScriptOutbox().compile(true).validatorHash
+    getProgramOutbox().validatorHash
   );
 
   const utxos: any = await fetch(
@@ -49,9 +49,9 @@ async function fetchOutboxUtxo(): Promise<helios.UTxO> {
 
   const parsedUtxos = await parseBlockfrostUtxos(utxos, addressOutbox);
   if (parsedUtxos.length !== 1) {
-    throw new Error(`Expected only one UTXO but found ${parsedUtxos.length}`)
+    throw new Error(`Expected only one UTXO but found ${parsedUtxos.length}`);
   }
-  return parsedUtxos[0]
+  return parsedUtxos[0];
 }
 
 async function parseDispatchedMessage(): Promise<DispatchedMessage> {

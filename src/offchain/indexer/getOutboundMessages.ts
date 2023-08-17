@@ -1,14 +1,17 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import ScriptOutbox from "../../onchain/scriptOutbox.hl";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
+import { getProgramOutbox } from "../../onchain/programs";
+import type { IsmParamsHelios } from "../inbox/ismParams";
 
 // Note: we can provide another interface that takes in a
 // trusted/cached minting policy hash instead of recompiling here.
 // Note: This only gets the latest message of each outbox
-export async function getOutboundMessages(): Promise<helios.ByteArray[]> {
+export async function getOutboundMessages(
+  ismParams?: IsmParamsHelios
+): Promise<helios.ByteArray[]> {
   const addressOutbox = helios.Address.fromValidatorHash(
-    new ScriptOutbox().compile(true).validatorHash
+    getProgramOutbox(ismParams).validatorHash
   );
 
   const messages: helios.ByteArray[] = [];

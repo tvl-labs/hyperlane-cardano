@@ -4,7 +4,7 @@ import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
 import ScriptInbox from "../../onchain/scriptInbox.hl";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
-import { parseBlockfrostUtxos } from './parseBlockfrostUtxos';
+import { parseBlockfrostUtxos } from "./parseBlockfrostUtxos";
 
 export async function getInboxUTxO(
   ismParams: IsmParamsHelios

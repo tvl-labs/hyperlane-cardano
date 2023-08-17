@@ -85,7 +85,7 @@ async function createOutboundMsg(
 
 export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   emulatedNetwork.tick(1n);
-  const emulatedUtxoOutbox = await createOutbox(emulatedDappWallet);
+  const emulatedUtxoOutbox = await createOutbox(emulatedDappWallet, ismParams);
   emulatedNetwork.tick(1n);
 
   let createMsgRes = await createOutboundMsg(
@@ -121,7 +121,7 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const preprodUtxoOutbox = await createOutbox(preprodDappWallet);
+  const preprodUtxoOutbox = await createOutbox(preprodDappWallet, ismParams);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
@@ -192,7 +192,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     throw new Error("Expect paid outbound message");
   }
 
-  const outboundMessages = await getOutboundMessages();
+  const outboundMessages = await getOutboundMessages(ismParams);
   if (
     outboundMessages[outboundMessages.length - 1].hex !==
     lastOutboundMsg.body.toHex().substring(2)

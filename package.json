@@ -7,7 +7,7 @@
     "build": "npx webpack build",
     "test-integration": "npm run build && node dist/testIntegration.js",
     "start-rpc-mock": "PORT=3000 MOCK_ENV=true node dist/rpc.js",
-    "start-rpc-preprod": "node dist/rpc.js",
+    "start-rpc-preprod": "yarn build && node dist/rpc.js",
     "jest": "jest",
     "lint": "npx eslint '**/*.{js,ts}'",
     "format": "npx prettier '**/*.{js,ts}' --check --write",

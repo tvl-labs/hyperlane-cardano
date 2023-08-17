@@ -6,6 +6,11 @@ struct MessagePayloadMint {
   recipient_address: Address
 }
 
+struct MessagePayloadBurn {
+  token_name: ByteArray
+  quantity: Int
+}
+
 // Following Hyperlane as tight as possible
 // https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Message.sol
 // "Int" is unbounded in Plutus so we use "ByteArray" to easier handle padding.
@@ -55,7 +60,7 @@ struct Message {
     )
   }
 
-  // TODO: Support multiple token mints at once
+  // TODO: Support multiple asset mints at once
   // Assuming minting only one asset at the moment.
   func get_mint_payload(self, hash_map: Map[ByteArray]ByteArray) -> MessagePayloadMint {
     // Skip the first 96 bytes of:
@@ -87,6 +92,22 @@ struct Message {
       token_name,
       quantity,
       recipient_address
+    }
+  }
+
+  // TODO: Support multiple asset burns at once
+  // Assuming burning only one asset at the moment.
+  func get_burn_payload(self) -> MessagePayloadBurn {
+    // TODO: Truer support for ABI decode, for potentially non-empty
+    // interchain liquidity hub payload, etc.
+
+    // Skip 320 bytes of offset
+    quantity: Int = Int::from_big_endian(self.message.slice(320, 352));
+    token_name_length: Int = Int::from_big_endian(self.message.slice(352, 384));
+    token_name: ByteArray = self.message.slice(384, 384 + token_name_length);
+    MessagePayloadBurn {
+      token_name,
+      quantity
     }
   }
 }

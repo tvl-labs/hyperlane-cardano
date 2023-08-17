@@ -1,6 +1,9 @@
 spending outbox
 
-import { Message } from "./message.hl"
+import { Message, MessagePayloadBurn } from "./message.hl"
+
+// Parameters
+const MP_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
 
 // TODO: Move to its own module (merkleTree.hl)
 const TREE_DEPTH: Int = 32
@@ -35,9 +38,14 @@ struct DatumOutbox {
   latest_message: Option[Message]
 }
 
+enum Redeemer {
+  Raw
+  Burn
+}
+
 // TODO: Authentic outboxes with clearer identities?
 // TODO: Allow progressing multiple outboxes in the same tx?
-func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
+func main(datum: DatumOutbox, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
   current_output: TxOutput = ctx.get_current_input().output;
 
   // (1) Can consume only one outbox
@@ -77,7 +85,18 @@ func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
   );
 
   // (5) Progress the merkle tree correctly
-  next_datum.merkle_tree == datum.merkle_tree.insert(message.id())
+  assert(
+    next_datum.merkle_tree == datum.merkle_tree.insert(message.id()),
+    "Invalid merkle tree"
+  );
+
+  // (5) Tokens must be burned when a burn payload is submitted
+  if (redeemer == Redeemer::Burn) {
+    payload_burn: MessagePayloadBurn = message.get_burn_payload();
+    ctx.tx.minted.get(AssetClass::new(MP_KHALANI, payload_burn.token_name)) == -payload_burn.quantity
+  } else {
+    true
+  }
 
   // TODO: Validate message's sender & origin domain on-chain?
 }

@@ -1,4 +1,4 @@
-import { type UTxO } from '@hyperionbt/helios';
+import { type UTxO } from "@hyperionbt/helios";
 
 export function convertUtxoToJson(utxo: UTxO) {
   return {
@@ -9,9 +9,9 @@ export function convertUtxoToJson(utxo: UTxO) {
         mph: h.hex,
         tokens: utxo.value.assets.getTokens(h).map(([nameBytes, valueInt]) => ({
           name: nameBytes.hex.toString(),
-          value: valueInt.value.toString()
-        }))
+          value: valueInt.value.toString(),
+        })),
       };
-    })
-  }
+    }),
+  };
 }

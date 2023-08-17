@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import assert from "assert";
 import * as helios from "@hyperionbt/helios";
-import { type ValidatorHash } from '@hyperionbt/helios';
+import { type ValidatorHash } from "@hyperionbt/helios";
 
 /**
  * The 20-byte address on Ethereum is left-padded.
@@ -39,8 +39,8 @@ export class Address {
 
   toValidatorHash(): ValidatorHash {
     const hex = this.toHex();
-    assert(hex.startsWith("0x000000"))
-    return helios.ValidatorHash.fromHex(hex.substring(8 + 2 /* chain ID */))
+    assert(hex.startsWith("0x000000"));
+    return helios.ValidatorHash.fromHex(hex.substring(8 + 2 /* chain ID */));
   }
 
   toEvmAddress() {
