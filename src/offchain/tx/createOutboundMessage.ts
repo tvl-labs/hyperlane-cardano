@@ -25,6 +25,12 @@ export default async function createOutboundMessage(
 
   const tx = new helios.Tx();
 
+  const sender = outboxMessage.sender.toHex().substring(2);
+  // Payment credential
+  if (sender.startsWith("00")) {
+    tx.addSigner(new helios.PubKeyHash(sender.substring(8)));
+  }
+
   const payloadBurn = parseMessagePayloadBurn(outboxMessage.body);
   if (payloadBurn != null) {
     if (ismParams == null) {

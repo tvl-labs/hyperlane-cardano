@@ -1,6 +1,7 @@
 minting khalani_tokens
 
 // Parameters
+// TODO: Parameterize with Outbox to enforce burning.
 const ISM_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
 
 // Burning tokens at Khalani script to mint Khalani tokens

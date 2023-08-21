@@ -24,11 +24,10 @@ import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { H256 } from "../merkle/h256";
 
 // USDC "burner"
-const senderAddress = new helios.Address(
-  "addr_test1qzq0qn4kywltmn37zc4gsgemuc9rjmz6pdrevklyvl8fg4k7ev8utalf2nv8976mcvy8rgdfssjvd9aaae4w93cp980q6xt9dc"
-);
-const senderAddressHash = Address.fromHex(
-  `0x${helios.bytesToHex(helios.Crypto.blake2b(senderAddress.bytes))}`
+const sender = Address.fromHex(
+  `0x00000000${
+    new helios.Address(process.env.DAPP_WALLET_ADDRESS ?? "").pubKeyHash.hex
+  }`
 );
 const recipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
@@ -38,7 +37,7 @@ let lastOutboundMsg: Message = {
   version: 0,
   nonce: 0,
   originDomain: DOMAIN_CARDANO,
-  sender: senderAddressHash,
+  sender,
   destinationDomain: FUJI_DOMAIN,
   recipient,
   body: MessagePayload.fromString(""),
@@ -59,7 +58,7 @@ async function createOutboundMsg(
     ...lastOutboundMsg,
     nonce,
     body: createMessagePayloadBurn({
-      senderAddressHash: H256.from(senderAddressHash.toBuffer()),
+      sender: H256.from(sender.toBuffer()),
       destinationChainId: FUJI_DOMAIN,
       tokens: [["0x55534443", nonce + 1]],
       interchainLiquidityHubPayload: "0x",
@@ -132,7 +131,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     preprodDappWallet
   );
   console.log(
-    `Submitted first outbound message at tx ${createMsgRes.utxo.txId.hex}!`
+    `Submit first outbound message at tx ${createMsgRes.utxo.txId.hex}!`
   );
   await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
 
@@ -151,7 +150,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     gas,
     createMsgRes.messageId
   );
-  console.log(`Paid relayer for the first outbound message at tx ${txId.hex}!`);
+  console.log(`Pay relayer for the first outbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
 
   paidGas = await getOutboundGasPayment(
@@ -169,7 +168,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     preprodDappWallet
   );
   console.log(
-    `Submitted second outbound message at tx ${createMsgRes.utxo.txId.hex}!`
+    `Submit second outbound message at tx ${createMsgRes.utxo.txId.hex}!`
   );
   await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
 
@@ -179,9 +178,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     BigInt(10_000_000),
     createMsgRes.messageId
   );
-  console.log(
-    `Paid relayer for the second outbound message at tx ${txId.hex}!`
-  );
+  console.log(`Pay relayer for the second outbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
 
   paidGas = await getOutboundGasPayment(

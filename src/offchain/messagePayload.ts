@@ -85,7 +85,7 @@ export function parseMessagePayloadMint(
 }
 
 export interface MessagePayloadBurn {
-  senderAddressHash: H256;
+  sender: H256;
   destinationChainId: number;
   tokens: InterchainToken[];
   interchainLiquidityHubPayload: string; // Always empty at the moment
@@ -104,7 +104,7 @@ const messagePayloadBurnABITypes = [
 ];
 
 export function createMessagePayloadBurn({
-  senderAddressHash,
+  sender,
   destinationChainId,
   tokens,
   interchainLiquidityHubPayload,
@@ -115,7 +115,7 @@ export function createMessagePayloadBurn({
   const abiCoder = new ethers.AbiCoder();
   return MessagePayload.fromHexString(
     abiCoder.encode(messagePayloadBurnABITypes, [
-      senderAddressHash.hex(),
+      sender.hex(),
       destinationChainId,
       tokens,
       interchainLiquidityHubPayload,
@@ -132,7 +132,7 @@ export function parseMessagePayloadBurn(
   try {
     const abiCoder = new ethers.AbiCoder();
     const [
-      senderAddressHash,
+      sender,
       destinationChainId,
       tokens,
       interchainLiquidityHubPayload,
@@ -141,7 +141,7 @@ export function parseMessagePayloadBurn(
       message,
     ] = abiCoder.decode(messagePayloadBurnABITypes, payload.toBuffer());
     return {
-      senderAddressHash: H256.fromHex(senderAddressHash),
+      sender: H256.fromHex(sender),
       destinationChainId,
       tokens,
       interchainLiquidityHubPayload,

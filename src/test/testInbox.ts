@@ -169,7 +169,7 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
     preprodRelayerWallet
   );
   console.log(
-    `Submitted inbound message at tx ${txOutcome.utxoMessage.txId.hex}!`
+    `Submit inbound message at tx ${txOutcome.utxoMessage.txId.hex}!`
   );
   await waitForTxConfirmation(txOutcome.utxoMessage.txId.hex);
 
@@ -199,7 +199,7 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
     hashMap,
     preprodRelayerWallet
   );
-  console.log(`Processed inbound message at tx ${txId.hex}!`);
+  console.log(`Process inbound message at tx ${txId.hex}!`);
   await waitForTxConfirmation(txId.hex);
 
   isDelivered = await isInboundMessageDelivered(

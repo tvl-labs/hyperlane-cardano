@@ -23,6 +23,10 @@ struct Message {
   // Domain of origin chain
   origin_domain: ByteArray
   // Address of sender as bytes32
+  // A credential in Cardano is 28 bytes (Blake2b_224),
+  // We pad 4 bytes on the left:
+  // 00000000: Payment credential that must sign the tx.
+  // 01000000: Minting policy hash that must mint in the tx.
   sender: ByteArray
   // Domain of destination chain
   destination_domain: ByteArray

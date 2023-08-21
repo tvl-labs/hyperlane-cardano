@@ -38,14 +38,9 @@ struct DatumOutbox {
   latest_message: Option[Message]
 }
 
-enum Redeemer {
-  Raw
-  Burn
-}
-
 // TODO: Authentic outboxes with clearer identities?
 // TODO: Allow progressing multiple outboxes in the same tx?
-func main(datum: DatumOutbox, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
+func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
   current_output: TxOutput = ctx.get_current_input().output;
 
   // (1) Can consume only one outbox
@@ -90,13 +85,15 @@ func main(datum: DatumOutbox, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
     "Invalid merkle tree"
   );
 
-  // (5) Tokens must be burned when a burn payload is submitted
-  if (redeemer == Redeemer::Burn) {
-    payload_burn: MessagePayloadBurn = message.get_burn_payload();
-    ctx.tx.minted.get(AssetClass::new(MP_KHALANI, payload_burn.token_name)) == -payload_burn.quantity
+  // (6) Validate sender
+  if (message.sender.slice(0, 1) == #00) {
+    pkh: PubKeyHash = PubKeyHash::new(message.sender.slice(4, 32));
+    ctx.tx.is_signed_by(pkh)
+  } else if (message.sender.slice(0, 1) == #01) {
+    // TODO: Use the second byte to enforce a redeemer?
+    mph: MintingPolicyHash = MintingPolicyHash::new(message.sender.slice(4, 32));
+    ctx.tx.minted.contains_policy(mph)
   } else {
-    true
+    error("Unsupported sender format")
   }
-
-  // TODO: Validate message's sender & origin domain on-chain?
 }

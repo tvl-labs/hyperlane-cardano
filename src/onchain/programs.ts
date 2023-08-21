@@ -20,5 +20,5 @@ export function getProgramOutbox(ismParams?: IsmParamsHelios): UplcProgram {
   }).compile(true);
   return new ScriptOutbox({
     MP_KHALANI: mpKhalaniTokens.mintingPolicyHash,
-  }).compile(false);
+  }).compile(true);
 }

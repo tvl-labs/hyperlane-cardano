@@ -32,6 +32,7 @@ func main(datum: Message, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
   // (2) Must mint Khalani tokens
   // TODO: Parse the message payload to guarantee mints
   // TODO: Support minting multiple tokens in the same tx?
+  // TODO: Port this check to mpKhalaniTokens
   payload_mint: MessagePayloadMint = datum.get_mint_payload(redeemer.hash_map);
   mint_asset_class: AssetClass = AssetClass::new(MP_KHALANI, payload_mint.token_name);
   assert(

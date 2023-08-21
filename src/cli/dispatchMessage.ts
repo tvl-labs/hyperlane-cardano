@@ -115,7 +115,7 @@ async function main() {
   const outboxUtxo = await fetchOutboxUtxo();
   const message = await prepareMessage(outboxUtxo, dispatchedMessage, wallet);
   const utxo = await createOutboundMessage(outboxUtxo, message, wallet);
-  console.log(`Submitted outbound message at tx ${utxo.txId.hex}!`);
+  console.log(`Submit outbound message at tx ${utxo.txId.hex}!`);
   await waitForTxConfirmation(utxo.txId.hex);
 }
 
