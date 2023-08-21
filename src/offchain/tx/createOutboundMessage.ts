@@ -46,7 +46,7 @@ export default async function createOutboundMessage(
     tx.mintTokens(
       programKhalaniTokens.mintingPolicyHash,
       mintKhalaniTokens,
-      new helios.ConstrData(0, [])
+      new helios.MapData([])
     );
   }
 

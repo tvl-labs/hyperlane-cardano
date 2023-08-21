@@ -1,7 +1,7 @@
 minting khalani_tokens
 
 import { DatumOutbox } from "./outbox.hl"
-import { Message, MessagePayloadBurn } from "./message.hl"
+import { Message, MessagePayloadMint, MessagePayloadBurn } from "./message.hl"
 
 // Parameters
 // TODO: Parameterize with Outbox to enforce burning.
@@ -12,14 +12,21 @@ const ADDRESS_OUTBOX: Address = Address::new(
   Credential::new_validator(ValidatorHash::new(#)), Option[StakingCredential]::None
 )
 
+// TODO: Map from ByteArray to Address?
+// This simplifies on-chain address construction greatly
+// But we must to make sure on-chain address hashing is sound.
+struct Redeemer {
+  hash_map: Map[ByteArray]ByteArray
+}
+
 // Burning tokens at Khalani script to mint Khalani tokens
 // (Optional) Parameterize with Khalani script address to
 // add a strict address check?
-func main(_, ctx: ScriptContext) -> Bool {
+func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
   // TODO: Should we ban the minting of other policies here?
-  own_minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(
-    ctx.get_current_minting_policy_hash()
-  );
+  own_mph: MintingPolicyHash = ctx.get_current_minting_policy_hash();
+  own_minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(own_mph);
+
   // TODO: Loosen check to allow multiple processing in the same tx.
   assert(own_minted.length == 1, "Can only handle one token");
   token_name: ByteArray = own_minted.head_key;
@@ -49,9 +56,38 @@ func main(_, ctx: ScriptContext) -> Bool {
     token_value == -payload_burn.quantity
   } else {
     // For minting, must burn exactly one authentic message
+    // Trusting the parameterized policy to not issue duplicate messages
     // TODO: Loosen the check to process multiple messages at once?
-    messages: Map[ByteArray]Int = ctx.tx.minted.get_policy(ISM_KHALANI);
-    assert(messages.length == 1, "Can process only one message");
-    messages.head_value == -1
+    message_tokens: Map[ByteArray]Int = ctx.tx.minted.get_policy(ISM_KHALANI);
+    assert(
+      message_tokens.length == 1 && message_tokens.head_value == -1,
+      "Must burn a message token"
+    );
+
+    // TODO: Loosen check for composability, e.g., restricting to only
+    // a Message datum instead of any inline datum
+    message_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
+      input.output.datum.switch {
+        Inline => true,
+        else => false
+      }
+    });
+    assert(message_inputs.length == 1, "Must process only a message");
+    message: Message = message_inputs.head.output.datum.switch {
+      i: Inline => Message::from_data(i.data),
+      else => error("Invalid message output: missing inline datum")
+    };
+    assert(message.id() == message_tokens.head_key, "Malformed message");
+    payload_mint: MessagePayloadMint = message.get_mint_payload(redeemer.hash_map);
+    assert(
+      token_name == payload_mint.token_name &&
+      token_value == payload_mint.quantity,
+      "Must mint correctly"
+    );
+
+    ctx.tx.outputs.any((output: TxOutput) -> {
+      output.address == payload_mint.recipient_address &&
+      output.value.get_safe(AssetClass::new(own_mph, payload_mint.token_name)) == payload_mint.quantity
+    })
   }
 }

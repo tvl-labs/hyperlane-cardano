@@ -49,10 +49,6 @@ export async function processInboundMessage(
   tx.mintTokens(
     programKhalaniTokens.mintingPolicyHash,
     mintKhalaniTokens,
-    new helios.ConstrData(0, [])
-  );
-  tx.addInput(
-    utxoMessage,
     new helios.MapData(
       Object.entries(hashMap).map(([k, v]) => [
         new helios.ByteArray(k)._toUplcData(),
@@ -60,6 +56,7 @@ export async function processInboundMessage(
       ])
     )
   );
+  tx.addInput(utxoMessage, new helios.ConstrData(0, []));
   const scriptKhalani = new ScriptKhalani({
     MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
   }).compile(true);

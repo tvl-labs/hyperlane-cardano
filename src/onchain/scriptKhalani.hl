@@ -1,47 +1,14 @@
 spending khalani
 
-import { Message, MessagePayloadMint } from "./message.hl"
-
 // Parameters
 const MP_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
 
-// TODO: Map from ByteArray to Address?
-// This simplifies on-chain address construction greatly
-// But we must to make sure on-chain address hashing is sound.
-struct Redeemer {
-  hash_map: Map[ByteArray]ByteArray
-}
-
 // The (default) recipient address for Khalani messages.
-// TODO: Add a message datum and enforces that a message is handled correctly
-// via different kinds of Redeemers.
-// TODO: Do we need to ban same tokens in the inputs?
-func main(datum: Message, redeemer: Redeemer, ctx: ScriptContext) -> Bool {
-  current_output: TxOutput = ctx.get_current_input().output;
-
-  // (1) Must burn the message (token) to mark as processed.
-  current_output.value.get_assets().to_map().for_each((mph: MintingPolicyHash, tokens: Map[ByteArray]Int) -> {
-    tokens.for_each((tokenName: ByteArray, tokenValue: Int) -> {
-      assert(
-        ctx.tx.minted.get(AssetClass::new(mph, tokenName)) == -tokenValue,
-        "Must burn token"
-      )
-    })
-  });
-
-  // (2) Must mint Khalani tokens
-  // TODO: Parse the message payload to guarantee mints
-  // TODO: Support minting multiple tokens in the same tx?
-  // TODO: Port this check to mpKhalaniTokens
-  payload_mint: MessagePayloadMint = datum.get_mint_payload(redeemer.hash_map);
-  mint_asset_class: AssetClass = AssetClass::new(MP_KHALANI, payload_mint.token_name);
-  assert(
-    ctx.tx.minted.get(mint_asset_class) == payload_mint.quantity,
-    "Must mint the requested tokens"
-  );
-
-  ctx.tx.outputs.any((output: TxOutput) -> {
-    output.address == payload_mint.recipient_address &&
-    output.value.get_safe(mint_asset_class) == payload_mint.quantity
-  })
+func main(_, _, ctx: ScriptContext) -> Bool {
+  // Must mint Khalani tokens.
+  // With all remaining checks being done there.
+  // TODO: Support more applications if there are any?
+  minted_khalani: Map[ByteArray]Int = ctx.tx.minted.get_policy(MP_KHALANI);
+  minted_khalani.length == 1 &&
+  minted_khalani.head_value > 0
 }
