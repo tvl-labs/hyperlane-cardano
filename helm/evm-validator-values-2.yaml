@@ -1,7 +1,7 @@
 validator:
-  originChain: "fuji"
-  originChainRpc: "https://avalanche-fuji.infura.io/v3/388d2c2a7e0847e1bff2999a29b14a57"
-  originChainEnvName: "FUJI"
+  originChain: "khalanitestnet"
+  originChainRpc: "https://testnet.khalani.network"
+  originChainEnvName: "KHALANITESTNET"
   # Private key of validator 0xa9CEAf19c91dE16Bb2DEEa0A6739ACb18dc3DDBE
   # Public key of validator: 0x032237b7c3074c1a4dadba48ad051b66ab664ad490a09f48e39e0259bc33adf761
   privateKey: "0x5e86c0a04070d4e3d4b2bd812034bf2d371032d6a2627a51b7fea8892742326f"
