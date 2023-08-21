@@ -3,6 +3,7 @@ spending outbox
 import { Message, MessagePayloadBurn } from "./message.hl"
 
 // Parameters
+const ORIGIN_DOMAIN: ByteArray = #0001b669 // 112233
 const MP_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
 
 // TODO: Move to its own module (merkleTree.hl)
@@ -73,7 +74,7 @@ func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
     else => error("Invalid outbox output: missing inline datum")
   };
   message: Message = next_datum.latest_message.unwrap();
-  assert(message.is_valid(), "Invalid message");
+  assert(message.is_valid_outbound(ORIGIN_DOMAIN), "Invalid message");
   assert(
     Int::from_big_endian(message.nonce) == datum.merkle_tree.count,
     "Invalid nonce"

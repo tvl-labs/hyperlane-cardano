@@ -35,13 +35,14 @@ struct Message {
   // Raw bytes of message body
   message: ByteArray
 
-  func is_valid(self) -> Bool {
-    self.version.length == 1 &&
+  func is_valid_outbound(self, origin_domain: ByteArray) -> Bool {
+    self.version == #00 &&
     self.nonce.length == 4 &&
-    self.origin_domain.length == 4 &&
+    self.origin_domain == origin_domain &&
     self.sender.length == 32 &&
     self.destination_domain.length == 4 &&
-    self.recipient.length == 32
+    self.recipient.length == 32 &&
+    self.destination_domain != self.origin_domain
   }
 
   func id(self) -> ByteArray {
