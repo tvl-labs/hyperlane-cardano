@@ -59,9 +59,6 @@ spec:
             - name: MERKLE_TREE_HASH_BLAKE2B
               value: "true"
             {{- end }}
-            # Important flag to enable Blake2b support.
-            - name: MERKLE_TREE_HASH_BLAKE2B
-              value: "true"
 
             # Use hex key (test only).
             - name: "HYP_BASE_CHAINS_{{ .Values.relayer.destinationChainEnv }}_SIGNER_TYPE"
