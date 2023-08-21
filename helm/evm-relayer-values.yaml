@@ -1,7 +1,8 @@
 relayer:
-  originChain: "fuji"
-  originChainRpc: "https://avalanche-fuji.infura.io/v3/388d2c2a7e0847e1bff2999a29b14a57"
+  originChain: "khalanitestnet"
+  originChainRpc: "https://testnet.khalani.network"
   destinationChain: "cardanotest1"
   destinationChainEnv: "CARDANOTEST1"
   destinationChainRpc: "http://cardano-rpc.applications.svc.cluster.local:80"
   privateKey: "0x0675c04edcb1cdf90e4e4bb17bd76c971a8a5a36f0b18f13b24133b52feb4dd2"
+  useBlake2MerkleTree: true
