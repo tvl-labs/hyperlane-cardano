@@ -3,22 +3,33 @@
 // and code deduplication.
 // TODO: Port more scripts/programs here.
 
-import type { UplcProgram } from "@hyperionbt/helios";
-import { getIsmParamsHelios } from "../offchain/inbox";
+import * as helios from "@hyperionbt/helios";
 import ScriptOutbox from "./scriptOutbox.hl";
 import MintingPolicyIsmMultiSig from "./ismMultiSig.hl";
 import MintingPolicyKhalaniTokens from "./mpKhalaniTokens.hl";
+import { getIsmParamsHelios } from "../offchain/inbox";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 
-export function getProgramOutbox(ismParams?: IsmParamsHelios): UplcProgram {
+export function getIsmKhalani(ismParams?: IsmParamsHelios): helios.UplcProgram {
   if (ismParams == null) {
     ismParams = getIsmParamsHelios();
   }
-  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
-  const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
-    ISM_KHALANI: ismMultiSig.mintingPolicyHash,
-  }).compile(true);
-  return new ScriptOutbox({
-    MP_KHALANI: mpKhalaniTokens.mintingPolicyHash,
+  return new MintingPolicyIsmMultiSig(ismParams).compile(true);
+}
+
+export function getProgramOutbox(): helios.UplcProgram {
+  return new ScriptOutbox().compile(true);
+}
+
+export function getProgramKhalaniTokens(
+  ismParams?: IsmParamsHelios
+): helios.UplcProgram {
+  const ISM_KHALANI = getIsmKhalani(ismParams).mintingPolicyHash;
+  const ADDRESS_OUTBOX = helios.Address.fromValidatorHash(
+    getProgramOutbox().validatorHash
+  );
+  return new MintingPolicyKhalaniTokens({
+    ISM_KHALANI,
+    ADDRESS_OUTBOX,
   }).compile(true);
 }

@@ -1,7 +1,7 @@
 import type * as helios from "@hyperionbt/helios";
 
 declare class ScriptOutbox {
-  constructor(params: { MP_KHALANI: helios.MintingPolicyHash });
+  constructor();
   compile(optimize: boolean): helios.UplcProgram;
 }
 

@@ -1,12 +1,12 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import MintingPolicyKhalaniTokens from "../../onchain/mpKhalaniTokens.hl";
 import ScriptKhalani from "../../onchain/scriptKhalani.hl";
 import { deserializeMessage } from "../message";
 import { type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { parseMessagePayloadMint } from "../messagePayload";
+import { getProgramKhalaniTokens } from "../../onchain/programs";
 
 export async function processInboundMessage(
   ismParams: IsmParamsHelios,
@@ -40,16 +40,14 @@ export async function processInboundMessage(
 
   // TODO: Specific processing depending on the message
   // Minting new Khalani tokens for now
-  const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
-    ISM_KHALANI: ismMultiSig.mintingPolicyHash,
-  }).compile(true);
-  tx.attachScript(mpKhalaniTokens);
+  const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
+  tx.attachScript(programKhalaniTokens);
   const payloadMint = parseMessagePayloadMint(message.body);
   const mintKhalaniTokens: [number[], number][] = payloadMint.tokens.map(
     (token) => [helios.hexToBytes(token[0].substring(2)), token[1]]
   );
   tx.mintTokens(
-    mpKhalaniTokens.mintingPolicyHash,
+    programKhalaniTokens.mintingPolicyHash,
     mintKhalaniTokens,
     new helios.ConstrData(0, [])
   );
@@ -63,7 +61,7 @@ export async function processInboundMessage(
     )
   );
   const scriptKhalani = new ScriptKhalani({
-    MP_KHALANI: mpKhalaniTokens.mintingPolicyHash,
+    MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
   }).compile(true);
   tx.attachScript(scriptKhalani);
 
@@ -75,7 +73,7 @@ export async function processInboundMessage(
       new helios.Value(
         BigInt(0),
         new helios.Assets([
-          [mpKhalaniTokens.mintingPolicyHash, mintKhalaniTokens],
+          [programKhalaniTokens.mintingPolicyHash, mintKhalaniTokens],
         ])
       )
     )

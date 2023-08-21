@@ -7,11 +7,9 @@ import { type Wallet } from "../wallet";
 import { blake2bHasher } from "../../merkle/hasher";
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
-import type { IsmParamsHelios } from "../inbox/ismParams";
 
 export default async function createOutbox(
-  wallet: Wallet,
-  ismParams?: IsmParamsHelios
+  wallet: Wallet
 ): Promise<helios.UTxO> {
   const tx = new helios.Tx();
 
@@ -29,7 +27,7 @@ export default async function createOutbox(
   tx.mintTokens(mpNFT.mintingPolicyHash, tokens, new helios.ConstrData(0, []));
 
   const addressOutbox = helios.Address.fromValidatorHash(
-    getProgramOutbox(ismParams).validatorHash
+    getProgramOutbox().validatorHash
   );
   const merkleTree = new HeliosMerkleTree(blake2bHasher);
 

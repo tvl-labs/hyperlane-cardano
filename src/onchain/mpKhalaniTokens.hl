@@ -1,8 +1,16 @@
 minting khalani_tokens
 
+import { DatumOutbox } from "./outbox.hl"
+import { Message, MessagePayloadBurn } from "./message.hl"
+
 // Parameters
 // TODO: Parameterize with Outbox to enforce burning.
 const ISM_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
+
+// The outbox script that ships these messages.
+const ADDRESS_OUTBOX: Address = Address::new(
+  Credential::new_validator(ValidatorHash::new(#)), Option[StakingCredential]::None
+)
 
 // Burning tokens at Khalani script to mint Khalani tokens
 // (Optional) Parameterize with Khalani script address to
@@ -12,9 +20,33 @@ func main(_, ctx: ScriptContext) -> Bool {
   own_minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(
     ctx.get_current_minting_policy_hash()
   );
-  if (own_minted.all((_, tokenValue: Int) -> { tokenValue < 0 })) {
-    // Can always burn
-    true
+  // TODO: Loosen check to allow multiple processing in the same tx.
+  assert(own_minted.length == 1, "Can only handle one token");
+  token_name: ByteArray = own_minted.head_key;
+  token_value: Int = own_minted.head_value;
+
+  if (token_value < 0) {
+    // We "trust" the parameterized outbox to validate its own logic correctly.
+    // At the end of the day, we can choose outbox at compile time.
+    assert(
+      ctx.tx.inputs.any((input: TxInput) -> {
+        input.output.address == ADDRESS_OUTBOX
+      }),
+      "Must consume an outbox"
+    );
+
+    outbox_output: TxOutput = ctx.tx.outputs.find((output: TxOutput) -> {
+      output.address == ADDRESS_OUTBOX
+    });
+    outbox_datum: DatumOutbox = outbox_output.datum.switch {
+      i: Inline => DatumOutbox::from_data(i.data),
+      else => error("Invalid outbox output: missing inline datum")
+    };
+    message: Message = outbox_datum.latest_message.unwrap();
+    payload_burn: MessagePayloadBurn = message.get_burn_payload();
+
+    token_name == payload_burn.token_name &&
+    token_value == -payload_burn.quantity
   } else {
     // For minting, must burn exactly one authentic message
     // TODO: Loosen the check to process multiple messages at once?

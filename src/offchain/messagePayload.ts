@@ -128,29 +128,24 @@ export function createMessagePayloadBurn({
 
 export function parseMessagePayloadBurn(
   payload: MessagePayload
-): MessagePayloadBurn | null {
-  try {
-    const abiCoder = new ethers.AbiCoder();
-    const [
-      sender,
-      destinationChainId,
-      tokens,
-      interchainLiquidityHubPayload,
-      isSwapWithAggregateToken,
-      recipientAddress,
-      message,
-    ] = abiCoder.decode(messagePayloadBurnABITypes, payload.toBuffer());
-    return {
-      sender: H256.fromHex(sender),
-      destinationChainId,
-      tokens,
-      interchainLiquidityHubPayload,
-      isSwapWithAggregateToken,
-      recipientAddress: H256.fromHex(recipientAddress),
-      message,
-    };
-  } catch (_) {
-    // TODO: Only returning null on decoding errors
-    return null;
-  }
+): MessagePayloadBurn {
+  const abiCoder = new ethers.AbiCoder();
+  const [
+    sender,
+    destinationChainId,
+    tokens,
+    interchainLiquidityHubPayload,
+    isSwapWithAggregateToken,
+    recipientAddress,
+    message,
+  ] = abiCoder.decode(messagePayloadBurnABITypes, payload.toBuffer());
+  return {
+    sender: H256.fromHex(sender),
+    destinationChainId,
+    tokens,
+    interchainLiquidityHubPayload,
+    isSwapWithAggregateToken,
+    recipientAddress: H256.fromHex(recipientAddress),
+    message,
+  };
 }

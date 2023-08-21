@@ -1,5 +1,7 @@
 module message
 
+// TODO: Parse public key hash from sender
+// To check for signature
 struct MessagePayloadMint {
   token_name: ByteArray
   quantity: Int

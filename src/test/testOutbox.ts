@@ -1,12 +1,9 @@
 import type { Wallet } from "../offchain/wallet";
-import { calculateMessageId, type Message } from "../offchain/message";
+import { calculateMessageId } from "../offchain/message";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
-import {
-  MessagePayload,
-  createMessagePayloadBurn,
-} from "../offchain/messagePayload";
+import { createMessagePayloadBurn } from "../offchain/messagePayload";
 import * as helios from "@hyperionbt/helios";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
@@ -20,28 +17,15 @@ import {
   preprodDappWallet,
   preprodRelayerWallet,
 } from "./index";
-import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { H256 } from "../merkle/h256";
+import { getProgramKhalaniTokens } from "../onchain/programs";
+import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 
-// USDC "burner"
-const sender = Address.fromHex(
-  `0x00000000${
-    new helios.Address(process.env.DAPP_WALLET_ADDRESS ?? "").pubKeyHash.hex
-  }`
-);
 const recipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
 
-let lastOutboundMsg: Message = {
-  version: 0,
-  nonce: 0,
-  originDomain: DOMAIN_CARDANO,
-  sender,
-  destinationDomain: FUJI_DOMAIN,
-  recipient,
-  body: MessagePayload.fromString(""),
-};
+let lastOutboundMsg;
 
 interface OutboundMessageRes {
   messageId: helios.ByteArray;
@@ -55,10 +39,18 @@ async function createOutboundMsg(
   wallet: Wallet
 ): Promise<OutboundMessageRes> {
   lastOutboundMsg = {
-    ...lastOutboundMsg,
+    version: 0,
     nonce,
+    originDomain: DOMAIN_CARDANO,
+    sender: Address.fromHex(
+      `0x01000000${getProgramKhalaniTokens(ismParams).mintingPolicyHash.hex}`
+    ),
+    destinationDomain: FUJI_DOMAIN,
+    recipient,
     body: createMessagePayloadBurn({
-      sender: H256.from(sender.toBuffer()),
+      sender: H256.from(
+        Buffer.from(`00000000${wallet.address.toHex().substring(2)}`, "hex")
+      ),
       destinationChainId: FUJI_DOMAIN,
       tokens: [["0x55534443", nonce + 1]],
       interchainLiquidityHubPayload: "0x",
@@ -84,7 +76,7 @@ async function createOutboundMsg(
 
 export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   emulatedNetwork.tick(1n);
-  const emulatedUtxoOutbox = await createOutbox(emulatedDappWallet, ismParams);
+  const emulatedUtxoOutbox = await createOutbox(emulatedDappWallet);
   emulatedNetwork.tick(1n);
 
   let createMsgRes = await createOutboundMsg(
@@ -120,7 +112,7 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const preprodUtxoOutbox = await createOutbox(preprodDappWallet, ismParams);
+  const preprodUtxoOutbox = await createOutbox(preprodDappWallet);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
 
@@ -189,7 +181,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     throw new Error("Expect paid outbound message");
   }
 
-  const outboundMessages = await getOutboundMessages(ismParams);
+  const outboundMessages = await getOutboundMessages();
   if (
     outboundMessages[outboundMessages.length - 1].hex !==
     lastOutboundMsg.body.toHex().substring(2)

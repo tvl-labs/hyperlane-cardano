@@ -1,8 +1,9 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
-import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import MintingPolicyKhalaniTokens from "../../onchain/mpKhalaniTokens.hl";
-import { getProgramOutbox } from "../../onchain/programs";
+import {
+  getProgramOutbox,
+  getProgramKhalaniTokens,
+} from "../../onchain/programs";
 import type { Wallet } from "../wallet";
 import {
   deserializeOutboxDatum,
@@ -30,23 +31,20 @@ export default async function createOutboundMessage(
   if (sender.startsWith("00")) {
     tx.addSigner(new helios.PubKeyHash(sender.substring(8)));
   }
-
-  const payloadBurn = parseMessagePayloadBurn(outboxMessage.body);
-  if (payloadBurn != null) {
-    if (ismParams == null) {
-      throw new Error("Need ISM Params");
+  // Minting policy, only supporting Khalani
+  else if (sender.startsWith("01")) {
+    const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
+    if (sender !== `01000000${programKhalaniTokens.mintingPolicyHash.hex}`) {
+      throw new Error("Unsupported minting policy");
     }
+    tx.attachScript(programKhalaniTokens);
 
-    const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
-    const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
-      ISM_KHALANI: ismMultiSig.mintingPolicyHash,
-    }).compile(true);
-    tx.attachScript(mpKhalaniTokens);
+    const payloadBurn = parseMessagePayloadBurn(outboxMessage.body);
     const mintKhalaniTokens: [number[], number][] = payloadBurn.tokens.map(
       (token) => [helios.hexToBytes(token[0].substring(2)), -token[1]]
     );
     tx.mintTokens(
-      mpKhalaniTokens.mintingPolicyHash,
+      programKhalaniTokens.mintingPolicyHash,
       mintKhalaniTokens,
       new helios.ConstrData(0, [])
     );
@@ -56,11 +54,8 @@ export default async function createOutboundMessage(
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
-  tx.addInput(
-    utxoOutbox,
-    new helios.ConstrData(payloadBurn !== null ? 1 : 0, [])
-  );
-  const scriptOutbox = getProgramOutbox(ismParams);
+  tx.addInput(utxoOutbox, new helios.ConstrData(0, []));
+  const scriptOutbox = getProgramOutbox();
   tx.attachScript(scriptOutbox);
   tx.addOutput(
     new helios.TxOutput(

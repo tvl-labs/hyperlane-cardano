@@ -1,0 +1,36 @@
+module outbox_types
+
+import { Message } from "./message.hl"
+
+// TODO: Move to its own module (merkleTree.hl)
+const TREE_DEPTH: Int = 32
+const MAX_LEAVES: Int = 4294967295 // 2 ^ TREE_DEPTH - 1
+
+// Trying to stay close to the Hyperlane implementation.
+// https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/solidity/contracts/libs/Merkle.sol
+struct MerkleTree {
+  branches: []ByteArray
+  count: Int
+
+  func update_branches(self, i: Int, size: Int, node: ByteArray) -> []ByteArray {
+    assert(i < TREE_DEPTH, "Max tree depth exceeded");
+    if (size % 2 == 1) {
+      self.branches.set(i, node)
+    } else {
+      self.update_branches(i + 1, size / 2, (self.branches.get(i) + node).blake2b())
+    }
+  }
+
+  func insert(self, node: ByteArray) -> MerkleTree {
+    assert(self.count < MAX_LEAVES, "The merkle tree is full");
+    MerkleTree {
+      branches: self.update_branches(0, self.count + 1, node),
+      count: self.count + 1
+    }
+  }
+}
+
+struct DatumOutbox {
+  merkle_tree: MerkleTree
+  latest_message: Option[Message]
+}

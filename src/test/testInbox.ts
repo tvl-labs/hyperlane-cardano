@@ -1,7 +1,5 @@
 import * as helios from "@hyperionbt/helios";
 import secp256k1 from "secp256k1";
-import MintingPolicyIsmMultiSig from "../onchain/ismMultiSig.hl";
-import MintingPolicyKhalaniTokens from "../onchain/mpKhalaniTokens.hl";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import {
   emulatedNetwork,
@@ -29,6 +27,7 @@ import { H256 } from "../merkle/h256";
 import ScriptKhalani from "../onchain/scriptKhalani.hl";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { convertUtxoToJson } from "./debug";
+import { getProgramKhalaniTokens } from "../onchain/programs";
 
 // TODO: Build several edge cases.
 
@@ -46,14 +45,11 @@ function mockCheckpoint(
     helios.Crypto.blake2b(recipientAddress.bytes)
   );
   hashMap[recipientAddressHash] = recipientAddress.toHex();
-  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
-  const mpKhalaniTokens = new MintingPolicyKhalaniTokens({
-    ISM_KHALANI: ismMultiSig.mintingPolicyHash,
-  }).compile(true);
+  const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
   const recipient = Address.fromHex(
     `0x000000${helios.Address.fromValidatorHash(
       new ScriptKhalani({
-        MP_KHALANI: mpKhalaniTokens.mintingPolicyHash,
+        MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
       }).compile(true).validatorHash
     ).toHex()}`
   );
