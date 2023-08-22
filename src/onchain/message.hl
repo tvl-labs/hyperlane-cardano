@@ -1,7 +1,5 @@
 module message
 
-// TODO: Parse public key hash from sender
-// To check for signature
 struct MessagePayloadMint {
   token_name: ByteArray
   quantity: Int
@@ -11,6 +9,7 @@ struct MessagePayloadMint {
 struct MessagePayloadBurn {
   token_name: ByteArray
   quantity: Int
+  sender_pkh: PubKeyHash
 }
 
 // Following Hyperlane as tight as possible
@@ -107,14 +106,14 @@ struct Message {
   func get_burn_payload(self) -> MessagePayloadBurn {
     // TODO: Truer support for ABI decode, for potentially non-empty
     // interchain liquidity hub payload, etc.
-
-    // Skip 320 bytes of offset
+    sender_pkh: PubKeyHash = PubKeyHash::new(self.message.slice(4, 32));
     quantity: Int = Int::from_big_endian(self.message.slice(320, 352));
     token_name_length: Int = Int::from_big_endian(self.message.slice(352, 384));
     token_name: ByteArray = self.message.slice(384, 384 + token_name_length);
     MessagePayloadBurn {
       token_name,
-      quantity
+      quantity,
+      sender_pkh
     }
   }
 }

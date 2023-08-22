@@ -48,6 +48,7 @@ export default async function createOutboundMessage(
       mintKhalaniTokens,
       new helios.MapData([])
     );
+    tx.addSigner(new helios.PubKeyHash(payloadBurn.sender.hex().substring(10)));
   }
 
   // TODO: Better coin selection for end users

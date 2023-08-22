@@ -53,7 +53,8 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
     payload_burn: MessagePayloadBurn = message.get_burn_payload();
 
     token_name == payload_burn.token_name &&
-    token_value == -payload_burn.quantity
+    token_value == -payload_burn.quantity &&
+    ctx.tx.is_signed_by(payload_burn.sender_pkh)
   } else {
     // For minting, must burn exactly one authentic message
     // Trusting the parameterized policy to not issue duplicate messages
