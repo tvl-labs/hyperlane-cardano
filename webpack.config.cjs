@@ -10,6 +10,7 @@ module.exports = {
     announceValidatorStorage: "./src/cli/announceValidatorStorage.ts",
     createValidatorKey: "./src/cli/createValidatorKey.ts",
     sendKhalaniToCardanoUsdcMintMessage: "./src/cli/sendKhalaniToCardanoUsdcMintMessage.ts",
+    deployNewInbox: "./src/cli/deployNewInbox.ts",
   },
   output: {
     filename: "[name].js",

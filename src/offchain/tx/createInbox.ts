@@ -9,6 +9,7 @@ import { type Wallet } from "../wallet";
 interface Inbox {
   ismParams: IsmParamsHelios;
   utxoInbox: helios.UTxO;
+  inboxOutputId: helios.TxOutputId;
 }
 
 export default async function createInbox(wallet: Wallet): Promise<Inbox> {
@@ -54,5 +55,6 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
   return {
     ismParams,
     utxoInbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
+    inboxOutputId: outputId
   };
 }
