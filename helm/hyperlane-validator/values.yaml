@@ -12,7 +12,7 @@ image:
 
 # Use the locally built image.
   repository: host.docker.internal:5000/hyperlane-cardano-local
-  tag: "20230808102044"
+  tag: "20230823173952"
 
 validator:
   originChain: ""
