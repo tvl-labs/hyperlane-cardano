@@ -260,6 +260,7 @@ app.post(
 );
 
 app.use((err, req, res, _) => {
+  console.error('Error processing request', err);
   res.status(err.status ?? 500).json({
     message: err.message,
   });
