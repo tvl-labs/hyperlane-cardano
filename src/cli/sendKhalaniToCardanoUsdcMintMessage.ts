@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { ethers } from 'ethers';
 import { MAILBOX_ABI } from '../evm/mailbox.abi';
 import * as fs from 'fs';
@@ -6,6 +7,10 @@ import { Address } from '../offchain/address';
 import { createMessagePayloadMint, MessagePayload } from '../offchain/messagePayload';
 import { H256 } from '../merkle/h256';
 import { CardanoTokenName } from '../cardanoTokenName';
+import * as helios from '@hyperionbt/helios';
+import { getProgramKhalaniTokens } from '../onchain/programs';
+import ScriptKhalani from '../onchain/scriptKhalani.hl';
+import { getIsmParamsHelios } from '../offchain/inbox';
 
 const KHALANI_RPC_URL = "https://testnet.khalani.network/";
 
@@ -15,12 +20,6 @@ const EVM_TEST_WALLET = "0xa7fa3c72ee7bd14c684d8f29cebd1893f1da5a02926de44fe2947
 
 const KHALANI_CHAIN_ID = 10012;
 const CARDANO_CHAIN_ID = 112233;
-
-const CARDANO_KHALANI_USDC_DAPP_RECIPIENT =
-  Address.fromHex("0xCADA000000000000000000000000000000000000000000000000000000000000");
-
-const CARDANO_USDC_RECIPIENT =
-  Address.fromHex("0xCA10000000000000000000000000000000000000000000000000000000000000");
 
 const KHALANI_BLOCK_EXPLORER_URL = "https://block-explorer.testnet.khalani.network/tx/"
 
@@ -39,16 +38,33 @@ export async function sendKhalaniToCardanoUsdcMintMessage() {
     MAILBOX_ABI,
     wallet
   )
+
+  const ismParamsHelios = getIsmParamsHelios();
+  const programKhalaniTokens = getProgramKhalaniTokens(ismParamsHelios);
+  const recipient = Address.fromHex(
+    `0x000000${helios.Address.fromValidatorHash(
+      new ScriptKhalani({
+        MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
+      }).compile(true).validatorHash
+    ).toHex()}`
+  );
+
+  const recipientAddress = new helios.Address("addr_test1vpcvg34l9ngamtytg3ex5mxgcczgtu78dh3m3uxdk7cf5dg0scvn5")
+  const recipientAddressHash = H256.from(
+    Buffer.from(helios.bytesToHex(
+      helios.Crypto.blake2b(recipientAddress.bytes)
+    ), "hex")
+  );
   const messagePayload = createMessagePayloadMint({
     rootChainId: KHALANI_CHAIN_ID,
     rootSender: H256.fromHex(Address.fromEvmAddress(wallet.address).toHex()),
     tokens: [[CardanoTokenName.fromTokenName("USDC"), 12]],
-    recipientAddressHash: H256.fromHex(CARDANO_USDC_RECIPIENT.toHex()),
+    recipientAddressHash,
     message: MessagePayload.empty()
   });
   const transaction = await mailbox.dispatch(
     CARDANO_CHAIN_ID,
-    CARDANO_KHALANI_USDC_DAPP_RECIPIENT.toHex(),
+    recipient.toHex(),
     messagePayload.toHex()
   ) as ethers.ContractTransactionResponse;
   const transactionReceipt = await transaction.wait(1);

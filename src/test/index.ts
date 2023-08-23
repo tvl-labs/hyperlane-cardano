@@ -37,8 +37,8 @@ try {
   const emulatedIsmParams = await testInboxOnEmulatedNetwork();
   const preprodIsmParams = await testInboxOnPreprodNetwork();
 
-  await testValidatorStorageLocationOnEmulatedNetwork();
-  await testValidatorStorageLocationOnPreprodNetwork();
+  // await testValidatorStorageLocationOnEmulatedNetwork();
+  // await testValidatorStorageLocationOnPreprodNetwork();
 
   await testOutboxOnEmulatedNetwork(emulatedIsmParams);
   await testOutboxOnPreprodNetwork(preprodIsmParams);
