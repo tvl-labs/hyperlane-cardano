@@ -1,7 +1,7 @@
 import * as helios from "@hyperionbt/helios";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { getInboxUTxO } from "./getInboxUTxO";
-import type { H256 } from "../../merkle/h256";
+import type { H256 } from "../h256";
 
 export async function isInboundMessageDelivered(
   ismParams: IsmParamsHelios,

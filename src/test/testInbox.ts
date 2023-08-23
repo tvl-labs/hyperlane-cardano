@@ -23,7 +23,7 @@ import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
 import { calculateMessageId } from "../offchain/message";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import createInbox from "../offchain/tx/createInbox";
-import { H256 } from "../merkle/h256";
+import { H256 } from "../offchain/h256";
 import ScriptKhalani from "../onchain/scriptKhalani.hl";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { convertUtxoToJson } from "./debug";
@@ -58,7 +58,7 @@ function mockCheckpoint(
     originMailbox: Address.fromHex(
       "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
     ),
-    checkpointRoot: Buffer.alloc(32).fill(0),
+    checkpointRoot: H256.zero(),
     checkpointIndex: 0,
     message: {
       version: 0,
@@ -93,7 +93,7 @@ async function createInboundMsg(
     Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
   );
   const signatures = validatorPrivateKeys.map(
-    (k) => secp256k1.ecdsaSign(checkpointHash, k).signature
+    (k) => secp256k1.ecdsaSign(checkpointHash.toBuffer(), k).signature
   );
 
   const isDelivered = await isInboundMessageDelivered(
@@ -153,7 +153,7 @@ export async function testInboxOnEmulatedNetwork(): Promise<IsmParamsHelios> {
 export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
   const { ismParams, utxoInbox } = await createInbox(preprodRelayerWallet);
   console.log(`Created inbox at tx ${utxoInbox.txId.hex}!`);
-  await waitForTxConfirmation(utxoInbox.txId.hex);
+  await waitForTxConfirmation(utxoInbox.txId);
 
   const {
     checkpoint: { message },
@@ -167,7 +167,7 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
   console.log(
     `Submit inbound message at tx ${txOutcome.utxoMessage.txId.hex}!`
   );
-  await waitForTxConfirmation(txOutcome.utxoMessage.txId.hex);
+  await waitForTxConfirmation(txOutcome.utxoMessage.txId);
 
   let isDelivered = await isInboundMessageDelivered(
     ismParams,
@@ -196,7 +196,7 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
     preprodRelayerWallet
   );
   console.log(`Process inbound message at tx ${txId.hex}!`);
-  await waitForTxConfirmation(txId.hex);
+  await waitForTxConfirmation(txId);
 
   isDelivered = await isInboundMessageDelivered(
     ismParams,

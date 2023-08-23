@@ -3,7 +3,7 @@ import {
   getIsmParamsHelios,
   isInboundMessageDelivered,
 } from "../../offchain/inbox";
-import type { H256 } from "../../merkle/h256";
+import type { H256 } from "../../offchain/h256";
 
 export class IsInboxMessageDeliveredService
   implements IIsInboxMessageDelivered

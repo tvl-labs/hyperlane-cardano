@@ -48,7 +48,7 @@ async function main() {
     validatorStorageLocation
   );
   console.log(`Announced validator storage location at tx ${txId.hex}!`);
-  await waitForTxConfirmation(txId.hex);
+  await waitForTxConfirmation(txId);
 }
 
 await main();

@@ -44,8 +44,8 @@ export async function testValidatorStorageLocationOnPreprodNetwork() {
     preprodRelayerWallet,
     validatorStorageLocation
   );
-  console.log(`Announce validator storage lcoation at tx ${txId.hex}!`);
-  await waitForTxConfirmation(txId.hex);
+  console.log(`Announce validator storage location at tx ${txId.hex}!`);
+  await waitForTxConfirmation(txId);
   const preprodStorageLocation = await getValidatorStorageLocation(validator);
   if (
     preprodStorageLocation === undefined ||

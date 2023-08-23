@@ -5,11 +5,7 @@ import ScriptInbox from "../../onchain/scriptInbox.hl";
 import { type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { calculateMessageId, serializeMessage } from "../message";
-import type { Checkpoint } from "../checkpoint";
-import {
-  bufferToHeliosByteArray,
-  convertNumberToHeliosByteArray,
-} from "../outbox/heliosByteArrayUtils";
+import { serializeCheckpoint, type Checkpoint } from "../checkpoint";
 
 async function buildInboundMessageTx(
   ismParams: IsmParamsHelios,
@@ -33,23 +29,7 @@ async function buildInboundMessageTx(
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
     [[messageHash, BigInt(1)]],
-    // TODO: Refactor code to (serialize)checkpoint.
-    new helios.ConstrData(1, [
-      convertNumberToHeliosByteArray(checkpoint.origin, 4)._toUplcData(),
-      bufferToHeliosByteArray(
-        checkpoint.originMailbox.toBuffer()
-      )._toUplcData(),
-      bufferToHeliosByteArray(checkpoint.checkpointRoot)._toUplcData(),
-      convertNumberToHeliosByteArray(
-        checkpoint.checkpointIndex,
-        4
-      )._toUplcData(),
-      new helios.ListData(
-        signatures.map((s) =>
-          new helios.ByteArray([...s.values()])._toUplcData()
-        )
-      ),
-    ])
+    new helios.ConstrData(1, serializeCheckpoint(checkpoint, signatures))
   );
 
   // Inbox

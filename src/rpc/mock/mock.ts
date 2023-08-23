@@ -3,7 +3,7 @@ import {
   outboxStatesGenerator,
 } from "./mockOutboxState";
 import { type DispatchedMessage } from "../outbox/dispatchedMessage";
-import { type H256 } from "../../merkle/h256";
+import { type H256 } from "../../offchain/h256";
 
 export let mockLastFinalizedBlock = 0;
 

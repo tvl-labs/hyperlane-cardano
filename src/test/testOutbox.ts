@@ -17,7 +17,7 @@ import {
   preprodDappWallet,
   preprodRelayerWallet,
 } from "./index";
-import { H256 } from "../merkle/h256";
+import { H256 } from "../offchain/h256";
 import { getProgramKhalaniTokens } from "../onchain/programs";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 
@@ -112,9 +112,9 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const preprodUtxoOutbox = await createOutbox(preprodDappWallet);
+  const preprodUtxoOutbox = await createOutbox(preprodRelayerWallet);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
-  await waitForTxConfirmation(preprodUtxoOutbox.txId.hex);
+  await waitForTxConfirmation(preprodUtxoOutbox.txId);
 
   let createMsgRes = await createOutboundMsg(
     ismParams,
@@ -125,7 +125,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   console.log(
     `Submit first outbound message at tx ${createMsgRes.utxo.txId.hex}!`
   );
-  await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
+  await waitForTxConfirmation(createMsgRes.utxo.txId);
 
   let paidGas = await getOutboundGasPayment(
     preprodRelayerWallet.address,
@@ -143,7 +143,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     createMsgRes.messageId
   );
   console.log(`Pay relayer for the first outbound message at tx ${txId.hex}!`);
-  await waitForTxConfirmation(txId.hex);
+  await waitForTxConfirmation(txId);
 
   paidGas = await getOutboundGasPayment(
     preprodRelayerWallet.address,
@@ -162,7 +162,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   console.log(
     `Submit second outbound message at tx ${createMsgRes.utxo.txId.hex}!`
   );
-  await waitForTxConfirmation(createMsgRes.utxo.txId.hex);
+  await waitForTxConfirmation(createMsgRes.utxo.txId);
 
   txId = await payOutboundRelayer(
     preprodDappWallet,
@@ -171,7 +171,7 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     createMsgRes.messageId
   );
   console.log(`Pay relayer for the second outbound message at tx ${txId.hex}!`);
-  await waitForTxConfirmation(txId.hex);
+  await waitForTxConfirmation(txId);
 
   paidGas = await getOutboundGasPayment(
     preprodRelayerWallet.address,

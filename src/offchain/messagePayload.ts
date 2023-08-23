@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
-import { H256 } from "../merkle/h256";
+import { H256 } from "./h256";
 
 export class MessagePayload {
   private readonly bytes: Buffer;

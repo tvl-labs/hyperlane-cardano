@@ -1,7 +1,7 @@
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { blake2bHasher } from "../../merkle/hasher";
 import { calculateMessageId, type Message } from "../../offchain/message";
-import type { H256 } from "../../merkle/h256";
+import type { H256 } from "../../offchain/h256";
 import { DOMAIN_CARDANO } from "./cardanoDomain";
 import { type DispatchedMessage } from "../outbox/dispatchedMessage";
 import { Address } from "../../offchain/address";

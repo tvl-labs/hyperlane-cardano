@@ -38,7 +38,7 @@ import { mockPrefillState } from "./mock/mockInitializer";
 import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
 import { Wallet } from "../offchain/wallet";
-import { H256 } from "../merkle/h256";
+import { H256 } from "../offchain/h256";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -177,7 +177,7 @@ app.post(
           {
             origin: req.body.origin,
             originMailbox: Address.fromHex(req.body.originMailbox),
-            checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
+            checkpointRoot: H256.fromHex(req.body.checkpointRoot),
             checkpointIndex: req.body.checkpointIndex,
             message: {
               version: req.body.message.version,
@@ -186,9 +186,7 @@ app.post(
               sender: Address.fromHex(req.body.message.sender),
               destinationDomain: req.body.message.destinationDomain,
               recipient: Address.fromHex(req.body.message.recipient),
-              body: MessagePayload.fromHexString(
-                `0x${req.body.message.message as string}`
-              ),
+              body: MessagePayload.fromHexString(req.body.message.message),
             },
           },
           req.body.signatures.map((s) => Buffer.from(s, "hex"))
@@ -218,7 +216,7 @@ app.post(
         {
           origin: req.body.origin,
           originMailbox: Address.fromHex(req.body.originMailbox),
-          checkpointRoot: Buffer.from(req.body.checkpointRoot, "hex"),
+          checkpointRoot: H256.from(req.body.checkpointRoot),
           checkpointIndex: req.body.checkpointIndex,
           message: {
             version: req.body.message.version,

@@ -2,7 +2,7 @@ import { blake2bHasher, keccak256Hasher } from "./hasher";
 import { SolidityMerkleTree } from "./solidity.merkle";
 import expect from "expect";
 import { HeliosMerkleTree } from "./helios.merkle";
-import { H256 } from "./h256";
+import { H256 } from "../offchain/h256";
 import { randomBytes } from "crypto";
 
 describe("merkle tree", () => {
