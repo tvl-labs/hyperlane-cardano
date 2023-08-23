@@ -1,26 +1,12 @@
-import * as helios from "@hyperionbt/helios";
 import "dotenv/config";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { Address } from "../offchain/address";
-import { Wallet } from "../offchain/wallet";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { type ValidatorStorageLocation } from "../offchain/validatorStorageLocation";
 import announceValidatorStorageLocation from "../offchain/tx/announceValidatorStorageLocation";
 import * as fs from "fs";
-
-function createWallet(): Wallet {
-  if (
-    typeof process.env.WALLET_ADDRESS !== "string" ||
-    typeof process.env.WALLET_PRIVATE_KEY !== "string"
-  ) {
-    throw new Error("Invalid wallet");
-  }
-  return new Wallet(
-    new helios.Address(process.env.WALLET_ADDRESS),
-    new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY)
-  );
-}
+import { createWallet } from './wallet';
 
 async function parseValidatorAnnouncementFile(): Promise<ValidatorStorageLocation> {
   const argv = await yargs(hideBin(process.argv)).option("announcement-file", {

@@ -4,32 +4,17 @@ import fetch from "node-fetch";
 import { getProgramOutbox } from "../onchain/programs";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import { type Message } from "../offchain/message";
-import {
-  blockfrostPrefix,
-  blockfrostProjectId,
-} from "../offchain/indexer/blockfrost";
+import { blockfrostPrefix, blockfrostProjectId, } from "../offchain/indexer/blockfrost";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
-import { Wallet } from "../offchain/wallet";
+import { type Wallet } from "../offchain/wallet";
 import { MessagePayload } from "../offchain/messagePayload";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { type DispatchedMessage } from "../rpc/outbox/dispatchedMessage";
 import { parseBlockfrostUtxos } from "../offchain/indexer/parseBlockfrostUtxos";
-
-function createWallet(): Wallet {
-  if (
-    typeof process.env.WALLET_ADDRESS !== "string" ||
-    typeof process.env.WALLET_PRIVATE_KEY !== "string"
-  ) {
-    throw new Error("Invalid wallet");
-  }
-  return new Wallet(
-    new helios.Address(process.env.WALLET_ADDRESS),
-    new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY)
-  );
-}
+import { createWallet } from './wallet';
 
 async function fetchOutboxUtxo(): Promise<helios.UTxO> {
   const addressOutbox = helios.Address.fromValidatorHash(
