@@ -101,10 +101,10 @@ export interface MessagePayloadBurn {
   sender: H256;
   destinationChainId: number;
   tokens: InterchainToken[];
-  interchainLiquidityHubPayload: string; // Always empty at the moment
+  interchainLiquidityHubPayload: MessagePayload;
   isSwapWithAggregateToken: boolean; // Always false at the moment
   recipientAddress: H256;
-  message: string; // Always empty at the moment
+  message: MessagePayload; // Always empty at the moment
 }
 const messagePayloadBurnABITypes = [
   "bytes32",
@@ -131,10 +131,10 @@ export function createMessagePayloadBurn({
       sender.hex(),
       destinationChainId,
       tokens.map((token) => [token[0].hex(), token[1]]),
-      interchainLiquidityHubPayload,
+      interchainLiquidityHubPayload.toHex(),
       isSwapWithAggregateToken,
       recipientAddress.hex(),
-      message,
+      message.toHex(),
     ])
   );
 }
@@ -159,9 +159,11 @@ export function parseMessagePayloadBurn(
       CardanoTokenName.fromHex(token[0]),
       token[1],
     ]),
-    interchainLiquidityHubPayload,
+    interchainLiquidityHubPayload: MessagePayload.fromHexString(
+      interchainLiquidityHubPayload
+    ),
     isSwapWithAggregateToken,
     recipientAddress: H256.fromHex(recipientAddress),
-    message,
+    message: MessagePayload.fromHexString(message),
   };
 }

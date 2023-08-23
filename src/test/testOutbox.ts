@@ -3,7 +3,7 @@ import { calculateMessageId } from "../offchain/message";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
-import { createMessagePayloadBurn } from "../offchain/messagePayload";
+import { createMessagePayloadBurn, MessagePayload } from "../offchain/messagePayload";
 import * as helios from "@hyperionbt/helios";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
@@ -53,12 +53,16 @@ async function createOutboundMsg(
         Buffer.from(`00000000${wallet.address.toHex().substring(2)}`, "hex")
       ),
       destinationChainId: FUJI_DOMAIN,
-      tokens: [[CardanoTokenName.fromTokenName("USDC"), nonce + 1]],
-      interchainLiquidityHubPayload: "0x",
+      tokens: [[CardanoTokenName.fromTokenName("USDC"), nonce + 7]],
+      interchainLiquidityHubPayload: MessagePayload.fromHexString("0x333444"),
       isSwapWithAggregateToken: false,
       recipientAddress: H256.from(recipient.toBuffer()),
       // We want a unique message every run to test relayer payment
-      message: `0x${Buffer.from(Date.now().toString()).toString("hex")}`,
+      message: MessagePayload.fromHexString(
+        H256.fromHex(
+          `0x00000000000000000000000000000000000000000000000000000000${Date.now().toString(16).slice(0, 8)}`
+        ).hex()
+      ),
     }),
   };
   const utxo = await createOutboundMessage(
