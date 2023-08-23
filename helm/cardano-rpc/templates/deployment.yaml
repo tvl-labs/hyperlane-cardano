@@ -54,6 +54,8 @@ spec:
               value: {{ required "ISM_THRESHOLD" .Values.cardanoRpc.ISM_THRESHOLD | quote }}
             - name: ISM_NUM_VALIDATORS
               value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.ISM_NUM_VALIDATORS | quote }}
+            - name: ISM_OUTPUT_ID
+              value: {{ required "ISM_OUTPUT_ID" .Values.cardanoRpc.ISM_OUTPUT_ID | quote }}
             - name: WALLET_ADDRESS
               value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.WALLET_ADDRESS | quote }}
             - name: WALLET_PRIVATE_KEY
