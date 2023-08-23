@@ -3,8 +3,9 @@ import { MAILBOX_ABI } from '../evm/mailbox.abi';
 import * as fs from 'fs';
 import path from 'path';
 import { Address } from '../offchain/address';
-import { createMessagePayloadMint } from '../offchain/messagePayload';
+import { createMessagePayloadMint, MessagePayload } from '../offchain/messagePayload';
 import { H256 } from '../merkle/h256';
+import { CardanoTokenName } from '../cardanoTokenName';
 
 const KHALANI_RPC_URL = "https://testnet.khalani.network/";
 
@@ -41,8 +42,9 @@ export async function sendKhalaniToCardanoUsdcMintMessage() {
   const messagePayload = createMessagePayloadMint({
     rootChainId: KHALANI_CHAIN_ID,
     rootSender: H256.fromHex(Address.fromEvmAddress(wallet.address).toHex()),
-    tokens: [],
-    recipientAddressHash: H256.fromHex(CARDANO_USDC_RECIPIENT.toHex())
+    tokens: [[CardanoTokenName.fromTokenName("USDC"), 12]],
+    recipientAddressHash: H256.fromHex(CARDANO_USDC_RECIPIENT.toHex()),
+    message: MessagePayload.empty()
   });
   const transaction = await mailbox.dispatch(
     CARDANO_CHAIN_ID,
