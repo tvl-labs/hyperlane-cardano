@@ -3,6 +3,7 @@ import { type UTxO } from "@hyperionbt/helios";
 export function convertUtxoToJson(utxo: UTxO) {
   return {
     txId: utxo.txId.hex,
+    utxoId: utxo.utxoIdx,
     lovelace: utxo.value.lovelace.toString(),
     value: utxo.value.assets.mintingPolicies.map((h) => {
       return {

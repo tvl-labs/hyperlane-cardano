@@ -11,6 +11,7 @@ import * as helios from '@hyperionbt/helios';
 import { getProgramKhalaniTokens } from '../onchain/programs';
 import ScriptKhalani from '../onchain/scriptKhalani.hl';
 import { getIsmParamsHelios } from '../offchain/inbox';
+import { getRecipientAddressAndHash } from './wallet';
 
 const KHALANI_RPC_URL = "https://testnet.khalani.network/";
 
@@ -49,12 +50,7 @@ export async function sendKhalaniToCardanoUsdcMintMessage() {
     ).toHex()}`
   );
 
-  const recipientAddress = new helios.Address("addr_test1vpcvg34l9ngamtytg3ex5mxgcczgtu78dh3m3uxdk7cf5dg0scvn5")
-  const recipientAddressHash = H256.from(
-    Buffer.from(helios.bytesToHex(
-      helios.Crypto.blake2b(recipientAddress.bytes)
-    ), "hex")
-  );
+  const { recipientAddressHash } = getRecipientAddressAndHash();
   const messagePayload = createMessagePayloadMint({
     rootChainId: KHALANI_CHAIN_ID,
     rootSender: H256.fromHex(Address.fromEvmAddress(wallet.address).toHex()),
