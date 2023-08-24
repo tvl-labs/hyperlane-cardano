@@ -1,12 +1,12 @@
 import "dotenv/config";
-import { getUsdcRequestUTxOs } from '../offchain/indexer/getUsdcRequestUTxOs';
-import { Address } from '../offchain/address';
-import * as helios from '@hyperionbt/helios';
-import ScriptKhalani from '../onchain/scriptKhalani.hl';
-import { getProgramKhalaniTokens } from '../onchain/programs';
-import { getIsmParamsHelios, processInboundMessage } from '../offchain/inbox';
-import { waitForTxConfirmation } from '../offchain/waitForTxConfirmation';
-import { createWallet, getRecipientAddressAndHash } from './wallet';
+import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
+import { Address } from "../offchain/address";
+import * as helios from "@hyperionbt/helios";
+import ScriptKhalani from "../onchain/scriptKhalani.hl";
+import { getProgramKhalaniTokens } from "../onchain/programs";
+import { getIsmParamsHelios, processInboundMessage } from "../offchain/inbox";
+import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { createWallet } from "./wallet";
 
 function getParameters() {
   const relayerWallet = createWallet();
@@ -23,21 +23,20 @@ function getParameters() {
     ismParamsHelios,
     programKhalaniTokens,
     scriptKhalaniAddress,
-    relayerWallet
-  }
+    relayerWallet,
+  };
 }
 
 export async function processPendingUsdcMintRequests() {
-  const { ismParamsHelios, scriptKhalaniAddress, relayerWallet } = getParameters();
-  const utxos = await getUsdcRequestUTxOs(scriptKhalaniAddress.toValidatorHash());
+  const { ismParamsHelios, scriptKhalaniAddress, relayerWallet } =
+    getParameters();
+  const utxos = await getUsdcRequestUTxOs(
+    scriptKhalaniAddress.toValidatorHash()
+  );
   if (utxos.length === 0) {
-    console.log('No pending USDC mint requests');
+    console.log("No pending USDC mint requests");
     return;
   }
-
-  const { recipientAddress, recipientAddressHash } = getRecipientAddressAndHash();
-  const hashMap = {};
-  hashMap[recipientAddressHash.hex().substring(2)] = recipientAddress.toHex();
 
   for (const utxo of utxos) {
     const utxoId = `${utxo.txId.hex}#${utxo.utxoIdx}`;
@@ -46,10 +45,9 @@ export async function processPendingUsdcMintRequests() {
       const txId = await processInboundMessage(
         ismParamsHelios,
         utxo,
-        hashMap,
         relayerWallet
       );
-      await waitForTxConfirmation(txId.hex);
+      await waitForTxConfirmation(txId);
       console.log(`Processed ${utxoId} at tx ${txId.hex}!`);
     } catch (e) {
       console.error(`Failed to process ${utxoId}`, e);
@@ -64,18 +62,18 @@ async function main() {
       return;
     }
     inProgress = true;
-    console.log('Processing pending USDC mint requests');
+    console.log("Processing pending USDC mint requests");
     try {
       await processPendingUsdcMintRequests();
     } catch (e) {
-      console.error('Failed to process pending USDC mint requests', e);
+      console.error("Failed to process pending USDC mint requests", e);
     } finally {
       inProgress = false;
     }
-  }, 5000)
+  }, 5000);
 }
 
 main().catch((e) => {
   console.error(e);
-  process.exit(1)
-})
+  process.exit(1);
+});

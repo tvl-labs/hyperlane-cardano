@@ -3,7 +3,10 @@ import { calculateMessageId } from "../offchain/message";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
-import { createMessagePayloadBurn, MessagePayload } from "../offchain/messagePayload";
+import {
+  createMessagePayloadBurn,
+  MessagePayload,
+} from "../offchain/messagePayload";
 import * as helios from "@hyperionbt/helios";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
@@ -60,7 +63,9 @@ async function createOutboundMsg(
       // We want a unique message every run to test relayer payment
       message: MessagePayload.fromHexString(
         H256.fromHex(
-          `0x00000000000000000000000000000000000000000000000000000000${Date.now().toString(16).slice(0, 8)}`
+          `0x00000000000000000000000000000000000000000000000000000000${Date.now()
+            .toString(16)
+            .slice(0, 8)}`
         ).hex()
       ),
     }),

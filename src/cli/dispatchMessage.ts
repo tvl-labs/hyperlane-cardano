@@ -4,7 +4,10 @@ import fetch from "node-fetch";
 import { getProgramOutbox } from "../onchain/programs";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import { type Message } from "../offchain/message";
-import { blockfrostPrefix, blockfrostProjectId, } from "../offchain/indexer/blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../offchain/indexer/blockfrost";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
@@ -14,7 +17,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { type DispatchedMessage } from "../rpc/outbox/dispatchedMessage";
 import { parseBlockfrostUtxos } from "../offchain/indexer/parseBlockfrostUtxos";
-import { createWallet } from './wallet';
+import { createWallet } from "./wallet";
 
 async function fetchOutboxUtxo(): Promise<helios.UTxO> {
   const addressOutbox = helios.Address.fromValidatorHash(

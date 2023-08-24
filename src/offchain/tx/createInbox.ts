@@ -55,6 +55,6 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
   return {
     ismParams,
     utxoInbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
-    inboxOutputId: outputId
+    inboxOutputId: outputId,
   };
 }

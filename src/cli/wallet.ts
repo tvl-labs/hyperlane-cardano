@@ -1,6 +1,6 @@
-import { Wallet } from '../offchain/wallet';
-import * as helios from '@hyperionbt/helios';
-import { H256 } from '../merkle/h256';
+import { Wallet } from "../offchain/wallet";
+import * as helios from "@hyperionbt/helios";
+import { H256 } from "../offchain/h256";
 
 export function createWallet(): Wallet {
   if (
@@ -17,14 +17,17 @@ export function createWallet(): Wallet {
 
 // TODO: will not be needed when we pass the original address via 'message.payload'.
 export function getRecipientAddressAndHash() {
-  const recipientAddress = new helios.Address("addr_test1vpcvg34l9ngamtytg3ex5mxgcczgtu78dh3m3uxdk7cf5dg0scvn5");
+  const recipientAddress = new helios.Address(
+    "addr_test1vpcvg34l9ngamtytg3ex5mxgcczgtu78dh3m3uxdk7cf5dg0scvn5"
+  );
   const recipientAddressHash = H256.from(
-    Buffer.from(helios.bytesToHex(
-      helios.Crypto.blake2b(recipientAddress.bytes)
-    ), "hex")
+    Buffer.from(
+      helios.bytesToHex(helios.Crypto.blake2b(recipientAddress.bytes)),
+      "hex"
+    )
   );
   return {
     recipientAddress,
-    recipientAddressHash
-  }
+    recipientAddressHash,
+  };
 }

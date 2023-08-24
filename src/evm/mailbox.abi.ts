@@ -4,11 +4,11 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "uint32",
         name: "_localDomain",
-        type: "uint32"
-      }
+        type: "uint32",
+      },
     ],
     stateMutability: "nonpayable",
-    type: "constructor"
+    type: "constructor",
   },
   {
     anonymous: false,
@@ -17,11 +17,11 @@ export const MAILBOX_ABI: any = [
         indexed: true,
         internalType: "address",
         name: "module",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "DefaultIsmSet",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
@@ -30,29 +30,29 @@ export const MAILBOX_ABI: any = [
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address"
+        type: "address",
       },
       {
         indexed: true,
         internalType: "uint32",
         name: "destination",
-        type: "uint32"
+        type: "uint32",
       },
       {
         indexed: true,
         internalType: "bytes32",
         name: "recipient",
-        type: "bytes32"
+        type: "bytes32",
       },
       {
         indexed: false,
         internalType: "bytes",
         name: "message",
-        type: "bytes"
-      }
+        type: "bytes",
+      },
     ],
     name: "Dispatch",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
@@ -61,11 +61,11 @@ export const MAILBOX_ABI: any = [
         indexed: true,
         internalType: "bytes32",
         name: "messageId",
-        type: "bytes32"
-      }
+        type: "bytes32",
+      },
     ],
     name: "DispatchId",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
@@ -74,11 +74,11 @@ export const MAILBOX_ABI: any = [
         indexed: false,
         internalType: "uint8",
         name: "version",
-        type: "uint8"
-      }
+        type: "uint8",
+      },
     ],
     name: "Initialized",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
@@ -87,23 +87,23 @@ export const MAILBOX_ABI: any = [
         indexed: true,
         internalType: "address",
         name: "previousOwner",
-        type: "address"
+        type: "address",
       },
       {
         indexed: true,
         internalType: "address",
         name: "newOwner",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "OwnershipTransferred",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [],
     name: "Paused",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
@@ -112,23 +112,23 @@ export const MAILBOX_ABI: any = [
         indexed: true,
         internalType: "uint32",
         name: "origin",
-        type: "uint32"
+        type: "uint32",
       },
       {
         indexed: true,
         internalType: "bytes32",
         name: "sender",
-        type: "bytes32"
+        type: "bytes32",
       },
       {
         indexed: true,
         internalType: "address",
         name: "recipient",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "Process",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
@@ -137,17 +137,17 @@ export const MAILBOX_ABI: any = [
         indexed: true,
         internalType: "bytes32",
         name: "messageId",
-        type: "bytes32"
-      }
+        type: "bytes32",
+      },
     ],
     name: "ProcessId",
-    type: "event"
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [],
     name: "Unpaused",
-    type: "event"
+    type: "event",
   },
   {
     inputs: [],
@@ -156,11 +156,11 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256"
-      }
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -169,11 +169,11 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "uint8",
         name: "",
-        type: "uint8"
-      }
+        type: "uint8",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -182,11 +182,11 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "uint32",
         name: "",
-        type: "uint32"
-      }
+        type: "uint32",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -195,77 +195,77 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "contract IInterchainSecurityModule",
         name: "",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32"
-      }
+        type: "bytes32",
+      },
     ],
     name: "delivered",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool"
-      }
+        type: "bool",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "uint32",
         name: "_destinationDomain",
-        type: "uint32"
+        type: "uint32",
       },
       {
         internalType: "bytes32",
         name: "_recipientAddress",
-        type: "bytes32"
+        type: "bytes32",
       },
       {
         internalType: "bytes",
         name: "_messageBody",
-        type: "bytes"
-      }
+        type: "bytes",
+      },
     ],
     name: "dispatch",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32"
-      }
+        type: "bytes32",
+      },
     ],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "_owner",
-        type: "address"
+        type: "address",
       },
       {
         internalType: "address",
         name: "_defaultIsm",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -274,11 +274,11 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "bool",
         name: "",
-        type: "bool"
-      }
+        type: "bool",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -287,16 +287,16 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32"
+        type: "bytes32",
       },
       {
         internalType: "uint32",
         name: "",
-        type: "uint32"
-      }
+        type: "uint32",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -305,11 +305,11 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "uint32",
         name: "",
-        type: "uint32"
-      }
+        type: "uint32",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -318,62 +318,62 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "address",
         name: "",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
     name: "pause",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "_metadata",
-        type: "bytes"
+        type: "bytes",
       },
       {
         internalType: "bytes",
         name: "_message",
-        type: "bytes"
-      }
+        type: "bytes",
+      },
     ],
     name: "process",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "_recipient",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "recipientIsm",
     outputs: [
       {
         internalType: "contract IInterchainSecurityModule",
         name: "",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
     name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -382,37 +382,37 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32"
-      }
+        type: "bytes32",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "_module",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "setDefaultIsm",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "newOwner",
-        type: "address"
-      }
+        type: "address",
+      },
     ],
     name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
@@ -421,17 +421,17 @@ export const MAILBOX_ABI: any = [
       {
         internalType: "uint256",
         name: "count",
-        type: "uint256"
-      }
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
-    type: "function"
+    type: "function",
   },
   {
     inputs: [],
     name: "unpause",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function"
-  }
-]
+    type: "function",
+  },
+];

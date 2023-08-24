@@ -6,7 +6,7 @@ import { hideBin } from "yargs/helpers";
 import { type ValidatorStorageLocation } from "../offchain/validatorStorageLocation";
 import announceValidatorStorageLocation from "../offchain/tx/announceValidatorStorageLocation";
 import * as fs from "fs";
-import { createWallet } from './wallet';
+import { createWallet } from "./wallet";
 
 async function parseValidatorAnnouncementFile(): Promise<ValidatorStorageLocation> {
   const argv = await yargs(hideBin(process.argv)).option("announcement-file", {
