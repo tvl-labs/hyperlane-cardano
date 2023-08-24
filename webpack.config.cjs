@@ -12,6 +12,7 @@ module.exports = {
     sendKhalaniToCardanoUsdcMintMessage: "./src/cli/sendKhalaniToCardanoUsdcMintMessage.ts",
     processPendingUsdcMintRequests: "./src/cli/processPendingUsdcMintRequests.ts",
     deployNewInbox: "./src/cli/deployNewInbox.ts",
+    deployNewOutbox: "./src/cli/deployNewOutbox.ts",
   },
   output: {
     filename: "[name].js",

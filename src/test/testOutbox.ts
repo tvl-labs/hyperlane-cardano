@@ -86,7 +86,7 @@ async function createOutboundMsg(
 
 export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   emulatedNetwork.tick(1n);
-  const emulatedUtxoOutbox = await createOutbox(emulatedDappWallet);
+  const { utxo: emulatedUtxoOutbox } = await createOutbox(emulatedDappWallet);
   emulatedNetwork.tick(1n);
 
   let createMsgRes = await createOutboundMsg(
@@ -122,7 +122,7 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const preprodUtxoOutbox = await createOutbox(preprodRelayerWallet);
+  const { utxo: preprodUtxoOutbox } = await createOutbox(preprodRelayerWallet);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId);
 

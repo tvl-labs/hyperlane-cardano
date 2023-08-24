@@ -9,6 +9,7 @@
     "sendKhalaniToCardanoUsdcMintMessage": "npm run build && node dist/sendKhalaniToCardanoUsdcMintMessage.js",
     "processPendingUsdcMintRequests": "npm run build && node dist/processPendingUsdcMintRequests.js",
     "deployNewInbox": "npm run build && node dist/deployNewInbox.js",
+    "deployNewOutbox": "npm run build && node dist/deployNewOutbox.js",
     "start-rpc-mock": "PORT=3000 MOCK_ENV=true node dist/rpc.js",
     "start-rpc-preprod": "yarn build && node dist/rpc.js",
     "jest": "jest",

@@ -10,7 +10,10 @@ import { serializeOutboxDatum } from "../outbox/outboxDatum";
 
 export default async function createOutbox(
   wallet: Wallet
-): Promise<helios.UTxO> {
+): Promise<{
+  utxo: helios.UTxO,
+  outboxAuthToken: string,
+}> {
   const tx = new helios.Tx();
 
   const utxos = await wallet.getUtxos();
@@ -25,6 +28,9 @@ export default async function createOutbox(
     [helios.textToBytes("auth"), BigInt(1)],
   ];
   tx.mintTokens(mpNFT.mintingPolicyHash, tokens, new helios.ConstrData(0, []));
+
+  // TODO: add a class for "auth" token, can CardanoTokenName be reused?
+  const outboxAuthToken = mpNFT.mintingPolicyHash.hex + "61757468"
 
   const addressOutbox = helios.Address.fromValidatorHash(
     getProgramOutbox().validatorHash
@@ -47,5 +53,9 @@ export default async function createOutbox(
   tx.addSignatures(await wallet.signTx(tx));
   const txId = await wallet.submitTx(tx);
 
-  return new helios.UTxO(txId, 0n, tx.body.outputs[0]);
+  const utxo = new helios.UTxO(txId, 0n, tx.body.outputs[0]);
+  return {
+    utxo,
+    outboxAuthToken
+  };
 }
