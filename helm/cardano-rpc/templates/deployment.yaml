@@ -69,14 +69,37 @@ spec:
               name: cardano-rpc-config
               readOnly: true
               subPath: config.json
-{{/*  TODO: implement /api/health   livenessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: /api/health*/}}
-{{/*              port: http*/}}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: /api/health*/}}
-{{/*              port: http*/}}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        - name: {{ .Chart.Name }}-usdc-minter
+          command: ["yarn", "processPendingUsdcMintRequests"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: BLOCKFROST_PREFIX
+              value: {{ required "BLOCKFROST_PREFIX" .Values.cardanoRpc.BLOCKFROST_PREFIX | quote }}
+            - name: BLOCKFROST_PROJECT_ID
+              value: {{ required "BLOCKFROST_PROJECT_ID" .Values.cardanoRpc.BLOCKFROST_PROJECT_ID | quote }}
+            - name: OUTBOX_AUTH_TOKEN
+              value: {{ required "OUTBOX_AUTH_TOKEN" .Values.cardanoRpc.OUTBOX_AUTH_TOKEN | quote }}
+            - name: ISM_VALIDATOR_PUB_KEY_1
+              value: {{ required "ISM_VALIDATOR_PUB_KEY_1" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_1 | quote }}
+            - name: ISM_VALIDATOR_PUB_KEY_2
+              value: {{ required "ISM_VALIDATOR_PUB_KEY_2" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_2 | quote }}
+            - name: ISM_VALIDATOR_PUB_KEY_3
+              value: {{ required "ISM_VALIDATOR_PUB_KEY_3" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_3 | quote }}
+            - name: ISM_THRESHOLD
+              value: {{ required "ISM_THRESHOLD" .Values.cardanoRpc.ISM_THRESHOLD | quote }}
+            - name: ISM_NUM_VALIDATORS
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.ISM_NUM_VALIDATORS | quote }}
+            - name: ISM_OUTPUT_ID
+              value: {{ required "ISM_OUTPUT_ID" .Values.cardanoRpc.ISM_OUTPUT_ID | quote }}
+            - name: WALLET_ADDRESS
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.WALLET_ADDRESS | quote }}
+            - name: WALLET_PRIVATE_KEY
+              value: {{ required "ISM_NUMBER_OF_VALIDATORS" .Values.cardanoRpc.WALLET_PRIVATE_KEY | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
