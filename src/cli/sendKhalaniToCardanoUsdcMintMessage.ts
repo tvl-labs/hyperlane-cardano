@@ -23,8 +23,8 @@ const KHALANI_RPC_URL = "https://testnet.khalani.network/";
 const EVM_TEST_WALLET =
   "0xa7fa3c72ee7bd14c684d8f29cebd1893f1da5a02926de44fe294734fc9594911";
 
-const KHALANI_CHAIN_ID = 10012;
-const CARDANO_CHAIN_ID = 112233;
+export const KHALANI_CHAIN_ID = 10012;
+export const CARDANO_CHAIN_ID = 112233;
 
 const KHALANI_BLOCK_EXPLORER_URL =
   "https://block-explorer.testnet.khalani.network/tx/";

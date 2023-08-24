@@ -6,10 +6,10 @@ module.exports = {
   entry: {
     testIntegration: "./src/test/index.ts",
     rpc: "./src/rpc/index.ts",
-    dispatchMessage: "./src/cli/dispatchMessage.ts",
     announceValidatorStorage: "./src/cli/announceValidatorStorage.ts",
     createValidatorKey: "./src/cli/createValidatorKey.ts",
     sendKhalaniToCardanoUsdcMintMessage: "./src/cli/sendKhalaniToCardanoUsdcMintMessage.ts",
+    sendCardanoToKhalaniUsdcMessage: "./src/cli/sendCardanoToKhalaniUsdcMessage.ts",
     processPendingUsdcMintRequests: "./src/cli/processPendingUsdcMintRequests.ts",
     deployNewInbox: "./src/cli/deployNewInbox.ts",
     deployNewOutbox: "./src/cli/deployNewOutbox.ts",

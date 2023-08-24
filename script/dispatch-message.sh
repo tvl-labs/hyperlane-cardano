@@ -1,1 +1,0 @@
-node dist/dispatchMessage.js --destinationDomain 43113 --recipient 0x00000000000000000000000027d2D0b183d5F839C5A9ACf6046cC215Ab6d0a9A --message 0xabcdef
