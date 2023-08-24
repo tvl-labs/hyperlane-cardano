@@ -216,7 +216,7 @@ app.post(
         {
           origin: req.body.origin,
           originMailbox: Address.fromHex(req.body.originMailbox),
-          checkpointRoot: H256.from(req.body.checkpointRoot),
+          checkpointRoot: H256.fromHex(req.body.checkpointRoot),
           checkpointIndex: req.body.checkpointIndex,
           message: {
             version: req.body.message.version,
