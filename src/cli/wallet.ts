@@ -15,7 +15,6 @@ export function createWallet(): Wallet {
   );
 }
 
-// TODO: will not be needed when we pass the original address via 'message.payload'.
 export function getRecipientAddressAndHash() {
   const recipientAddress = new helios.Address(
     "addr_test1vpcvg34l9ngamtytg3ex5mxgcczgtu78dh3m3uxdk7cf5dg0scvn5"
