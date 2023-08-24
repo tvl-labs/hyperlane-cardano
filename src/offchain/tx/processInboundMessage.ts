@@ -11,7 +11,6 @@ import { getProgramKhalaniTokens } from "../../onchain/programs";
 export async function processInboundMessage(
   ismParams: IsmParamsHelios,
   utxoMessage: helios.UTxO,
-  hashMap: Record<string, string>, // better type here?
   wallet: Wallet
 ): Promise<helios.TxId> {
   const tx = new helios.Tx();
@@ -44,17 +43,12 @@ export async function processInboundMessage(
   tx.attachScript(programKhalaniTokens);
   const payloadMint = parseMessagePayloadMint(message.body);
   const mintKhalaniTokens: [number[], number][] = payloadMint.tokens.map(
-    (token) => [helios.hexToBytes(token[0].substring(2)), token[1]]
+    (token) => [token[0].toCardanoName(), token[1]]
   );
   tx.mintTokens(
     programKhalaniTokens.mintingPolicyHash,
     mintKhalaniTokens,
-    new helios.MapData(
-      Object.entries(hashMap).map(([k, v]) => [
-        new helios.ByteArray(k)._toUplcData(),
-        new helios.ByteArray(v)._toUplcData(),
-      ])
-    )
+    new helios.ConstrData(0, [])
   );
   tx.addInput(utxoMessage, new helios.ConstrData(0, []));
   const scriptKhalani = new ScriptKhalani({
@@ -64,9 +58,7 @@ export async function processInboundMessage(
 
   tx.addOutput(
     new helios.TxOutput(
-      new helios.Address(
-        hashMap[payloadMint.recipientAddressHash.hex().substring(2)]
-      ),
+      new helios.Address([...payloadMint.message.toBuffer().values()]),
       new helios.Value(
         BigInt(0),
         new helios.Assets([

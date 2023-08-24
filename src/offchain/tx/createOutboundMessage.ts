@@ -41,7 +41,7 @@ export default async function createOutboundMessage(
 
     const payloadBurn = parseMessagePayloadBurn(outboxMessage.body);
     const mintKhalaniTokens: [number[], number][] = payloadBurn.tokens.map(
-      (token) => [helios.hexToBytes(token[0].substring(2)), -token[1]]
+      (token) => [token[0].toCardanoName(), -token[1]]
     );
     tx.mintTokens(
       programKhalaniTokens.mintingPolicyHash,

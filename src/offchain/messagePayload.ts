@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
 import { H256 } from "./h256";
+import { CardanoTokenName } from "../cardanoTokenName";
 
 export class MessagePayload {
   private readonly bytes: Buffer;
@@ -15,6 +16,10 @@ export class MessagePayload {
 
   static fromHexString(hexString: string) {
     return new MessagePayload(Buffer.from(hexString.substring(2), "hex"));
+  }
+
+  static empty() {
+    return new MessagePayload(Buffer.alloc(0));
   }
 
   sizeInBytes(): number {
@@ -38,19 +43,21 @@ export class MessagePayload {
   }
 }
 
-export type InterchainToken = [string, number];
+export type InterchainToken = [CardanoTokenName, number];
+
 export interface MessagePayloadMint {
   rootChainId: number;
   rootSender: H256;
   tokens: InterchainToken[];
   recipientAddressHash: H256;
-  // TODO: Add another message body here?
+  message: MessagePayload; // The full Cardano recipient address
 }
 const messagePayloadMintABITypes = [
   "uint256",
   "bytes32",
-  "tuple(bytes, uint256)[]",
+  "tuple(bytes32, uint256)[]",
   "bytes32",
+  "bytes",
 ];
 
 export function createMessagePayloadMint({
@@ -58,14 +65,16 @@ export function createMessagePayloadMint({
   rootSender,
   tokens,
   recipientAddressHash,
+  message,
 }: MessagePayloadMint): MessagePayload {
   const abiCoder = new ethers.AbiCoder();
   return MessagePayload.fromHexString(
     abiCoder.encode(messagePayloadMintABITypes, [
       rootChainId,
       rootSender.hex(),
-      tokens,
+      tokens.map((token) => [token[0].hex(), token[1]]),
       recipientAddressHash.hex(),
+      message.toHex(),
     ])
   );
 }
@@ -74,13 +83,17 @@ export function parseMessagePayloadMint(
   payload: MessagePayload
 ): MessagePayloadMint {
   const abiCoder = new ethers.AbiCoder();
-  const [rootChainId, rootSender, tokens, recipientAddressHash] =
+  const [rootChainId, rootSender, tokens, recipientAddressHash, message] =
     abiCoder.decode(messagePayloadMintABITypes, payload.toBuffer());
   return {
     rootChainId,
     rootSender: H256.fromHex(rootSender),
-    tokens,
+    tokens: tokens.map((token) => [
+      CardanoTokenName.fromHex(token[0]),
+      token[1],
+    ]),
     recipientAddressHash: H256.fromHex(recipientAddressHash),
+    message: MessagePayload.fromHexString(message),
   };
 }
 
@@ -96,7 +109,7 @@ export interface MessagePayloadBurn {
 const messagePayloadBurnABITypes = [
   "bytes32",
   "uint256",
-  "tuple(bytes, uint256)[]",
+  "tuple(bytes32, uint256)[]",
   "bytes",
   "bool",
   "bytes32",
@@ -117,7 +130,7 @@ export function createMessagePayloadBurn({
     abiCoder.encode(messagePayloadBurnABITypes, [
       sender.hex(),
       destinationChainId,
-      tokens,
+      tokens.map((token) => [token[0].hex(), token[1]]),
       interchainLiquidityHubPayload,
       isSwapWithAggregateToken,
       recipientAddress.hex(),
@@ -142,7 +155,10 @@ export function parseMessagePayloadBurn(
   return {
     sender: H256.fromHex(sender),
     destinationChainId,
-    tokens,
+    tokens: tokens.map((token) => [
+      CardanoTokenName.fromHex(token[0]),
+      token[1],
+    ]),
     interchainLiquidityHubPayload,
     isSwapWithAggregateToken,
     recipientAddress: H256.fromHex(recipientAddress),

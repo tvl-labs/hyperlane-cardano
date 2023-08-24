@@ -10,7 +10,10 @@ import {
 } from "./index";
 import { Address } from "../offchain/address";
 import type { Wallet } from "../offchain/wallet";
-import { createMessagePayloadMint } from "../offchain/messagePayload";
+import {
+  createMessagePayloadMint,
+  MessagePayload,
+} from "../offchain/messagePayload";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
 import {
@@ -28,6 +31,7 @@ import ScriptKhalani from "../onchain/scriptKhalani.hl";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { convertUtxoToJson } from "./debug";
 import { getProgramKhalaniTokens } from "../onchain/programs";
+import { CardanoTokenName } from "../cardanoTokenName";
 
 // TODO: Build several edge cases.
 
@@ -35,7 +39,6 @@ import { getProgramKhalaniTokens } from "../onchain/programs";
 const sender = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
-const hashMap = {};
 
 function mockCheckpoint(
   ismParams: IsmParamsHelios,
@@ -44,7 +47,6 @@ function mockCheckpoint(
   const recipientAddressHash = helios.bytesToHex(
     helios.Crypto.blake2b(recipientAddress.bytes)
   );
-  hashMap[recipientAddressHash] = recipientAddress.toHex();
   const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
   const recipient = Address.fromHex(
     `0x000000${helios.Address.fromValidatorHash(
@@ -71,10 +73,11 @@ function mockCheckpoint(
         rootChainId: FUJI_DOMAIN,
         rootSender: H256.from(sender.toBuffer()),
         // USDC
-        tokens: [["0x55534443", 15]],
+        tokens: [[CardanoTokenName.fromTokenName("USDC"), 15]],
         recipientAddressHash: H256.from(
           Buffer.from(recipientAddressHash, "hex")
         ),
+        message: MessagePayload.fromHexString(`0x${recipientAddress.toHex()}`),
       }),
     },
   };
@@ -141,12 +144,7 @@ export async function testInboxOnEmulatedNetwork(): Promise<IsmParamsHelios> {
     emulatedRelayerWallet
   );
   emulatedNetwork.tick(1n);
-  await processInboundMessage(
-    ismParams,
-    utxoMessage,
-    hashMap,
-    emulatedRelayerWallet
-  );
+  await processInboundMessage(ismParams, utxoMessage, emulatedRelayerWallet);
   return ismParams;
 }
 
@@ -192,7 +190,6 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
   const txId = await processInboundMessage(
     ismParams,
     usdcRequestUtxo,
-    hashMap,
     preprodRelayerWallet
   );
   console.log(`Process inbound message at tx ${txId.hex}!`);

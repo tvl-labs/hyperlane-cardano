@@ -12,17 +12,10 @@ const ADDRESS_OUTBOX: Address = Address::new(
   Credential::new_validator(ValidatorHash::new(#)), Option[StakingCredential]::None
 )
 
-// TODO: Map from ByteArray to Address?
-// This simplifies on-chain address construction greatly
-// But we must to make sure on-chain address hashing is sound.
-struct Redeemer {
-  hash_map: Map[ByteArray]ByteArray
-}
-
 // Burning tokens at Khalani script to mint Khalani tokens
 // (Optional) Parameterize with Khalani script address to
 // add a strict address check?
-func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
+func main(_, ctx: ScriptContext) -> Bool {
   // TODO: Should we ban the minting of other policies here?
   own_mph: MintingPolicyHash = ctx.get_current_minting_policy_hash();
   own_minted: Map[ByteArray]Int = ctx.tx.minted.get_policy(own_mph);
@@ -79,7 +72,7 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
       else => error("Invalid message output: missing inline datum")
     };
     assert(message.id() == message_tokens.head_key, "Malformed message");
-    payload_mint: MessagePayloadMint = message.get_mint_payload(redeemer.hash_map);
+    payload_mint: MessagePayloadMint = message.get_mint_payload();
     assert(
       token_name == payload_mint.token_name &&
       token_value == payload_mint.quantity,

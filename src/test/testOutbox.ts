@@ -20,6 +20,7 @@ import {
 import { H256 } from "../offchain/h256";
 import { getProgramKhalaniTokens } from "../onchain/programs";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
+import { CardanoTokenName } from "../cardanoTokenName";
 
 const recipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
@@ -52,7 +53,7 @@ async function createOutboundMsg(
         Buffer.from(`00000000${wallet.address.toHex().substring(2)}`, "hex")
       ),
       destinationChainId: FUJI_DOMAIN,
-      tokens: [["0x55534443", nonce + 1]],
+      tokens: [[CardanoTokenName.fromTokenName("USDC"), nonce + 1]],
       interchainLiquidityHubPayload: "0x",
       isSwapWithAggregateToken: false,
       recipientAddress: H256.from(recipient.toBuffer()),

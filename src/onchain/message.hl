@@ -68,14 +68,11 @@ struct Message {
 
   // TODO: Support multiple asset mints at once
   // Assuming minting only one asset at the moment.
-  func get_mint_payload(self, hash_map: Map[ByteArray]ByteArray) -> MessagePayloadMint {
-    // Skip the first 96 bytes of:
-    // - 32: root chain id
-    // - 32: root sender
-    // - 32: offset
-    raw_token_bytes: ByteArray = self.message.slice(96, self.message.length);
-    recipient_address_hash: ByteArray = raw_token_bytes.slice(0, 32);
-    recipient_address_raw: ByteArray = hash_map.get(recipient_address_hash);
+  func get_mint_payload(self) -> MessagePayloadMint {
+    recipient_address_hash: ByteArray = self.message.slice(96, 128);
+    recipient_address_length: Int = Int::from_big_endian(self.message.slice(256, 288));
+    recipient_address_raw: ByteArray = self.message.slice(288, 288 + recipient_address_length);
+    assert(recipient_address_raw.blake2b() == recipient_address_hash, "invalid hash");
     recipient_address: Address = Address::new(
       // TODO: Support validator address
       Credential::new_pubkey(PubKeyHash::new(recipient_address_raw.slice(1, 29))),
@@ -90,10 +87,9 @@ struct Message {
         Option[StakingCredential]::None
       }
     );
-    // Skip 96 more bytes of offset
-    quantity: Int = Int::from_big_endian(raw_token_bytes.slice(128, 160));
-    token_name_length: Int = Int::from_big_endian(raw_token_bytes.slice(160, 192));
-    token_name: ByteArray = raw_token_bytes.slice(192, 192 + token_name_length);
+    token_name_length: Int = Int::from_big_endian(self.message.slice(192, 193));
+    token_name: ByteArray = self.message.slice(193, 193 + token_name_length);
+    quantity: Int = Int::from_big_endian(self.message.slice(224, 256));
     MessagePayloadMint {
       token_name,
       quantity,
@@ -107,9 +103,9 @@ struct Message {
     // TODO: Truer support for ABI decode, for potentially non-empty
     // interchain liquidity hub payload, etc.
     sender_pkh: PubKeyHash = PubKeyHash::new(self.message.slice(4, 32));
-    quantity: Int = Int::from_big_endian(self.message.slice(320, 352));
-    token_name_length: Int = Int::from_big_endian(self.message.slice(352, 384));
-    token_name: ByteArray = self.message.slice(384, 384 + token_name_length);
+    quantity: Int = Int::from_big_endian(self.message.slice(288, 320));
+    token_name_length: Int = Int::from_big_endian(self.message.slice(256, 257));
+    token_name: ByteArray = self.message.slice(257, 257 + token_name_length);
     MessagePayloadBurn {
       token_name,
       quantity,
