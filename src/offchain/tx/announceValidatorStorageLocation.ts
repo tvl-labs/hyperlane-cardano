@@ -1,5 +1,5 @@
 import * as helios from "@hyperionbt/helios";
-import ScriptLockForever from "../../onchain/scriptLockForever.hl";
+import { getProgramLockForever } from "../../onchain/programs";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
 import { type Wallet } from "../wallet";
@@ -18,7 +18,7 @@ export default async function announceValidatorStorageLocation(
   tx.addInputs(utxos);
 
   const addressLockForever = helios.Address.fromValidatorHash(
-    new ScriptLockForever().compile(false).validatorHash
+    getProgramLockForever().validatorHash
   );
 
   tx.addOutput(

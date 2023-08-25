@@ -1,12 +1,14 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
-import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import ScriptKhalani from "../../onchain/scriptKhalani.hl";
 import { deserializeMessage } from "../message";
 import { type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { parseMessagePayloadMint } from "../messagePayload";
-import { getProgramKhalaniTokens } from "../../onchain/programs";
+import {
+  getProgramIsmKhalani,
+  getProgramKhalani,
+  getProgramKhalaniTokens,
+} from "../../onchain/programs";
 
 export async function processInboundMessage(
   ismParams: IsmParamsHelios,
@@ -19,7 +21,7 @@ export async function processInboundMessage(
   tx.addInputs(utxos);
 
   // Burn the ISM token
-  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
+  const ismMultiSig = getProgramIsmKhalani(ismParams);
   tx.attachScript(ismMultiSig);
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
@@ -51,9 +53,7 @@ export async function processInboundMessage(
     new helios.ConstrData(0, [])
   );
   tx.addInput(utxoMessage, new helios.ConstrData(0, []));
-  const scriptKhalani = new ScriptKhalani({
-    MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
-  }).compile(true);
+  const scriptKhalani = getProgramKhalani(ismParams);
   tx.attachScript(scriptKhalani);
 
   tx.addOutput(

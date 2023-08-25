@@ -1,6 +1,10 @@
 import * as helios from "@hyperionbt/helios";
-import { getProgramOutbox } from "../../onchain/programs";
-import MintingPolicyNFT from "../../onchain/mpNFT.hl";
+import {
+  TOKEN_NAME_AUTH_BYTES,
+  TOKEN_NAME_AUTH_HEX,
+  getProgramNFT,
+  getProgramOutbox,
+} from "../../onchain/programs";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
 import { type Wallet } from "../wallet";
@@ -17,18 +21,16 @@ export default async function createOutbox(wallet: Wallet): Promise<{
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
-  const mpNFT = new MintingPolicyNFT({
-    OUTPUT_ID: new helios.TxOutputId([utxos[0].txId, utxos[0].utxoIdx]),
-  }).compile(true);
+  const mpNFT = getProgramNFT(
+    new helios.TxOutputId([utxos[0].txId, utxos[0].utxoIdx])
+  );
   tx.attachScript(mpNFT);
 
-  const tokens: [number[], bigint][] = [
-    [helios.textToBytes("auth"), BigInt(1)],
-  ];
+  const tokens: [number[], bigint][] = [[TOKEN_NAME_AUTH_BYTES, BigInt(1)]];
   tx.mintTokens(mpNFT.mintingPolicyHash, tokens, new helios.ConstrData(0, []));
 
   // TODO: add a class for "auth" token, can CardanoTokenName be reused?
-  const outboxAuthToken = mpNFT.mintingPolicyHash.hex + "61757468";
+  const outboxAuthToken = mpNFT.mintingPolicyHash.hex + TOKEN_NAME_AUTH_HEX;
 
   const addressOutbox = helios.Address.fromValidatorHash(
     getProgramOutbox().validatorHash

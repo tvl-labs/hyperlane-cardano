@@ -1,7 +1,6 @@
 import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
-import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import ScriptInbox from "../../onchain/scriptInbox.hl";
+import { getProgramIsmKhalani, getProgramInbox } from "../../onchain/programs";
 import { type Wallet } from "../wallet";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { calculateMessageId, serializeMessage } from "../message";
@@ -19,12 +18,12 @@ async function buildInboundMessageTx(
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
   tx.addInput(utxoInbox, new helios.ConstrData(0, []));
-  const scriptInbox = new ScriptInbox().compile(true);
+  const scriptInbox = getProgramInbox();
   tx.attachScript(scriptInbox);
 
   // Message hash
   const messageHash = calculateMessageId(checkpoint.message).toByteArray();
-  const ismMultiSig = new MintingPolicyIsmMultiSig(ismParams).compile(true);
+  const ismMultiSig = getProgramIsmKhalani(ismParams);
   tx.attachScript(ismMultiSig);
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,

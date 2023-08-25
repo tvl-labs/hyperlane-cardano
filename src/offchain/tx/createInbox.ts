@@ -1,7 +1,10 @@
 import * as helios from "@hyperionbt/helios";
 import { getIsmParamsHelios, type IsmParamsHelios } from "../inbox/ismParams";
-import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import ScriptInbox from "../../onchain/scriptInbox.hl";
+import {
+  TOKEN_NAME_AUTH_BYTES,
+  getProgramIsmKhalani,
+  getProgramInbox,
+} from "../../onchain/programs";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
 import { type Wallet } from "../wallet";
@@ -22,12 +25,10 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
   console.log(`Inbox output id: ${outputId.txId.hex}#${outputId.utxoIdx}`);
   const ismParams = getIsmParamsHelios(outputId);
 
-  const mpISM = new MintingPolicyIsmMultiSig(ismParams).compile(true);
+  const mpISM = getProgramIsmKhalani(ismParams);
   tx.attachScript(mpISM);
 
-  const authToken: [number[], bigint][] = [
-    [helios.textToBytes("auth"), BigInt(1)],
-  ];
+  const authToken: [number[], bigint][] = [[TOKEN_NAME_AUTH_BYTES, BigInt(1)]];
   tx.mintTokens(
     mpISM.mintingPolicyHash,
     authToken,
@@ -36,9 +37,7 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
 
   tx.addOutput(
     new helios.TxOutput(
-      helios.Address.fromValidatorHash(
-        new ScriptInbox().compile(true).validatorHash
-      ),
+      helios.Address.fromValidatorHash(getProgramInbox().validatorHash),
       new helios.Value(
         BigInt(0),
         new helios.Assets([[mpISM.mintingPolicyHash, authToken]])

@@ -1,7 +1,10 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import MintingPolicyIsmMultiSig from "../../onchain/ismMultiSig.hl";
-import ScriptInbox from "../../onchain/scriptInbox.hl";
+import {
+  TOKEN_NAME_AUTH_HEX,
+  getProgramInbox,
+  getProgramIsmKhalani,
+} from "../../onchain/programs";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 import { parseBlockfrostUtxos } from "./parseBlockfrostUtxos";
@@ -10,13 +13,12 @@ export async function getInboxUTxO(
   ismParams: IsmParamsHelios
 ): Promise<helios.UTxO | null> {
   const addressInbox = helios.Address.fromValidatorHash(
-    new ScriptInbox().compile(true).validatorHash
+    getProgramInbox().validatorHash
   );
-  const mphISM = new MintingPolicyIsmMultiSig(ismParams).compile(true)
-    .mintingPolicyHash.hex;
+  const mphISM = getProgramIsmKhalani(ismParams).mintingPolicyHash.hex;
 
   const utxos: any = await fetch(
-    `${blockfrostPrefix}/addresses/${addressInbox.toBech32()}/utxos/${mphISM}61757468`,
+    `${blockfrostPrefix}/addresses/${addressInbox.toBech32()}/utxos/${mphISM}${TOKEN_NAME_AUTH_HEX}`,
     {
       headers: {
         project_id: blockfrostProjectId,

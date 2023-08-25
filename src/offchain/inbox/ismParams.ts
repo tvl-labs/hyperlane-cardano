@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import { Address } from "../address";
-import ScriptInbox from "../../onchain/scriptInbox.hl";
+import { getProgramInbox } from "../../onchain/programs";
 
 const addressInbox = helios.Address.fromValidatorHash(
-  new ScriptInbox().compile(true).validatorHash
+  getProgramInbox().validatorHash
 );
 
 // For relayers's offchain usage

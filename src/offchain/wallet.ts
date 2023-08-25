@@ -1,8 +1,5 @@
-import * as helios from "@hyperionbt/helios";
+import type * as helios from "@hyperionbt/helios";
 import { blockfrost } from "../offchain/indexer/blockfrost";
-
-// TODO: Move this elsewhere
-export const TOKEN_NAME_AUTH = helios.textToBytes("auth");
 
 export class Wallet {
   readonly address: helios.Address;

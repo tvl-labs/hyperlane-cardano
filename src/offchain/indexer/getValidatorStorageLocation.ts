@@ -8,13 +8,13 @@ import {
   hashValidatorStorageLocation,
   type ValidatorStorageLocation,
 } from "../validatorStorageLocation";
-import ScriptLockForever from "../../onchain/scriptLockForever.hl";
+import { getProgramLockForever } from "../../onchain/programs";
 
 export async function getValidatorStorageLocation(
   validator: Address
 ): Promise<ValidatorStorageLocation | undefined> {
   const addressLockForever = helios.Address.fromValidatorHash(
-    new ScriptLockForever().compile(false).validatorHash
+    getProgramLockForever().validatorHash
   );
 
   for (let page = 1; true; page++) {
