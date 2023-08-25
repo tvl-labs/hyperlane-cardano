@@ -44,6 +44,8 @@ spec:
               value: {{ required "BLOCKFROST_PROJECT_ID" .Values.cardanoRpc.BLOCKFROST_PROJECT_ID | quote }}
             - name: OUTBOX_AUTH_TOKEN
               value: {{ required "OUTBOX_AUTH_TOKEN" .Values.cardanoRpc.OUTBOX_AUTH_TOKEN | quote }}
+            - name: KHALANI_SENDER
+              value: {{ required "KHALANI_SENDER" .Values.cardanoRpc.KHALANI_SENDER | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_1
               value: {{ required "ISM_VALIDATOR_PUB_KEY_1" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_1 | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_2
@@ -84,6 +86,8 @@ spec:
               value: {{ required "BLOCKFROST_PROJECT_ID" .Values.cardanoRpc.BLOCKFROST_PROJECT_ID | quote }}
             - name: OUTBOX_AUTH_TOKEN
               value: {{ required "OUTBOX_AUTH_TOKEN" .Values.cardanoRpc.OUTBOX_AUTH_TOKEN | quote }}
+            - name: KHALANI_SENDER
+              value: {{ required "KHALANI_SENDER" .Values.cardanoRpc.KHALANI_SENDER | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_1
               value: {{ required "ISM_VALIDATOR_PUB_KEY_1" .Values.cardanoRpc.ISM_VALIDATOR_PUB_KEY_1 | quote }}
             - name: ISM_VALIDATOR_PUB_KEY_2
