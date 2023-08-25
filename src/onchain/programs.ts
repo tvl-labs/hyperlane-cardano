@@ -25,11 +25,13 @@ export function getProgramKhalaniTokens(
   ismParams?: IsmParamsHelios
 ): helios.UplcProgram {
   const ISM_KHALANI = getIsmKhalani(ismParams).mintingPolicyHash;
+  const KHALANI_SENDER = new helios.ByteArray(process.env.KHALANI_SENDER ?? "");
   const ADDRESS_OUTBOX = helios.Address.fromValidatorHash(
     getProgramOutbox().validatorHash
   );
   return new MintingPolicyKhalaniTokens({
     ISM_KHALANI,
+    KHALANI_SENDER,
     ADDRESS_OUTBOX,
   }).compile(true);
 }

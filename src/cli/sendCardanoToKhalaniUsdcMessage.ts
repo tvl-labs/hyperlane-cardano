@@ -3,18 +3,24 @@ import "dotenv/config";
 import fetch from "node-fetch";
 import { getProgramKhalaniTokens, getProgramOutbox } from "../onchain/programs";
 import createOutboundMessage from "../offchain/tx/createOutboundMessage";
-import { blockfrostPrefix, blockfrostProjectId, } from "../offchain/indexer/blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../offchain/indexer/blockfrost";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { type Wallet } from "../offchain/wallet";
-import { createMessagePayloadBurn, MessagePayload } from "../offchain/messagePayload";
+import {
+  createMessagePayloadBurn,
+  MessagePayload,
+} from "../offchain/messagePayload";
 import { parseBlockfrostUtxos } from "../offchain/indexer/parseBlockfrostUtxos";
 import { createWallet } from "./wallet";
-import { H256 } from '../offchain/h256';
-import { CardanoTokenName } from '../cardanoTokenName';
-import { getIsmParamsHelios } from '../offchain/inbox';
-import { KHALANI_CHAIN_ID } from './sendKhalaniToCardanoUsdcMintMessage';
+import { H256 } from "../offchain/h256";
+import { CardanoTokenName } from "../cardanoTokenName";
+import { getIsmParamsHelios } from "../offchain/inbox";
+import { KHALANI_CHAIN_ID } from "./sendKhalaniToCardanoUsdcMintMessage";
 
 // TODO: set.
 const khalaniProtocolRecipient = Address.fromHex(
@@ -24,7 +30,7 @@ const khalaniProtocolRecipient = Address.fromHex(
 // TODO: set.
 const fujiRecipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
-)
+);
 
 async function fetchOutboxUtxo(): Promise<helios.UTxO> {
   const addressOutbox = helios.Address.fromValidatorHash(
@@ -49,10 +55,7 @@ async function fetchOutboxUtxo(): Promise<helios.UTxO> {
   return parsedUtxos[0];
 }
 
-async function prepareMessage(
-  outboxUtxo: helios.UTxO,
-  senderWallet: Wallet
-) {
+async function prepareMessage(outboxUtxo: helios.UTxO, senderWallet: Wallet) {
   const ismParamsHelios = getIsmParamsHelios();
   const nonce = Number(outboxUtxo.origOutput.datum.data.list[0].list[1].int);
   return {
@@ -60,13 +63,18 @@ async function prepareMessage(
     nonce,
     originDomain: DOMAIN_CARDANO,
     sender: Address.fromHex(
-      `0x01000000${getProgramKhalaniTokens(ismParamsHelios).mintingPolicyHash.hex}`
+      `0x01000000${
+        getProgramKhalaniTokens(ismParamsHelios).mintingPolicyHash.hex
+      }`
     ),
     destinationDomain: KHALANI_CHAIN_ID,
     recipient: khalaniProtocolRecipient,
     body: createMessagePayloadBurn({
       sender: H256.from(
-        Buffer.from(`00000000${senderWallet.address.toHex().substring(2)}`, "hex")
+        Buffer.from(
+          `00000000${senderWallet.address.toHex().substring(2)}`,
+          "hex"
+        )
       ),
       destinationChainId: KHALANI_CHAIN_ID,
       tokens: [[CardanoTokenName.fromTokenName("USDC"), 3]],

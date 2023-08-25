@@ -35,10 +35,7 @@ import { CardanoTokenName } from "../cardanoTokenName";
 
 // TODO: Build several edge cases.
 
-// Mock inbound message
-const sender = Address.fromHex(
-  "0x0000000000000000000000000000000000000000000000000000000000000EF1"
-);
+const sender = Address.fromHex(`0x${process.env.KHALANI_SENDER ?? ""}`);
 
 function mockCheckpoint(
   ismParams: IsmParamsHelios,

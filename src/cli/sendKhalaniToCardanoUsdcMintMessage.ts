@@ -53,15 +53,14 @@ export async function sendKhalaniToCardanoUsdcMintMessage() {
     ).toHex()}`
   );
 
-  const { recipientAddress, recipientAddressHash } = getRecipientAddressAndHash();
+  const { recipientAddress, recipientAddressHash } =
+    getRecipientAddressAndHash();
   const messagePayload = createMessagePayloadMint({
     rootChainId: KHALANI_CHAIN_ID,
     rootSender: H256.fromHex(Address.fromEvmAddress(wallet.address).toHex()),
     tokens: [[CardanoTokenName.fromTokenName("USDC"), 12]],
     recipientAddressHash,
-    message: MessagePayload.fromHexString(
-      `0x${recipientAddress.toHex()}`
-    ),
+    message: MessagePayload.fromHexString(`0x${recipientAddress.toHex()}`),
   });
   const transaction = (await mailbox.dispatch(
     CARDANO_CHAIN_ID,

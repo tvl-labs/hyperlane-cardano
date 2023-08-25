@@ -8,11 +8,9 @@ import { blake2bHasher } from "../../merkle/hasher";
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
 
-export default async function createOutbox(
-  wallet: Wallet
-): Promise<{
-  utxo: helios.UTxO,
-  outboxAuthToken: string,
+export default async function createOutbox(wallet: Wallet): Promise<{
+  utxo: helios.UTxO;
+  outboxAuthToken: string;
 }> {
   const tx = new helios.Tx();
 
@@ -30,7 +28,7 @@ export default async function createOutbox(
   tx.mintTokens(mpNFT.mintingPolicyHash, tokens, new helios.ConstrData(0, []));
 
   // TODO: add a class for "auth" token, can CardanoTokenName be reused?
-  const outboxAuthToken = mpNFT.mintingPolicyHash.hex + "61757468"
+  const outboxAuthToken = mpNFT.mintingPolicyHash.hex + "61757468";
 
   const addressOutbox = helios.Address.fromValidatorHash(
     getProgramOutbox().validatorHash
@@ -56,6 +54,6 @@ export default async function createOutbox(
   const utxo = new helios.UTxO(txId, 0n, tx.body.outputs[0]);
   return {
     utxo,
-    outboxAuthToken
+    outboxAuthToken,
   };
 }

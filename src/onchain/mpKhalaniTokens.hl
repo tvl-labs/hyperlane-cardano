@@ -4,8 +4,9 @@ import { DatumOutbox } from "./outbox.hl"
 import { Message, MessagePayloadMint, MessagePayloadBurn } from "./message.hl"
 
 // Parameters
-// TODO: Parameterize with Outbox to enforce burning.
 const ISM_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
+
+const KHALANI_SENDER: ByteArray = #
 
 // The outbox script that ships these messages.
 const ADDRESS_OUTBOX: Address = Address::new(
@@ -72,6 +73,7 @@ func main(_, ctx: ScriptContext) -> Bool {
       else => error("Invalid message output: missing inline datum")
     };
     assert(message.id() == message_tokens.head_key, "Malformed message");
+    assert(message.sender == KHALANI_SENDER, "Invalid sender");
     payload_mint: MessagePayloadMint = message.get_mint_payload();
     assert(
       token_name == payload_mint.token_name &&
