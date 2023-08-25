@@ -6,7 +6,6 @@
   "scripts": {
     "build": "npx webpack build",
     "test-integration": "npm run build && node dist/testIntegration.js",
-    "sendKhalaniToCardanoUsdcMintMessage": "npm run build && node dist/sendKhalaniToCardanoUsdcMintMessage.js",
     "sendCardanoToKhalaniUsdcMessage": "npm run build && node dist/sendCardanoToKhalaniUsdcMessage.js",
     "processPendingUsdcMintRequests": "npm run build && node dist/processPendingUsdcMintRequests.js",
     "deployNewInbox": "npm run build && node dist/deployNewInbox.js",

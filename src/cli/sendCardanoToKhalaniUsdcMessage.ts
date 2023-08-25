@@ -20,7 +20,8 @@ import { createWallet } from "./wallet";
 import { H256 } from "../offchain/h256";
 import { CardanoTokenName } from "../cardanoTokenName";
 import { getIsmParamsHelios } from "../offchain/inbox";
-import { KHALANI_CHAIN_ID } from "./sendKhalaniToCardanoUsdcMintMessage";
+
+export const KHALANI_CHAIN_ID = 10012;
 
 // TODO: set.
 const khalaniProtocolRecipient = Address.fromHex(

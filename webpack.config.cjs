@@ -8,7 +8,6 @@ module.exports = {
     rpc: "./src/rpc/index.ts",
     announceValidatorStorage: "./src/cli/announceValidatorStorage.ts",
     createValidatorKey: "./src/cli/createValidatorKey.ts",
-    sendKhalaniToCardanoUsdcMintMessage: "./src/cli/sendKhalaniToCardanoUsdcMintMessage.ts",
     sendCardanoToKhalaniUsdcMessage: "./src/cli/sendCardanoToKhalaniUsdcMessage.ts",
     processPendingUsdcMintRequests: "./src/cli/processPendingUsdcMintRequests.ts",
     deployNewInbox: "./src/cli/deployNewInbox.ts",
