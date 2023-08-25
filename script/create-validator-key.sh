@@ -1,1 +1,0 @@
-node dist/createValidatorKey.js
