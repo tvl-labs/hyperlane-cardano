@@ -26,7 +26,8 @@
       "protocol": "ethereum",
       "rpcStyle": "ethereum",
       "index": {
-        "from": "1"
+        "from": "1",
+        "chunk": 10000
       },
       "addresses": {
         "mailbox": "0xcF239718B22E4df02bEA0E138efd7886951A918B",
