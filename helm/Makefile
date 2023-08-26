@@ -37,15 +37,15 @@ uninstall-local-checkpoints-storage:
 	kubectl delete -f local-checkpoints-storage/local-checkpoints-pv.yaml
 	kubectl delete -f local-checkpoints-storage/storage-class.yaml
 
-# Hyperlane Validator for messages dispatched from Cardano
-install-validator:
-	helm -n applications install cardano-validator ./hyperlane-validator --values ./cardano-validator-values.yaml
+# Hyperlane Validators for messages dispatched from Cardano
+install-cardano-validators:
+	helm -n applications install cardano-validator-1 ./hyperlane-validator --values ./cardano-validator-values-1.yaml
 
-upgrade-validator:
-	helm -n applications upgrade cardano-validator ./hyperlane-validator --values ./cardano-validator-values.yaml
+upgrade-cardano-validators:
+	helm -n applications upgrade cardano-validator-1 ./hyperlane-validator --values ./cardano-validator-values-1.yaml
 
-uninstall-validator:
-	helm -n applications uninstall cardano-validator
+uninstall-cardano-validators:
+	helm -n applications uninstall cardano-validator-1
 
 # Hyperlane Relayer for messages dispatched from Cardano
 install-cardano-relayer:
