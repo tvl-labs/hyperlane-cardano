@@ -2,16 +2,19 @@ import { Wallet } from "../offchain/wallet";
 import * as helios from "@hyperionbt/helios";
 import { H256 } from "../offchain/h256";
 
-export function createWallet(): Wallet {
+export function createWallet(
+  walletAddress: string | undefined = process.env.WALLET_ADDRESS,
+  walletPrivateKey: string | undefined = process.env.WALLET_PRIVATE_KEY
+): Wallet {
   if (
-    typeof process.env.WALLET_ADDRESS !== "string" ||
-    typeof process.env.WALLET_PRIVATE_KEY !== "string"
+    typeof walletAddress !== "string" ||
+    typeof walletPrivateKey !== "string"
   ) {
     throw new Error("Invalid wallet");
   }
   return new Wallet(
-    new helios.Address(process.env.WALLET_ADDRESS),
-    new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY)
+    new helios.Address(walletAddress),
+    new helios.PrivateKey(walletPrivateKey)
   );
 }
 

@@ -90,15 +90,16 @@ export function serializeMessage(message: Message) {
 }
 
 export function deserializeMessage(message: helios.ListData): Message {
+  const list = message.list;
   return {
-    version: parseInt(helios.bytesToHex(message.list[0].bytes), 16),
-    nonce: parseInt(helios.bytesToHex(message.list[1].bytes), 16),
-    originDomain: parseInt(helios.bytesToHex(message.list[2].bytes), 16),
-    sender: Address.fromHex(`0x${helios.bytesToHex(message.list[3].bytes)}`),
-    destinationDomain: parseInt(helios.bytesToHex(message.list[4].bytes), 16),
-    recipient: Address.fromHex(`0x${helios.bytesToHex(message.list[5].bytes)}`),
+    version: parseInt(helios.bytesToHex(list[0].bytes), 16),
+    nonce: parseInt(helios.bytesToHex(list[1].bytes), 16),
+    originDomain: parseInt(helios.bytesToHex(list[2].bytes), 16),
+    sender: Address.fromHex(`0x${helios.bytesToHex(list[3].bytes)}`),
+    destinationDomain: parseInt(helios.bytesToHex(list[4].bytes), 16),
+    recipient: Address.fromHex(`0x${helios.bytesToHex(list[5].bytes)}`),
     body: MessagePayload.fromHexString(
-      `0x${helios.bytesToHex(message.list[6].bytes)}`
+      `0x${helios.bytesToHex(list[6].bytes)}`
     ),
   };
 }

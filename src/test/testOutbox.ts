@@ -1,5 +1,5 @@
 import type { Wallet } from "../offchain/wallet";
-import { calculateMessageId } from "../offchain/message";
+import { calculateMessageId, type Message } from "../offchain/message";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
@@ -12,7 +12,6 @@ import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
 import createOutbox from "../offchain/tx/createOutbox";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
-import { getOutboundMessages } from "../offchain/indexer/getOutboundMessages";
 import { getOutboundGasPayment } from "../offchain/indexer/getOutboundGasPayment";
 import {
   emulatedNetwork,
@@ -24,12 +23,13 @@ import { H256 } from "../offchain/h256";
 import { getProgramKhalaniTokens } from "../onchain/programs";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { CardanoTokenName } from "../cardanoTokenName";
+import { getOutboxUtxos } from '../offchain/indexer/getOutboxUtxos';
 
 const recipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
 );
 
-let lastOutboundMsg;
+let lastOutboundMsg: Message;
 
 interface OutboundMessageRes {
   messageId: helios.ByteArray;
@@ -122,7 +122,7 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const { utxo: preprodUtxoOutbox } = await createOutbox(preprodRelayerWallet);
+  const { utxo: preprodUtxoOutbox, outboxAuthToken } = await createOutbox(preprodRelayerWallet);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId);
 
@@ -191,11 +191,18 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     throw new Error("Expect paid outbound message");
   }
 
-  const outboundMessages = await getOutboundMessages();
-  if (
-    outboundMessages[outboundMessages.length - 1].hex !==
-    lastOutboundMsg.body.toHex().substring(2)
-  ) {
-    throw new Error("Outbound message not found");
+  const outboxUtxos = await getOutboxUtxos(outboxAuthToken);
+  if (outboxUtxos.length !== 1) {
+    throw new Error(`Outbox '${outboxAuthToken}' does not exist or is not unique: ${outboxUtxos.length} UTXOs found`);
+  }
+  const outboxUtxo = outboxUtxos[0];
+  const outboxMessage = outboxUtxo.message;
+  if (outboxMessage == null) {
+    throw new Error(`Outbox '${outboxAuthToken}' message does not exist`);
+  }
+  if (JSON.stringify(outboxMessage) !== JSON.stringify(lastOutboundMsg)) {
+    console.error('Expected message', JSON.stringify(lastOutboundMsg));
+    console.error('Actual message', JSON.stringify(outboxMessage));
+    throw new Error('Outbox messages is not found');
   }
 }
