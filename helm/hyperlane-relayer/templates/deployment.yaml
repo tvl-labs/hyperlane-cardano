@@ -38,7 +38,7 @@ spec:
             - name: CONFIG_FILES
               value: /app/config/cardano-test-config.json
             - name: HYP_BASE_DB
-              value: /app/db/
+              value: "/tmp/checkpoints/{{ .Release.Name }}"
             - name: HYP_RELAYER_ORIGINCHAINNAME
               value: {{ required "Origin chain" .Values.relayer.originChain }}
             - name: HYP_RELAYER_DESTINATIONCHAINNAMES
