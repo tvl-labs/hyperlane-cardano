@@ -165,8 +165,7 @@ export async function testInboxOnPreprodNetwork(): Promise<IsmParamsHelios> {
     throw new Error("Message must have been delivered already");
   }
 
-  const khalaniRecipient = message.recipient.toValidatorHash();
-  const usdcRequestsUtxos = await getUsdcRequestUTxOs(khalaniRecipient);
+  const usdcRequestsUtxos = await getUsdcRequestUTxOs(message.recipient);
   if (usdcRequestsUtxos.length !== 1) {
     console.error(
       JSON.stringify(usdcRequestsUtxos.map(convertUtxoToJson), null, 2)

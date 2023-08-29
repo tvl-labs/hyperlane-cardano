@@ -1,14 +1,14 @@
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
-import { type ValidatorHash } from "@hyperionbt/helios";
 import { parseBlockfrostUtxos } from "./parseBlockfrostUtxos";
+import { type Address } from '../address';
 
 export async function getUsdcRequestUTxOs(
-  khalaniScript: ValidatorHash
+  khalaniScriptAddress: Address
 ): Promise<helios.UTxO[]> {
   const addressKhalaniRecipient =
-    helios.Address.fromValidatorHash(khalaniScript);
+    helios.Address.fromValidatorHash(khalaniScriptAddress.toValidatorHash());
 
   const utxos: any = await fetch(
     `${blockfrostPrefix}/addresses/${addressKhalaniRecipient.toBech32()}/utxos`,
