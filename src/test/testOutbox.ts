@@ -23,7 +23,7 @@ import { H256 } from "../offchain/h256";
 import { getProgramKhalaniTokens } from "../onchain/programs";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { CardanoTokenName } from "../cardanoTokenName";
-import { getOutboxUtxos } from '../offchain/indexer/getOutboxUtxos';
+import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 
 const recipient = Address.fromHex(
   "0x0000000000000000000000000000000000000000000000000000000000000EF1"
@@ -122,7 +122,9 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const { utxo: preprodUtxoOutbox, outboxAuthToken } = await createOutbox(preprodRelayerWallet);
+  const { utxo: preprodUtxoOutbox, outboxAuthToken } = await createOutbox(
+    preprodRelayerWallet
+  );
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId);
 
@@ -193,7 +195,9 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
 
   const outboxUtxos = await getOutboxUtxos(outboxAuthToken);
   if (outboxUtxos.length !== 1) {
-    throw new Error(`Outbox '${outboxAuthToken}' does not exist or is not unique: ${outboxUtxos.length} UTXOs found`);
+    throw new Error(
+      `Outbox '${outboxAuthToken}' does not exist or is not unique: ${outboxUtxos.length} UTXOs found`
+    );
   }
   const outboxUtxo = outboxUtxos[0];
   const outboxMessage = outboxUtxo.message;
@@ -201,8 +205,8 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     throw new Error(`Outbox '${outboxAuthToken}' message does not exist`);
   }
   if (JSON.stringify(outboxMessage) !== JSON.stringify(lastOutboundMsg)) {
-    console.error('Expected message', JSON.stringify(lastOutboundMsg));
-    console.error('Actual message', JSON.stringify(outboxMessage));
-    throw new Error('Outbox messages is not found');
+    console.error("Expected message", JSON.stringify(lastOutboundMsg));
+    console.error("Actual message", JSON.stringify(outboxMessage));
+    throw new Error("Outbox messages is not found");
   }
 }

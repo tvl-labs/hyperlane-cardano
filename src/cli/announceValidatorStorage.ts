@@ -16,7 +16,7 @@ async function parseValidatorAnnouncementFile(): Promise<ValidatorStorageLocatio
   }).argv;
 
   const json = JSON.parse(fs.readFileSync(argv.announcementFile, "utf-8"));
-  console.log('Read announcement file', json);
+  console.log("Read announcement file", json);
   return {
     validator: Address.fromEvmAddress(json.value.validator),
     mailboxAddress: Address.fromHex(json.value.mailbox_address),

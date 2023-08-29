@@ -14,7 +14,7 @@ export function convertUtxoToJson(utxo: UTxO) {
         })),
       };
     }),
-    datum: getDatum(utxo)
+    datum: getDatum(utxo),
   };
 }
 
@@ -22,9 +22,9 @@ function getDatum(utxo: UTxO): string | null {
   try {
     const data = utxo.origOutput.getDatumData();
     const json = data.toSchemaJson();
-    return JSON.parse(json)
+    return JSON.parse(json);
   } catch (e) {
     // `TxOutput.getDatumData` throws an Error on empty Datum.
-    return null
+    return null;
   }
 }

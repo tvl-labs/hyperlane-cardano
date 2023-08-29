@@ -98,9 +98,7 @@ export function deserializeMessage(message: helios.ListData): Message {
     sender: Address.fromHex(`0x${helios.bytesToHex(list[3].bytes)}`),
     destinationDomain: parseInt(helios.bytesToHex(list[4].bytes), 16),
     recipient: Address.fromHex(`0x${helios.bytesToHex(list[5].bytes)}`),
-    body: MessagePayload.fromHexString(
-      `0x${helios.bytesToHex(list[6].bytes)}`
-    ),
+    body: MessagePayload.fromHexString(`0x${helios.bytesToHex(list[6].bytes)}`),
   };
 }
 
