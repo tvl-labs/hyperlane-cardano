@@ -1,38 +1,39 @@
 import "dotenv/config";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { Address } from "../offchain/address";
-import * as helios from "@hyperionbt/helios";
-import ScriptKhalani from "../onchain/scriptKhalani.hl";
-import { getProgramKhalaniTokens } from "../onchain/programs";
+import { getProgramKhalani, getProgramKhalaniTokens } from "../onchain/programs";
 import { getIsmParamsHelios, processInboundMessage } from "../offchain/inbox";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { createWallet } from "./wallet";
+import { type IsmParamsHelios } from '../offchain/inbox/ismParams';
+import { type UplcProgram } from '@hyperionbt/helios';
+import { type Wallet } from '../offchain/wallet';
 
-function getParameters() {
+interface ScriptParameters {
+  ismParamsHelios: IsmParamsHelios,
+  programKhalaniTokens: UplcProgram,
+  khalaniScriptAddress: Address,
+  relayerWallet: Wallet,
+}
+
+function getParameters(): ScriptParameters {
   const relayerWallet = createWallet();
   const ismParamsHelios = getIsmParamsHelios();
   const programKhalaniTokens = getProgramKhalaniTokens(ismParamsHelios);
-  const scriptKhalaniAddress = Address.fromHex(
-    `0x000000${helios.Address.fromValidatorHash(
-      new ScriptKhalani({
-        MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
-      }).compile(true).validatorHash
-    ).toHex()}`
-  );
+  const programKhalani = getProgramKhalani(ismParamsHelios);
+  const khalaniScriptAddress = Address.fromValidatorHash(programKhalani.validatorHash);
+  console.log(`Khalani Script Address: ${khalaniScriptAddress.toHex()}`);
   return {
     ismParamsHelios,
     programKhalaniTokens,
-    scriptKhalaniAddress,
+    khalaniScriptAddress,
     relayerWallet,
   };
 }
 
-export async function processPendingUsdcMintRequests() {
-  const { ismParamsHelios, scriptKhalaniAddress, relayerWallet } =
-    getParameters();
-  const utxos = await getUsdcRequestUTxOs(
-    scriptKhalaniAddress.toValidatorHash()
-  );
+export async function processPendingUsdcMintRequests(parameters: ScriptParameters) {
+  const { khalaniScriptAddress, ismParamsHelios, relayerWallet } = parameters;
+  const utxos = await getUsdcRequestUTxOs(khalaniScriptAddress);
   if (utxos.length === 0) {
     console.log("No pending USDC mint requests");
     return;
@@ -56,6 +57,7 @@ export async function processPendingUsdcMintRequests() {
 }
 
 async function main() {
+  const parameters = getParameters();
   let inProgress = false;
   setInterval(async () => {
     if (inProgress) {
@@ -64,7 +66,7 @@ async function main() {
     inProgress = true;
     console.log("Processing pending USDC mint requests");
     try {
-      await processPendingUsdcMintRequests();
+      await processPendingUsdcMintRequests(parameters);
     } catch (e) {
       console.error("Failed to process pending USDC mint requests", e);
     } finally {
