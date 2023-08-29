@@ -6,6 +6,7 @@ import express, { type Request, type Response } from "express";
 import path from "path";
 import http from "http";
 import logger from "morgan";
+import cors from "cors";
 import * as helios from "@hyperionbt/helios";
 import type {
   EstimateInboxMessageFeeRequestBody,
@@ -39,14 +40,85 @@ import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
 import { Wallet } from "../offchain/wallet";
 import { H256 } from "../offchain/h256";
+import { getProgramKhalaniTokens } from "../onchain/programs";
+import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
+import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
+import {
+  prepareOutboundMessage,
+  buildOutboundMessage,
+} from "../offchain/tx/createOutboundMessage";
+import { getIsmParamsHelios } from "../offchain/inbox";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(logger("dev"));
+app.use("/spec", express.static(openapiSpec));
+
+// TODO: Move this to Khalani App
+interface ResponseMph {
+  mph: string;
+}
+app.get("/api/khalani/mph", function (_, res: Response<ResponseMph>, next) {
+  try {
+    res
+      .status(200)
+      .json({ mph: getProgramKhalaniTokens().mintingPolicyHash.hex });
+  } catch (e) {
+    next(e);
+  }
+});
+
+interface RequestOutbound {
+  address: string; // Bech32
+  redeemAmount: number;
+}
+interface ResponseTx {
+  tx: string; // CBOR
+}
+app.post(
+  "/api/khalani/buildOutboundTx",
+  async function (
+    req: Request<RequestOutbound>,
+    res: Response<ResponseTx>,
+    next
+  ) {
+    try {
+      const outboxAuthToken = process.env.OUTBOX_AUTH_TOKEN ?? "";
+      const outboxUtxos = await getOutboxUtxos(outboxAuthToken);
+      if (outboxUtxos.length !== 1) {
+        throw new Error(
+          `Outbox '${outboxAuthToken}' does not exist or is not unique: ${outboxUtxos.length} UTXOs found`
+        );
+      }
+      const outboxUtxo = outboxUtxos[0];
+      const wallet = new Wallet(new helios.Address(req.body.address));
+      const message = await prepareOutboundMessage(
+        outboxUtxo,
+        wallet,
+        req.body.redeemAmount
+      );
+      const khalaniUtxo = await getOutboundKhalaniUTxO();
+      const tx = await buildOutboundMessage(
+        outboxUtxo.utxo,
+        message,
+        wallet,
+        getIsmParamsHelios(),
+        khalaniUtxo
+      );
+      res.status(200).json({ tx: tx.toCborHex() });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+
 app.use(
   OpenApiValidator.middleware({
     apiSpec: openapiSpec,
@@ -54,9 +126,6 @@ app.use(
     validateResponses: true,
   })
 );
-
-app.use(logger("dev"));
-app.use("/spec", express.static(openapiSpec));
 
 app.get(
   "/api/indexer/lastFinalizedBlock",

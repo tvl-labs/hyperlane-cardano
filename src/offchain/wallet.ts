@@ -1,8 +1,11 @@
-import type * as helios from "@hyperionbt/helios";
+import * as helios from "@hyperionbt/helios";
 import { blockfrost } from "../offchain/indexer/blockfrost";
 
 export class Wallet {
   readonly address: helios.Address;
+  // To fit 32 bytes on EVM, while still act as
+  // identiy for signature.
+  readonly addressPubKeyOnly: helios.Address;
   readonly privateKey?: helios.PrivateKey;
   readonly emulatedWallet?: helios.Wallet;
 
@@ -12,6 +15,7 @@ export class Wallet {
     emulatedWallet?: helios.Wallet
   ) {
     this.address = address;
+    this.addressPubKeyOnly = helios.Address.fromHashes(this.address.pubKeyHash);
     this.privateKey = privateKey;
     this.emulatedWallet = emulatedWallet;
   }

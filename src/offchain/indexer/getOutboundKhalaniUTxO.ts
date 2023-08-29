@@ -11,11 +11,11 @@ const EXPECTED_DATUM = helios.Datum.hashed(new helios.ConstrData(0, []));
 export async function getOutboundKhalaniUTxO(): Promise<helios.UTxO> {
   const addressKhalani = helios.Address.fromValidatorHash(
     getProgramKhalani().validatorHash
-  );
+  ).toBech32();
 
   for (let page = 1; true; page++) {
     const utxos: any = await fetch(
-      `${blockfrostPrefix}/addresses/${addressKhalani.toBech32()}/utxos?page=${page}`,
+      `${blockfrostPrefix}/addresses/${addressKhalani}/utxos?page=${page}`,
       {
         headers: {
           project_id: blockfrostProjectId,

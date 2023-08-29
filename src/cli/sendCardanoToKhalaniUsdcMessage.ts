@@ -1,67 +1,17 @@
 import type * as helios from "@hyperionbt/helios";
 import "dotenv/config";
-import {
-  getProgramKhalani,
-  getProgramKhalaniTokens,
-} from "../onchain/programs";
-import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
-import { Address } from "../offchain/address";
+import { getProgramKhalaniTokens } from "../onchain/programs";
 import { type Wallet } from "../offchain/wallet";
-import {
-  createMessagePayloadBurn,
-  MessagePayload,
-} from "../offchain/messagePayload";
 import { createWallet } from "./wallet";
-import { H256 } from "../offchain/h256";
 import { CardanoTokenName } from "../cardanoTokenName";
 import { getIsmParamsHelios } from "../offchain/inbox";
-import createOutboundMessage from "../offchain/tx/createOutboundMessage";
 import {
-  getOutboxUtxos,
-  type OutboxUtxo,
-} from "../offchain/indexer/getOutboxUtxos";
+  prepareOutboundMessage,
+  createOutboundMessage,
+} from "../offchain/tx/createOutboundMessage";
+import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
-import { type Message } from "../offchain/message";
 import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
-
-export const KHALANI_CHAIN_ID = 10012;
-
-const khalaniProtocolRecipient = Address.fromHex(
-  "0x0000000000000000000000000B7af337DEb05016Eff7a645daD0D56eDe7601A6"
-);
-
-const fujiRecipient = Address.fromHex(
-  "0x0000000000000000000000002064dfa3a7dc4F6Bb6523B56Fa6C46611799058A"
-);
-
-async function prepareMessage(
-  outboxUtxo: OutboxUtxo,
-  senderWallet: Wallet
-): Promise<Message> {
-  const nonce = outboxUtxo.message != null ? outboxUtxo.message.nonce + 1 : 0;
-  const sender = Address.fromValidatorHash(getProgramKhalani().validatorHash);
-  const messagePayloadBurn = createMessagePayloadBurn({
-    sender: H256.from(
-      Buffer.from(`00000000${senderWallet.address.toHex().substring(2)}`, "hex")
-    ),
-    destinationChainId: KHALANI_CHAIN_ID,
-    tokens: [[CardanoTokenName.fromTokenName("USDC"), 1_000_000]],
-    // TODO: fill in trades to actually bridge to FUJI.
-    interchainLiquidityHubPayload: MessagePayload.empty(),
-    isSwapWithAggregateToken: false,
-    recipientAddress: H256.from(fujiRecipient.toBuffer()),
-    message: MessagePayload.empty(),
-  });
-  return {
-    version: 0,
-    nonce,
-    originDomain: DOMAIN_CARDANO,
-    sender,
-    destinationDomain: KHALANI_CHAIN_ID,
-    recipient: khalaniProtocolRecipient,
-    body: messagePayloadBurn,
-  };
-}
 
 interface UsdcUtxo {
   utxo: helios.UTxO;
@@ -107,7 +57,7 @@ async function sendCardanoToKhalaniUsdcMessage() {
     );
   }
   const outboxUtxo = outboxUtxos[0];
-  const message = await prepareMessage(outboxUtxo, wallet);
+  const message = await prepareOutboundMessage(outboxUtxo, wallet);
   const khalaniUtxo = await getOutboundKhalaniUTxO();
   const { utxoOutbox } = await createOutboundMessage(
     outboxUtxo.utxo,

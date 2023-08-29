@@ -63,7 +63,7 @@ function mockCheckpoint(
         rootChainId: FUJI_DOMAIN,
         rootSender: H256.from(sender.toBuffer()),
         // USDC
-        tokens: [[CardanoTokenName.fromTokenName("USDC"), 15]],
+        tokens: [[CardanoTokenName.fromTokenName("USDC"), 150_000_000]],
         recipientAddressHash: H256.from(
           Buffer.from(recipientAddressHash, "hex")
         ),
@@ -73,7 +73,6 @@ function mockCheckpoint(
   };
 }
 
-// TODO: Better interface & names here...
 async function createInboundMsg(
   ismParams: IsmParamsHelios,
   recipientAddress: helios.Address,

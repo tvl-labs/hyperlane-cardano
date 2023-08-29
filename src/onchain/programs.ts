@@ -1,7 +1,6 @@
 // As our script dependencies get complex, programs should be
 // paramterized and compiled through this module for consistency
 // and code deduplication.
-// TODO: Port more scripts/programs here.
 
 import * as helios from "@hyperionbt/helios";
 import ScriptLockForever from "./scriptLockForever.hl";
