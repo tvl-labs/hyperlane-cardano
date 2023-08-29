@@ -27,10 +27,9 @@ import { calculateMessageId } from "../offchain/message";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import createInbox from "../offchain/tx/createInbox";
 import { H256 } from "../offchain/h256";
-import ScriptKhalani from "../onchain/scriptKhalani.hl";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { convertUtxoToJson } from "./debug";
-import { getProgramKhalaniTokens } from "../onchain/programs";
+import { getProgramKhalani } from "../onchain/programs";
 import { CardanoTokenName } from "../cardanoTokenName";
 
 // TODO: Build several edge cases.
@@ -44,12 +43,10 @@ function mockCheckpoint(
   const recipientAddressHash = helios.bytesToHex(
     helios.Crypto.blake2b(recipientAddress.bytes)
   );
-  const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
+  // Make sure this (the 0x2 prefix) matches the outbox
   const recipient = Address.fromHex(
-    `0x000000${helios.Address.fromValidatorHash(
-      new ScriptKhalani({
-        MP_KHALANI: programKhalaniTokens.mintingPolicyHash,
-      }).compile(true).validatorHash
+    `0x020000${helios.Address.fromValidatorHash(
+      getProgramKhalani(ismParams).validatorHash
     ).toHex()}`
   );
   return {

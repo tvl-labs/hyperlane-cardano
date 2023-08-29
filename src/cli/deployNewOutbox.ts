@@ -5,9 +5,9 @@ import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 
 export async function deployNewOutbox() {
   const wallet = createWallet();
-  const { utxo, outboxAuthToken } = await createOutbox(wallet);
-  await waitForTxConfirmation(utxo.txId);
-  console.log(`Created Outbox at tx ${utxo.txId.hex}`);
+  const { utxoOutbox, outboxAuthToken } = await createOutbox(wallet);
+  await waitForTxConfirmation(utxoOutbox.txId);
+  console.log(`Created Outbox at tx ${utxoOutbox.txId.hex}`);
   console.log(`Outbox OUTBOX_AUTH_TOKEN ${outboxAuthToken}`);
 }
 

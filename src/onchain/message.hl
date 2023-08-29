@@ -28,6 +28,7 @@ struct Message {
   // We pad 4 bytes on the left:
   // 00000000: Payment credential that must sign the tx.
   // 01000000: Minting policy hash that must mint in the tx.
+  // 02000000: Validator hash that must run in the tx.
   sender: ByteArray
   // Domain of destination chain
   destination_domain: ByteArray

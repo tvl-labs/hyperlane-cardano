@@ -2,6 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import {
   TOKEN_NAME_AUTH_BYTES,
   TOKEN_NAME_AUTH_HEX,
+  getProgramKhalani,
   getProgramNFT,
   getProgramOutbox,
 } from "../../onchain/programs";
@@ -11,9 +12,14 @@ import { type Wallet } from "../wallet";
 import { blake2bHasher } from "../../merkle/hasher";
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
+import type { IsmParamsHelios } from "../inbox/ismParams";
 
-export default async function createOutbox(wallet: Wallet): Promise<{
-  utxo: helios.UTxO;
+export default async function createOutbox(
+  wallet: Wallet,
+  ismParams?: IsmParamsHelios
+): Promise<{
+  utxoOutbox: helios.UTxO;
+  utxoKhalani: helios.UTxO;
   outboxAuthToken: string;
 }> {
   const tx = new helios.Tx();
@@ -48,14 +54,30 @@ export default async function createOutbox(wallet: Wallet): Promise<{
     )
   );
 
+  // Create an empty UTxO at Script Khalani to validate
+  // a Khalani burn message. This should be optional, but
+  // the fee is indead small.
+  const addressKhalani = helios.Address.fromValidatorHash(
+    getProgramKhalani(ismParams).validatorHash
+  );
+  tx.addOutput(
+    new helios.TxOutput(
+      addressKhalani,
+      new helios.Value(),
+      // We cannot make this inline (yet) per Khalani
+      // minting policy's strict rule.
+      helios.Datum.hashed(new helios.ConstrData(0, []))
+    )
+  );
+
   await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
   tx.addSignatures(await wallet.signTx(tx));
   const txId = await wallet.submitTx(tx);
 
-  const utxo = new helios.UTxO(txId, 0n, tx.body.outputs[0]);
   return {
-    utxo,
+    utxoOutbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
+    utxoKhalani: new helios.UTxO(txId, 1n, tx.body.outputs[1]),
     outboxAuthToken,
   };
 }

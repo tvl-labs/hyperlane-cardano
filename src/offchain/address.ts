@@ -39,7 +39,7 @@ export class Address {
 
   toValidatorHash(): ValidatorHash {
     const hex = this.toHex();
-    assert(hex.startsWith("0x000000"));
+    assert(hex.startsWith("0x020000"));
     return helios.ValidatorHash.fromHex(hex.substring(8 + 2 /* chain ID */));
   }
 

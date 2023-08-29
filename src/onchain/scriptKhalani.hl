@@ -3,12 +3,28 @@ spending khalani
 // Parameters
 const MP_KHALANI: MintingPolicyHash = MintingPolicyHash::new(#)
 
-// The (default) recipient address for Khalani messages.
+// The whitelisted address for Khalani messages.
 func main(_, _, ctx: ScriptContext) -> Bool {
-  // Must mint Khalani tokens.
+  current_output: TxOutput = ctx.get_current_input().output;
+  assert(
+    ctx.tx.inputs.filter((input: TxInput) -> {
+      input.output.address == current_output.address
+    }).length == 1,
+    "Can only process one Khalani UTxO"
+  );
+
+  // Must mint or burn Khalani tokens.
   // With all remaining checks being done there.
   // TODO: Support more applications if there are any?
   minted_khalani: Map[ByteArray]Int = ctx.tx.minted.get_policy(MP_KHALANI);
-  minted_khalani.length == 1 &&
-  minted_khalani.head_value > 0
+  // TODO: Mint several assets at once?
+  assert(minted_khalani.length == 1, "Can only process one asset");
+
+  if (minted_khalani.head_value > 0) {
+    true
+  } else {
+    ctx.tx.outputs.any((output: TxOutput) -> {
+      output == current_output
+    })
+  }
 }

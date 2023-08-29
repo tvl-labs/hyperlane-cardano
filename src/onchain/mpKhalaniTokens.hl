@@ -27,15 +27,21 @@ func main(_, ctx: ScriptContext) -> Bool {
   token_value: Int = own_minted.head_value;
 
   if (token_value < 0) {
-    // We "trust" the parameterized outbox to validate its own logic correctly.
-    // At the end of the day, we can choose outbox at compile time.
+    // TODO: Loosen check for composability. The check prevents destroying
+    // inbound messages at the Khalani Script when burning for outbound.
+    datum_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
+      input.output.datum.switch {
+        Inline => true,
+        else => false
+      }
+    });
     assert(
-      ctx.tx.inputs.any((input: TxInput) -> {
-        input.output.address == ADDRESS_OUTBOX
-      }),
-      "Must consume an outbox"
+      datum_inputs.length == 1 && datum_inputs.head.output.address == ADDRESS_OUTBOX,
+      "Must process an outbox as the only input with inline datum"
     );
 
+    // We "trust" the parameterized outbox to validate its own logic correctly.
+    // At the end of the day, we can choose outbox at compile time.
     outbox_output: TxOutput = ctx.tx.outputs.find((output: TxOutput) -> {
       output.address == ADDRESS_OUTBOX
     });

@@ -108,13 +108,13 @@ async function sendCardanoToKhalaniUsdcMessage() {
   }
   const outboxUtxo = outboxUtxos[0];
   const message = await prepareMessage(outboxUtxo, wallet);
-  const messageUtxo = await createOutboundMessage(
+  const { utxoOutbox } = await createOutboundMessage(
     outboxUtxo.utxo,
     message,
     wallet
   );
-  console.log(`Submit outbound message at tx ${messageUtxo.txId.hex}`);
-  await waitForTxConfirmation(messageUtxo.txId);
+  console.log(`Submit outbound message at tx ${utxoOutbox.txId.hex}`);
+  await waitForTxConfirmation(utxoOutbox.txId);
 }
 
 async function main() {

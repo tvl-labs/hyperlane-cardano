@@ -20,7 +20,7 @@ import {
   preprodRelayerWallet,
 } from "./index";
 import { H256 } from "../offchain/h256";
-import { getProgramKhalaniTokens } from "../onchain/programs";
+import { getProgramKhalani } from "../onchain/programs";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { CardanoTokenName } from "../cardanoTokenName";
 import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
@@ -33,21 +33,23 @@ let lastOutboundMsg: Message;
 
 interface OutboundMessageRes {
   messageId: helios.ByteArray;
-  utxo: helios.UTxO;
+  utxoOutbox: helios.UTxO;
+  utxoKhalani?: helios.UTxO;
 }
 
 async function createOutboundMsg(
   ismParams: IsmParamsHelios,
   nonce: number,
   utxoOutbox: helios.UTxO,
-  wallet: Wallet
+  wallet: Wallet,
+  utxoKhalani?: helios.UTxO
 ): Promise<OutboundMessageRes> {
   lastOutboundMsg = {
     version: 0,
     nonce,
     originDomain: DOMAIN_CARDANO,
     sender: Address.fromHex(
-      `0x01000000${getProgramKhalaniTokens(ismParams).mintingPolicyHash.hex}`
+      `0x02000000${getProgramKhalani(ismParams).validatorHash.hex}`
     ),
     destinationDomain: FUJI_DOMAIN,
     recipient,
@@ -70,30 +72,33 @@ async function createOutboundMsg(
       ),
     }),
   };
-  const utxo = await createOutboundMessage(
+  const utxos = await createOutboundMessage(
     utxoOutbox,
     lastOutboundMsg,
     wallet,
-    ismParams
+    ismParams,
+    utxoKhalani
   );
   return {
     messageId: new helios.ByteArray(
       calculateMessageId(lastOutboundMsg).toByteArray()
     ),
-    utxo,
+    ...utxos,
   };
 }
 
 export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   emulatedNetwork.tick(1n);
-  const { utxo: emulatedUtxoOutbox } = await createOutbox(emulatedDappWallet);
+  const { utxoOutbox: emulatedUtxoOutbox, utxoKhalani: emulatedUtxoKhalani } =
+    await createOutbox(emulatedDappWallet, ismParams);
   emulatedNetwork.tick(1n);
 
   let createMsgRes = await createOutboundMsg(
     ismParams,
     0,
     emulatedUtxoOutbox,
-    emulatedDappWallet
+    emulatedDappWallet,
+    emulatedUtxoKhalani
   );
   emulatedNetwork.tick(1n);
 
@@ -108,8 +113,9 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
   createMsgRes = await createOutboundMsg(
     ismParams,
     1,
-    createMsgRes.utxo,
-    emulatedDappWallet
+    createMsgRes.utxoOutbox,
+    emulatedDappWallet,
+    createMsgRes.utxoKhalani
   );
   emulatedNetwork.tick(1n);
 
@@ -122,9 +128,11 @@ export async function testOutboxOnEmulatedNetwork(ismParams: IsmParamsHelios) {
 }
 
 export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
-  const { utxo: preprodUtxoOutbox, outboxAuthToken } = await createOutbox(
-    preprodRelayerWallet
-  );
+  const {
+    utxoOutbox: preprodUtxoOutbox,
+    utxoKhalani: preprodUtxoKhalani,
+    outboxAuthToken,
+  } = await createOutbox(preprodRelayerWallet, ismParams);
   console.log(`Create outbox at tx ${preprodUtxoOutbox.txId.hex}!`);
   await waitForTxConfirmation(preprodUtxoOutbox.txId);
 
@@ -132,12 +140,13 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
     ismParams,
     0,
     preprodUtxoOutbox,
-    preprodDappWallet
+    preprodDappWallet,
+    preprodUtxoKhalani
   );
   console.log(
-    `Submit first outbound message at tx ${createMsgRes.utxo.txId.hex}!`
+    `Submit first outbound message at tx ${createMsgRes.utxoOutbox.txId.hex}!`
   );
-  await waitForTxConfirmation(createMsgRes.utxo.txId);
+  await waitForTxConfirmation(createMsgRes.utxoOutbox.txId);
 
   let paidGas = await getOutboundGasPayment(
     preprodRelayerWallet.address,
@@ -168,13 +177,14 @@ export async function testOutboxOnPreprodNetwork(ismParams: IsmParamsHelios) {
   createMsgRes = await createOutboundMsg(
     ismParams,
     1,
-    createMsgRes.utxo,
-    preprodDappWallet
+    createMsgRes.utxoOutbox,
+    preprodDappWallet,
+    createMsgRes.utxoKhalani
   );
   console.log(
-    `Submit second outbound message at tx ${createMsgRes.utxo.txId.hex}!`
+    `Submit second outbound message at tx ${createMsgRes.utxoOutbox.txId.hex}!`
   );
-  await waitForTxConfirmation(createMsgRes.utxo.txId);
+  await waitForTxConfirmation(createMsgRes.utxoOutbox.txId);
 
   txId = await payOutboundRelayer(
     preprodDappWallet,

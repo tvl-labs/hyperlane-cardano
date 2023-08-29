@@ -3,6 +3,7 @@ import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import {
   getProgramOutbox,
   getProgramKhalaniTokens,
+  getProgramKhalani,
 } from "../../onchain/programs";
 import type { Wallet } from "../wallet";
 import {
@@ -17,8 +18,12 @@ export default async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
   outboxMessage: Message,
   wallet: Wallet,
-  ismParams?: IsmParamsHelios
-): Promise<helios.UTxO> {
+  ismParams?: IsmParamsHelios,
+  utxoKhalani?: helios.UTxO
+): Promise<{
+  utxoOutbox: helios.UTxO;
+  utxoKhalani?: helios.UTxO;
+}> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
   const messageId = calculateMessageId(outboxMessage);
@@ -30,25 +35,6 @@ export default async function createOutboundMessage(
   // Payment credential
   if (sender.startsWith("00")) {
     tx.addSigner(new helios.PubKeyHash(sender.substring(8)));
-  }
-  // Minting policy, only supporting Khalani
-  else if (sender.startsWith("01")) {
-    const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
-    if (sender !== `01000000${programKhalaniTokens.mintingPolicyHash.hex}`) {
-      throw new Error("Unsupported minting policy");
-    }
-    tx.attachScript(programKhalaniTokens);
-
-    const payloadBurn = parseMessagePayloadBurn(outboxMessage.body);
-    const mintKhalaniTokens: [number[], number][] = payloadBurn.tokens.map(
-      (token) => [token[0].toCardanoName(), -token[1]]
-    );
-    tx.mintTokens(
-      programKhalaniTokens.mintingPolicyHash,
-      mintKhalaniTokens,
-      new helios.MapData([])
-    );
-    tx.addSigner(new helios.PubKeyHash(payloadBurn.sender.hex().substring(10)));
   }
 
   // TODO: Better coin selection for end users
@@ -66,11 +52,38 @@ export default async function createOutboundMessage(
     )
   );
 
+  if (utxoKhalani != null) {
+    tx.addInput(utxoKhalani, new helios.ConstrData(0, []));
+    const programKhalani = getProgramKhalani(ismParams);
+    tx.attachScript(programKhalani);
+    tx.addOutput(utxoKhalani.origOutput);
+
+    const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
+    tx.attachScript(programKhalaniTokens);
+
+    const payloadBurn = parseMessagePayloadBurn(outboxMessage.body);
+    const mintKhalaniTokens: [number[], number][] = payloadBurn.tokens.map(
+      (token) => [token[0].toCardanoName(), -token[1]]
+    );
+    tx.mintTokens(
+      programKhalaniTokens.mintingPolicyHash,
+      mintKhalaniTokens,
+      new helios.MapData([])
+    );
+    tx.addSigner(new helios.PubKeyHash(payloadBurn.sender.hex().substring(10)));
+  }
+
   await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
   tx.addSignatures(await wallet.signTx(tx));
 
   const txId = await wallet.submitTx(tx);
 
-  return new helios.UTxO(txId, 0n, tx.body.outputs[0]);
+  return {
+    utxoOutbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
+    utxoKhalani:
+      utxoKhalani != null
+        ? new helios.UTxO(txId, 1n, utxoKhalani.origOutput)
+        : undefined,
+  };
 }

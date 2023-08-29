@@ -61,6 +61,15 @@ func main(datum: DatumOutbox, _, ctx: ScriptContext) -> Bool {
     // TODO: Use the second byte to enforce a redeemer?
     mph: MintingPolicyHash = MintingPolicyHash::new(message.sender.slice(4, 32));
     ctx.tx.minted.contains_policy(mph)
+  } else if (message.sender.slice(0, 1) == #02) {
+    // TODO: Use the second byte to enforce a redeemer?
+    vh: ValidatorHash = ValidatorHash::new(message.sender.slice(4, 32));
+    ctx.tx.inputs.any((input: TxInput) -> {
+      input.output.address.credential.switch {
+        v: Validator => v.hash == vh,
+        else => false
+      }
+    })
   } else {
     error("Unsupported sender format")
   }
