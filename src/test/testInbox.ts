@@ -43,12 +43,6 @@ function mockCheckpoint(
   const recipientAddressHash = helios.bytesToHex(
     helios.Crypto.blake2b(recipientAddress.bytes)
   );
-  // Make sure this (the 0x2 prefix) matches the outbox
-  const recipient = Address.fromHex(
-    `0x020000${helios.Address.fromValidatorHash(
-      getProgramKhalani(ismParams).validatorHash
-    ).toHex()}`
-  );
   return {
     origin: FUJI_DOMAIN,
     originMailbox: Address.fromHex(
@@ -62,7 +56,9 @@ function mockCheckpoint(
       originDomain: FUJI_DOMAIN,
       sender,
       destinationDomain: DOMAIN_CARDANO,
-      recipient,
+      recipient: Address.fromValidatorHash(
+        getProgramKhalani(ismParams).validatorHash
+      ),
       body: createMessagePayloadMint({
         rootChainId: FUJI_DOMAIN,
         rootSender: H256.from(sender.toBuffer()),

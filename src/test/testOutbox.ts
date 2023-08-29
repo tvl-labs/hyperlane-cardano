@@ -48,8 +48,8 @@ async function createOutboundMsg(
     version: 0,
     nonce,
     originDomain: DOMAIN_CARDANO,
-    sender: Address.fromHex(
-      `0x02000000${getProgramKhalani(ismParams).validatorHash.hex}`
+    sender: Address.fromValidatorHash(
+      getProgramKhalani(ismParams).validatorHash
     ),
     destinationDomain: FUJI_DOMAIN,
     recipient,

@@ -49,7 +49,7 @@ async function buildInboundMessageTx(
   tx.addOutput(
     new helios.TxOutput(
       // Support: Stake credentials
-      new helios.Address(checkpoint.message.recipient.toHex().substr(-58)),
+      checkpoint.message.recipient.toCardanoAddress(),
       new helios.Value(
         0n, // Let Helios calculate the min ADA!
         new helios.Assets([
