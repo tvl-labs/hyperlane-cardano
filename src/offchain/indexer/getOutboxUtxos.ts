@@ -15,10 +15,10 @@ export async function getOutboxUtxos(
 ): Promise<OutboxUtxo[]> {
   const addressOutbox = helios.Address.fromValidatorHash(
     getProgramOutbox().validatorHash
-  );
+  ).toBech32();
 
   const utxosResponse: any = await fetch(
-    `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos/${outboxAuthToken}`,
+    `${blockfrostPrefix}/addresses/${addressOutbox}/utxos/${outboxAuthToken}`,
     {
       headers: {
         project_id: blockfrostProjectId,
@@ -26,8 +26,7 @@ export async function getOutboxUtxos(
     }
   ).then(async (r) => await r.json());
 
-  const utxos = await parseBlockfrostUtxos(utxosResponse, addressOutbox);
-  return utxos.map(parseOutboxUtxo);
+  return parseBlockfrostUtxos(utxosResponse).map(parseOutboxUtxo);
 }
 
 function parseOutboxUtxo(utxo: helios.UTxO): OutboxUtxo {

@@ -20,5 +20,5 @@ export async function getUsdcRequestUTxOs(
     }
   ).then(async (r) => await r.json());
 
-  return await parseBlockfrostUtxos(utxos, addressKhalaniRecipient);
+  return parseBlockfrostUtxos(utxos);
 }

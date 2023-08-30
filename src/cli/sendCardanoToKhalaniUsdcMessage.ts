@@ -1,6 +1,9 @@
 import type * as helios from "@hyperionbt/helios";
 import "dotenv/config";
-import { getProgramKhalaniTokens } from "../onchain/programs";
+import {
+  getProgramKhalani,
+  getProgramKhalaniTokens,
+} from "../onchain/programs";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
 import { type Wallet } from "../offchain/wallet";
@@ -19,6 +22,7 @@ import {
 } from "../offchain/indexer/getOutboxUtxos";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { type Message } from "../offchain/message";
+import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
 
 export const KHALANI_CHAIN_ID = 10012;
 
@@ -34,19 +38,14 @@ async function prepareMessage(
   outboxUtxo: OutboxUtxo,
   senderWallet: Wallet
 ): Promise<Message> {
-  const ismParamsHelios = getIsmParamsHelios();
   const nonce = outboxUtxo.message != null ? outboxUtxo.message.nonce + 1 : 0;
-  const sender = Address.fromHex(
-    `0x01000000${
-      getProgramKhalaniTokens(ismParamsHelios).mintingPolicyHash.hex
-    }`
-  );
+  const sender = Address.fromValidatorHash(getProgramKhalani().validatorHash);
   const messagePayloadBurn = createMessagePayloadBurn({
     sender: H256.from(
       Buffer.from(`00000000${senderWallet.address.toHex().substring(2)}`, "hex")
     ),
     destinationChainId: KHALANI_CHAIN_ID,
-    tokens: [[CardanoTokenName.fromTokenName("USDC"), 300500100200]],
+    tokens: [[CardanoTokenName.fromTokenName("USDC"), 1_000_000]],
     // TODO: fill in trades to actually bridge to FUJI.
     interchainLiquidityHubPayload: MessagePayload.empty(),
     isSwapWithAggregateToken: false,
@@ -87,6 +86,7 @@ async function findUsdcUtxos(wallet: Wallet): Promise<UsdcUtxo[]> {
 }
 
 async function sendCardanoToKhalaniUsdcMessage() {
+  const ismParamsHelios = getIsmParamsHelios();
   const wallet = createWallet(
     process.env.DAPP_WALLET_ADDRESS,
     process.env.DAPP_WALLET_PRIVATE_KEY
@@ -108,10 +108,13 @@ async function sendCardanoToKhalaniUsdcMessage() {
   }
   const outboxUtxo = outboxUtxos[0];
   const message = await prepareMessage(outboxUtxo, wallet);
+  const khalaniUtxo = await getOutboundKhalaniUTxO();
   const { utxoOutbox } = await createOutboundMessage(
     outboxUtxo.utxo,
     message,
-    wallet
+    wallet,
+    ismParamsHelios,
+    khalaniUtxo
   );
   console.log(`Submit outbound message at tx ${utxoOutbox.txId.hex}`);
   await waitForTxConfirmation(utxoOutbox.txId);
