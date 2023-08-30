@@ -1,19 +1,22 @@
 import "dotenv/config";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { Address } from "../offchain/address";
-import { getProgramKhalani, getProgramKhalaniTokens } from "../onchain/programs";
+import {
+  getProgramKhalani,
+  getProgramKhalaniTokens,
+} from "../onchain/programs";
 import { getIsmParamsHelios, processInboundMessage } from "../offchain/inbox";
 import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
 import { createWallet } from "./wallet";
-import { type IsmParamsHelios } from '../offchain/inbox/ismParams';
-import { type UplcProgram } from '@hyperionbt/helios';
-import { type Wallet } from '../offchain/wallet';
+import { type IsmParamsHelios } from "../offchain/inbox/ismParams";
+import { type UplcProgram } from "@hyperionbt/helios";
+import { type Wallet } from "../offchain/wallet";
 
 interface ScriptParameters {
-  ismParamsHelios: IsmParamsHelios,
-  programKhalaniTokens: UplcProgram,
-  khalaniScriptAddress: Address,
-  relayerWallet: Wallet,
+  ismParamsHelios: IsmParamsHelios;
+  programKhalaniTokens: UplcProgram;
+  khalaniScriptAddress: Address;
+  relayerWallet: Wallet;
 }
 
 function getParameters(): ScriptParameters {
@@ -21,7 +24,9 @@ function getParameters(): ScriptParameters {
   const ismParamsHelios = getIsmParamsHelios();
   const programKhalaniTokens = getProgramKhalaniTokens(ismParamsHelios);
   const programKhalani = getProgramKhalani(ismParamsHelios);
-  const khalaniScriptAddress = Address.fromValidatorHash(programKhalani.validatorHash);
+  const khalaniScriptAddress = Address.fromValidatorHash(
+    programKhalani.validatorHash
+  );
   console.log(`Khalani Script Address: ${khalaniScriptAddress.toHex()}`);
   return {
     ismParamsHelios,
@@ -31,7 +36,9 @@ function getParameters(): ScriptParameters {
   };
 }
 
-export async function processPendingUsdcMintRequests(parameters: ScriptParameters) {
+export async function processPendingUsdcMintRequests(
+  parameters: ScriptParameters
+) {
   const { khalaniScriptAddress, ismParamsHelios, relayerWallet } = parameters;
   const utxos = await getUsdcRequestUTxOs(khalaniScriptAddress);
   if (utxos.length === 0) {
