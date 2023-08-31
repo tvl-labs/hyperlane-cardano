@@ -27,7 +27,7 @@ import { DOMAIN_CARDANO } from "../../rpc/mock/cardanoDomain";
 export const KHALANI_CHAIN_ID = 10012;
 
 const khalaniProtocolRecipient = Address.fromHex(
-  "0x0000000000000000000000000B7af337DEb05016Eff7a645daD0D56eDe7601A6"
+  "0x000000000000000000000000e676E5f0f1e2E162F6B95577E2603638159a7C9B"
 );
 
 const fujiRecipient = Address.fromHex(
