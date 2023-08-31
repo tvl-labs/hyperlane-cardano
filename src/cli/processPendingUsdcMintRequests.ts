@@ -27,7 +27,7 @@ function getParameters(): ScriptParameters {
   const khalaniScriptAddress = Address.fromValidatorHash(
     programKhalani.validatorHash
   );
-  console.log(`Khalani Script Address: ${khalaniScriptAddress.toHex()}`);
+  console.log(`Khalani Script Address: ${khalaniScriptAddress.toHex()} ${khalaniScriptAddress.toCardanoAddress().toBech32()}`);
   return {
     ismParamsHelios,
     programKhalaniTokens,
