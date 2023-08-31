@@ -57,8 +57,12 @@ export async function processPendingUsdcMintRequests(
       );
       await waitForTxConfirmation(txId);
       console.log(`Processed ${utxoId} at tx ${txId.hex}!`);
-    } catch (e) {
-      console.error(`Failed to process ${utxoId}`, e);
+    } catch (e: any) {
+      if ((e?.message as string)?.includes("No ISM auth tokens")) {
+        console.log(`Skipping ${utxoId} UTXO as it's missing the auth tokens`);
+      } else {
+        console.error(`Failed to process ${utxoId}`, e);
+      }
     }
   }
 }
