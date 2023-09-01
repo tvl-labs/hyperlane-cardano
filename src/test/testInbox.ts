@@ -44,12 +44,10 @@ function mockCheckpoint(
     helios.Crypto.blake2b(recipientAddress.bytes)
   );
   return {
-    origin: FUJI_DOMAIN,
     originMailbox: Address.fromHex(
       "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
     ),
     checkpointRoot: H256.zero(),
-    checkpointIndex: 0,
     message: {
       version: 0,
       nonce: 0,

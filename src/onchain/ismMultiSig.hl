@@ -28,14 +28,10 @@ enum Redeemer {
   // "Int" is unbounded in Plutus so we use "ByteArray" for "origin"
   // and "checkpoint_index" to easier handle padding.
   IssueMessage {
-    // The origin domain of the checkpoint
-    origin: ByteArray
     // The address of the origin mailbox
     origin_mailbox: ByteArray
     // The root of the checkpoint
     checkpoint_root: ByteArray
-    // The index of the checkpoint
-    checkpoint_index: ByteArray
     // The signatures signed on the hash
     signatures: []ByteArray
   }
@@ -61,15 +57,7 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
       })
     },
     checkpoint: IssueMessage => {
-      // (1) Validate checkpoint
-      // TODO: We can remove these checks to save space
-      // As we trust the provided signatures anyway.
-      assert(checkpoint.origin.length == 4, "invalid origin");
-      assert(checkpoint.origin_mailbox.length == 32, "invalid origin_mailbox");
-      assert(checkpoint.checkpoint_root.length == 32, "invalid checkpoint_root");
-      assert(checkpoint.checkpoint_index.length == 4, "invalid checkpoint_index");
-
-      // (2) Must consume an authentic inbox
+      // (1) Must consume an authentic inbox
       inbox_inputs: []TxInput = ctx.tx.inputs.filter((input: TxInput) -> {
         input.output.address == INBOX_ADDRESS
       });
@@ -79,7 +67,7 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
         "Must consume an authentic inbox"
       );
 
-      // (3) Must produce a single valid message UTxO, which is the only
+      // (2) Must produce a single valid message UTxO, which is the only
       // non-inbox output that can hold an ISM token.
       authentic_outputs: []TxOutput = ctx.tx.outputs.filter((output: TxOutput) -> {
         output.address != INBOX_ADDRESS &&
@@ -95,17 +83,17 @@ func main(redeemer: Redeemer, ctx: ScriptContext) -> Bool {
       assert(output.address == message.get_recipient(), "invalid output address");
       message_hash: ByteArray = message.id();
 
-      // (4) Must mint only a single message token and to the recipient address.
+      // (3) Must mint only a single message token and to the recipient address.
       value_message_token = Value::new(AssetClass::new(own_mph, message_hash), 1);
       assert(ctx.tx.minted == value_message_token, "invalid minting");
       assert(output.value.get_assets() == value_message_token, "invalid message token");
 
-      // (5) The submitted message is signed by the required number of "owners".
+      // (4) The submitted message is signed by the required number of "owners".
       // NOTE: We can look up faster by adding the public key to each checkpoint signature.
       checkpoint_digest: ByteArray = (
-        (checkpoint.origin + checkpoint.origin_mailbox + LABEL_HYPERLANE).blake2b() +
+        (message.origin_domain + checkpoint.origin_mailbox + LABEL_HYPERLANE).blake2b() +
         checkpoint.checkpoint_root +
-        checkpoint.checkpoint_index +
+        message.nonce +
         message_hash
       ).blake2b();
       valid_signatures: []ByteArray = checkpoint.signatures.filter((signature: ByteArray) -> {

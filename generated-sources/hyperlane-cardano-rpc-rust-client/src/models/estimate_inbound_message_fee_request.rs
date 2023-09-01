@@ -13,14 +13,10 @@
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct EstimateInboundMessageFeeRequest {
-    #[serde(rename = "origin")]
-    pub origin: u32,
     #[serde(rename = "originMailbox")]
     pub origin_mailbox: String,
     #[serde(rename = "checkpointRoot")]
     pub checkpoint_root: String,
-    #[serde(rename = "checkpointIndex")]
-    pub checkpoint_index: u32,
     #[serde(rename = "message")]
     pub message: Box<crate::models::EstimateInboundMessageFeeRequestMessage>,
     #[serde(rename = "signatures")]
@@ -28,12 +24,10 @@ pub struct EstimateInboundMessageFeeRequest {
 }
 
 impl EstimateInboundMessageFeeRequest {
-    pub fn new(origin: u32, origin_mailbox: String, checkpoint_root: String, checkpoint_index: u32, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> EstimateInboundMessageFeeRequest {
+    pub fn new(origin_mailbox: String, checkpoint_root: String, message: crate::models::EstimateInboundMessageFeeRequestMessage, signatures: Vec<String>) -> EstimateInboundMessageFeeRequest {
         EstimateInboundMessageFeeRequest {
-            origin,
             origin_mailbox,
             checkpoint_root,
-            checkpoint_index,
             message: Box::new(message),
             signatures,
         }

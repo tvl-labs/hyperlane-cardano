@@ -221,16 +221,10 @@ paths:
             schema:
               type: object
               properties:
-                origin:
-                  type: integer
-                  minimum: 0
                 originMailbox:
                   type: string
                 checkpointRoot:
                   type: string
-                checkpointIndex:
-                  type: integer
-                  minimum: 0
                 message:
                   type: object
                   properties:
@@ -265,10 +259,8 @@ paths:
                   items:
                     type: string # hex
               required:
-                - origin
                 - originMailbox
                 - checkpointRoot
-                - checkpointIndex
                 - message
                 - signatures
       responses:
@@ -295,16 +287,10 @@ paths:
             schema:
               type: object
               properties:
-                origin:
-                  type: integer
-                  minimum: 0
                 originMailbox:
                   type: string
                 checkpointRoot:
                   type: string
-                checkpointIndex:
-                  type: integer
-                  minimum: 0
                 message:
                   type: object
                   properties:
@@ -339,10 +325,8 @@ paths:
                   items:
                     type: string # hex
               required:
-                - origin
                 - originMailbox
                 - checkpointRoot
-                - checkpointIndex
                 - message
                 - signatures
       responses:

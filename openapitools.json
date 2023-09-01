@@ -10,7 +10,7 @@
         "inputSpec": "./openapi.yaml",
         "additionalProperties": {
           "packageName": "hyperlane-cardano-rpc-rust-client",
-          "packageVersion": "1.0.9",
+          "packageVersion": "1.0.10",
           "preferUnsignedInt": true
         }
       }

@@ -3,4 +3,5 @@ generated-sources
 node_modules
 src/rpc/openapi.d.ts
 app/khalani-app/next-env.d.ts
+app/khalani-app/next.config.js
 app/khalani-app/.next

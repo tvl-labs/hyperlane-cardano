@@ -47,6 +47,8 @@ export type webhooks = Record<string, never>;
 
 export type components = Record<string, never>;
 
+export type $defs = Record<string, never>;
+
 export type external = Record<string, never>;
 
 export interface operations {
@@ -178,10 +180,8 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          origin: number;
           originMailbox: string;
           checkpointRoot: string;
-          checkpointIndex: number;
           message: {
             version: number;
             nonce: number;
@@ -211,10 +211,8 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          origin: number;
           originMailbox: string;
           checkpointRoot: string;
-          checkpointIndex: number;
           message: {
             version: number;
             nonce: number;

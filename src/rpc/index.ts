@@ -244,10 +244,8 @@ app.post(
         await estimateInboundMessageFee.estimateInboundMessageFee(
           new Wallet(new helios.Address(process.env.WALLET_ADDRESS ?? "")),
           {
-            origin: req.body.origin,
             originMailbox: Address.fromHex(req.body.originMailbox),
             checkpointRoot: H256.fromHex(req.body.checkpointRoot),
-            checkpointIndex: req.body.checkpointIndex,
             message: {
               version: req.body.message.version,
               nonce: req.body.message.nonce,
@@ -283,10 +281,8 @@ app.post(
           new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
         ),
         {
-          origin: req.body.origin,
           originMailbox: Address.fromHex(req.body.originMailbox),
           checkpointRoot: H256.fromHex(req.body.checkpointRoot),
-          checkpointIndex: req.body.checkpointIndex,
           message: {
             version: req.body.message.version,
             nonce: req.body.message.nonce,
