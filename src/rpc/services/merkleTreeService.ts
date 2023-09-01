@@ -14,7 +14,6 @@ export class MerkleTreeService implements IMerkleTreeService {
     const addressOutbox = helios.Address.fromValidatorHash(
       getProgramOutbox().validatorHash
     );
-    console.log(addressOutbox.toBech32());
 
     // NOTE: We assume only a single UTxO exists for an NFT auth token
     const [utxo]: any = await fetch(
