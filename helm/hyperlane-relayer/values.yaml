@@ -12,7 +12,7 @@ image:
 
 # Use the locally built image.
   repository: host.docker.internal:5000/hyperlane-cardano-local
-  tag: "20230901125726"
+  tag: "20230903142837"
 
 imagePullSecrets:
   - name: ghcr-login-secret
@@ -27,6 +27,7 @@ relayer:
   destinationChainRpc: ""
   privateKey: ""
   useBlake2MerkleTree: false
+  extraGas: "50000" # Default value of the Hyperlane https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/c7ad0f4433f6661bf930fe6d6581c1187da84692/rust/chains/hyperlane-ethereum/src/tx.rs#L16
 
 serviceAccount:
   create: true

@@ -76,6 +76,8 @@ spec:
               value: debug
             - name: HYP_BASE_TRACING_FMT
               value: pretty
+            - name: HYP_GAS_ESTIMATE_BUFFER
+              value: {{ .Values.relayer.extraGas | quote }}
           ports:
             - name: metrics
               containerPort: 9090

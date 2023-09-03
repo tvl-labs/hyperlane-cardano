@@ -8,3 +8,4 @@ relayer:
   # Has some Khalani tokens: https://block-explorer.testnet.khalani.network/address/0xeF15Cce9403021E0Ab594E942210f6544ced3565
   privateKey: "0x0675c04edcb1cdf90e4e4bb17bd76c971a8a5a36f0b18f13b24133b52feb4dd2"
   useBlake2MerkleTree: true
+  extraGas: "250000"
