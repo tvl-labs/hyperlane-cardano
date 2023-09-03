@@ -22,6 +22,7 @@ import { H256 } from "../../offchain/h256";
 import { CardanoTokenName } from "../../cardanoTokenName";
 import { type OutboxUtxo } from "../../offchain/indexer/getOutboxUtxos";
 import { DOMAIN_CARDANO } from "../../rpc/mock/cardanoDomain";
+import { FUJI_DOMAIN } from '../../rpc/mock/mockInitializer';
 
 // TODO: Read from env/args?
 export const KHALANI_CHAIN_ID = 10012;
@@ -37,10 +38,13 @@ const fujiRecipient = Address.fromHex(
 export async function prepareOutboundMessage(
   outboxUtxo: OutboxUtxo,
   senderWallet: Wallet,
-  redeemAmount = 1_000_000
+  redeemAmount = 2_000_000
 ): Promise<Message> {
   const nonce = outboxUtxo.message != null ? outboxUtxo.message.nonce + 1 : 0;
   const sender = Address.fromValidatorHash(getProgramKhalani().validatorHash);
+  // TODO: this payload explicitly hard-codes 2.000.000 of klnUSDC to be swapped to USDC.fuji
+  //  We will have a full fledged integration with Khalani SDK to allow for customizing this value.
+  const interchainLiquidityHubPayload = MessagePayload.fromHexString("0x642182f300000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000006e5a767f0000000000000000000000000000000000000000000000000000000000000080b50dc24e616bc0b90c6e12b935e43ed21a54be9a000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000001bc16d674ec800000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000875863d88bf0c9a088a274a0263a903434b306aa00000000000000000000000088aa6c2584b2095cfa0e0cd3234b738125f7735400000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000001bc16d674ec80000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe1e3ca");
   const messagePayloadBurn = createMessagePayloadBurn({
     sender: H256.from(
       Buffer.from(
@@ -48,10 +52,9 @@ export async function prepareOutboundMessage(
         "hex"
       )
     ),
-    destinationChainId: KHALANI_CHAIN_ID,
+    destinationChainId: FUJI_DOMAIN,
     tokens: [[CardanoTokenName.fromTokenName("USDC"), redeemAmount]],
-    // TODO: fill in trades to actually bridge to FUJI.
-    interchainLiquidityHubPayload: MessagePayload.empty(),
+    interchainLiquidityHubPayload,
     isSwapWithAggregateToken: false,
     recipientAddress: H256.from(fujiRecipient.toBuffer()),
     message: MessagePayload.empty(),
