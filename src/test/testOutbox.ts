@@ -1,8 +1,7 @@
 import type { Wallet } from "../offchain/wallet";
 import { calculateMessageId, type Message } from "../offchain/message";
-import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
+import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../rpc/mock/domains";
 import { Address } from "../offchain/address";
-import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
 import {
   createMessagePayloadBurn,
   MessagePayload,
@@ -51,13 +50,13 @@ async function createOutboundMsg(
     sender: Address.fromValidatorHash(
       getProgramKhalani(ismParams).validatorHash
     ),
-    destinationDomain: FUJI_DOMAIN,
+    destinationDomain: DOMAIN_FUJI,
     recipient,
     body: createMessagePayloadBurn({
       sender: H256.from(
         Buffer.from(`00000000${wallet.address.toHex().substring(2)}`, "hex")
       ),
-      destinationChainId: FUJI_DOMAIN,
+      destinationChainId: DOMAIN_FUJI,
       tokens: [[CardanoTokenName.fromTokenName("USDC"), nonce + 7]],
       interchainLiquidityHubPayload: MessagePayload.fromHexString("0x333444"),
       isSwapWithAggregateToken: false,

@@ -18,7 +18,6 @@ imagePullSecrets:
   - name: ghcr-login-secret
 
 cardanoRpc:
-  mockEnv: false
   BLOCKFROST_PROJECT_ID: ""
   BLOCKFROST_PREFIX: ""
   OUTBOX_AUTH_TOKEN: ""

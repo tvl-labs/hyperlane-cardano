@@ -1,6 +1,6 @@
 import type * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import { blockfrostPrefix, blockfrostProjectId } from './blockfrost';
+import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
 
 const NO_CONFIRMATIONS = 3;
 

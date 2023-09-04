@@ -14,8 +14,7 @@ import {
   createMessagePayloadMint,
   MessagePayload,
 } from "../offchain/messagePayload";
-import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
-import { FUJI_DOMAIN } from "../rpc/mock/mockInitializer";
+import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../rpc/mock/domains";
 import {
   isInboundMessageDelivered,
   estimateInboundMessageFee,
@@ -51,14 +50,14 @@ function mockCheckpoint(
     message: {
       version: 0,
       nonce: 0,
-      originDomain: FUJI_DOMAIN,
+      originDomain: DOMAIN_FUJI,
       sender,
       destinationDomain: DOMAIN_CARDANO,
       recipient: Address.fromValidatorHash(
         getProgramKhalani(ismParams).validatorHash
       ),
       body: createMessagePayloadMint({
-        rootChainId: FUJI_DOMAIN,
+        rootChainId: DOMAIN_FUJI,
         rootSender: H256.from(sender.toBuffer()),
         // USDC
         tokens: [[CardanoTokenName.fromTokenName("USDC"), 150_000_000]],

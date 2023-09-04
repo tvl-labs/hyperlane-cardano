@@ -1,5 +1,4 @@
 cardanoRpc:
-  mockEnv: false
   BLOCKFROST_PROJECT_ID: "preprodbsnaSdm0tOwT9Ifr1ynCXnMpz9MBZhRm"
   BLOCKFROST_PREFIX: "https://cardano-preprod.blockfrost.io/api/v0"
   OUTBOX_AUTH_TOKEN: "a323e9504bb4d82ad8140f605e31d7a13bb6f58af35d89a7fcc5183261757468"

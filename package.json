@@ -12,7 +12,6 @@
     "deployNewOutbox": "npm run build && node dist/deployNewOutbox.js",
     "createValidatorKey": "npm run build && node dist/createValidatorKey.js",
     "announceValidatorStorage": "npm run build && node dist/announceValidatorStorage.js --announcement-file $HOME/.local-hyperlane-checkpoints/0x70997970C51812dc3A010C7d01b50e0d17dc79C8/announcement.json",
-    "start-rpc-mock": "PORT=3000 MOCK_ENV=true node dist/rpc.js",
     "start-rpc-preprod": "yarn build && node dist/rpc.js",
     "jest": "jest",
     "lint": "npx eslint '**/*.{js,ts}'",

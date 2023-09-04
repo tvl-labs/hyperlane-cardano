@@ -34,8 +34,6 @@ import {
   submitInboundMessage,
   validatorAnnouncement,
 } from "./services/services";
-import { IS_MOCK_ENVIRONMENT } from "./environment";
-import { mockPrefillState } from "./mock/mockInitializer";
 import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
 import { Wallet } from "../offchain/wallet";
@@ -332,13 +330,5 @@ app.use((err, req, res, _) => {
 });
 
 const PORT = process.env.PORT ?? 3000;
-console.log(
-  `Starting RPC on port ${PORT} in ${
-    IS_MOCK_ENVIRONMENT ? "mock" : "production"
-  } environment`
-);
+console.log(`Starting RPC on port ${PORT}`);
 http.createServer(app).listen(PORT);
-
-if (IS_MOCK_ENVIRONMENT) {
-  mockPrefillState();
-}
