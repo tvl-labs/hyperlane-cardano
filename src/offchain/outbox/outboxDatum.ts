@@ -1,5 +1,5 @@
 import * as helios from "@hyperionbt/helios";
-import type { HeliosMerkleTree } from "../../merkle/helios.merkle";
+import type { HeliosMerkleTree } from "../merkle/helios.merkle";
 import { deserializeMerkleTree, serializeMerkleTree } from "./outboxMerkle";
 import { type Message, serializeMessage } from "../message";
 
