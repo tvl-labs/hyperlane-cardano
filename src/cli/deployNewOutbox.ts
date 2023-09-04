@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { createWallet } from "./wallet";
 import createOutbox from "../offchain/tx/createOutbox";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 
 export async function deployNewOutbox() {
   const wallet = createWallet();

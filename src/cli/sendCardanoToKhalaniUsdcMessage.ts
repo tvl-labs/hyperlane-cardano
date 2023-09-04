@@ -10,7 +10,7 @@ import {
   createOutboundMessage,
 } from "../offchain/tx/createOutboundMessage";
 import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
 
 interface UsdcUtxo {

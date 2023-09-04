@@ -1,6 +1,6 @@
 import * as helios from "@hyperionbt/helios";
 import secp256k1 from "secp256k1";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import {
   emulatedNetwork,
   emulatedRelayerWallet,

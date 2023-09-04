@@ -11,7 +11,7 @@ import * as helios from "@hyperionbt/helios";
 import { createOutboundMessage } from "../offchain/tx/createOutboundMessage";
 import payOutboundRelayer from "../offchain/tx/payOutboundRelayer";
 import createOutbox from "../offchain/tx/createOutbox";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import { getOutboundGasPayment } from "../offchain/indexer/getOutboundGasPayment";
 import {
   emulatedNetwork,

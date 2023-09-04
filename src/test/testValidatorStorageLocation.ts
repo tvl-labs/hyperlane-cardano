@@ -6,7 +6,7 @@ import {
 } from "../offchain/validatorStorageLocation";
 import { DOMAIN_CARDANO } from "../rpc/mock/cardanoDomain";
 import { Address } from "../offchain/address";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import {
   emulatedNetwork,
   emulatedRelayerWallet,

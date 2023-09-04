@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import { Address } from "../offchain/address";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";

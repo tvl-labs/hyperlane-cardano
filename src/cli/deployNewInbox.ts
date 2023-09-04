@@ -1,6 +1,6 @@
 import "dotenv/config";
 import createInbox from "../offchain/tx/createInbox";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import { createWallet } from "./wallet";
 
 export async function deployNewInbox() {

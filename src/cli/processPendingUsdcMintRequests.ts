@@ -6,7 +6,7 @@ import {
   getProgramKhalaniTokens,
 } from "../onchain/programs";
 import { getIsmParamsHelios, processInboundMessage } from "../offchain/inbox";
-import { waitForTxConfirmation } from "../offchain/waitForTxConfirmation";
+import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import { createWallet } from "./wallet";
 import { type IsmParamsHelios } from "../offchain/inbox/ismParams";
 import { type UplcProgram } from "@hyperionbt/helios";
