@@ -14,7 +14,7 @@ import {
   createMessagePayloadMint,
   MessagePayload,
 } from "../offchain/messagePayload";
-import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../rpc/mock/domains";
+import { DOMAIN_CARDANO, DOMAIN_FUJI } from "./testDomains";
 import {
   isInboundMessageDelivered,
   estimateInboundMessageFee,

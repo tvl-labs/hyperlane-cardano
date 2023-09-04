@@ -4,7 +4,7 @@ import {
   signValidatorStorageLocation,
   type ValidatorStorageLocation,
 } from "../offchain/validatorStorageLocation";
-import { DOMAIN_CARDANO } from "../rpc/mock/domains";
+import { DOMAIN_CARDANO } from "./testDomains";
 import { Address } from "../offchain/address";
 import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import {

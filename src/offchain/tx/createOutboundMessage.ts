@@ -21,7 +21,7 @@ import { Address } from "../address";
 import { H256 } from "../h256";
 import { CardanoTokenName } from "../cardanoTokenName";
 import { type OutboxUtxo } from "../indexer/getOutboxUtxos";
-import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../../rpc/mock/domains";
+import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../../test/testDomains";
 
 // TODO: Read from env/args?
 export const KHALANI_CHAIN_ID = 10012;

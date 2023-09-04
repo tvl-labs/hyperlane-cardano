@@ -1,6 +1,6 @@
 import type { Wallet } from "../offchain/wallet";
 import { calculateMessageId, type Message } from "../offchain/message";
-import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../rpc/mock/domains";
+import { DOMAIN_CARDANO, DOMAIN_FUJI } from "./testDomains";
 import { Address } from "../offchain/address";
 import {
   createMessagePayloadBurn,
