@@ -19,7 +19,7 @@ import {
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { Address } from "../address";
 import { H256 } from "../h256";
-import { CardanoTokenName } from "../../cardanoTokenName";
+import { CardanoTokenName } from "../cardanoTokenName";
 import { type OutboxUtxo } from "../indexer/getOutboxUtxos";
 import { DOMAIN_CARDANO, DOMAIN_FUJI } from "../../rpc/mock/domains";
 

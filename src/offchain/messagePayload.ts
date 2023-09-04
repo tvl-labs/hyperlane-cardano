@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import { ethers } from "ethers";
 import { H256 } from "./h256";
-import { CardanoTokenName } from "../cardanoTokenName";
+import { CardanoTokenName } from "./cardanoTokenName";
 
 export class MessagePayload {
   private readonly bytes: Buffer;

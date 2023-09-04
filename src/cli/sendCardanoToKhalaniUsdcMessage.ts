@@ -3,7 +3,7 @@ import "dotenv/config";
 import { getProgramKhalaniTokens } from "../onchain/programs";
 import { type Wallet } from "../offchain/wallet";
 import { createWallet } from "./wallet";
-import { CardanoTokenName } from "../cardanoTokenName";
+import { CardanoTokenName } from "../offchain/cardanoTokenName";
 import { getIsmParamsHelios } from "../offchain/inbox";
 import {
   prepareOutboundMessage,

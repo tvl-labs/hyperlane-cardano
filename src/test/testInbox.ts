@@ -29,7 +29,7 @@ import { H256 } from "../offchain/h256";
 import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { convertUtxoToJson } from "./debug";
 import { getProgramKhalani } from "../onchain/programs";
-import { CardanoTokenName } from "../cardanoTokenName";
+import { CardanoTokenName } from "../offchain/cardanoTokenName";
 
 // TODO: Build several edge cases.
 

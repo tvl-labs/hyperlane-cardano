@@ -21,7 +21,7 @@ import {
 import { H256 } from "../offchain/h256";
 import { getProgramKhalani } from "../onchain/programs";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
-import { CardanoTokenName } from "../cardanoTokenName";
+import { CardanoTokenName } from "../offchain/cardanoTokenName";
 import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 
 const recipient = Address.fromHex(
