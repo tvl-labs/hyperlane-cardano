@@ -1,6 +1,9 @@
 import type * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../blockfrost/blockfrost";
 
 // This will scale VERY poorly, and benefit a ton from
 // custom caching/indexing.

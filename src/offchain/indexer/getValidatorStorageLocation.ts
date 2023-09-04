@@ -1,7 +1,10 @@
 import { ethers } from "ethers";
 import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
-import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../blockfrost/blockfrost";
 import type { Address } from "../address";
 import {
   deserializeValidatorStorageLocation,

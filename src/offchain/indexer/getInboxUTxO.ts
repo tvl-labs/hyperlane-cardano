@@ -6,7 +6,10 @@ import {
   getProgramIsmKhalani,
 } from "../../onchain/programs";
 import type { IsmParamsHelios } from "../inbox/ismParams";
-import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../blockfrost/blockfrost";
 import { parseBlockfrostUtxo } from "./parseBlockfrostUtxos";
 
 export async function getInboxUTxO(

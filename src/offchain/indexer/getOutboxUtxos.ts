@@ -1,7 +1,10 @@
 import * as helios from "@hyperionbt/helios";
 import { getProgramOutbox } from "../../onchain/programs";
 import fetch from "node-fetch";
-import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../blockfrost/blockfrost";
 import { parseBlockfrostUtxos } from "./parseBlockfrostUtxos";
 import { deserializeMessage, type Message } from "../message";
 

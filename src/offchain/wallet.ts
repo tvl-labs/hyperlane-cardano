@@ -1,5 +1,5 @@
 import * as helios from "@hyperionbt/helios";
-import { blockfrost } from "../offchain/indexer/blockfrost";
+import { blockfrost } from "./blockfrost/blockfrost";
 
 export class Wallet {
   readonly address: helios.Address;

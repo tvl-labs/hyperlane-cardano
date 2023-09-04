@@ -1,7 +1,10 @@
 import * as helios from "@hyperionbt/helios";
 import { getProgramKhalani } from "../../onchain/programs";
 import fetch from "node-fetch";
-import { blockfrostPrefix, blockfrostProjectId } from "./blockfrost";
+import {
+  blockfrostPrefix,
+  blockfrostProjectId,
+} from "../blockfrost/blockfrost";
 import { parseBlockfrostUtxo } from "./parseBlockfrostUtxos";
 
 // TODO: Share with `createOutbox`

@@ -4,7 +4,7 @@ import { type ILastFinalizedBlockNumberService } from "./ILastFinalizedBlockNumb
 import {
   blockfrostPrefix,
   blockfrostProjectId,
-} from "../../offchain/indexer/blockfrost";
+} from "../../offchain/blockfrost/blockfrost";
 
 export class LastFinalizedBlockNumberService
   implements ILastFinalizedBlockNumberService

@@ -22,21 +22,18 @@ export async function processInboundMessage(
 
   // Burn the ISM token
   const ismMultiSig = getProgramIsmKhalani(ismParams);
-  const tokens = utxoMessage.value.assets.getTokens(ismMultiSig.mintingPolicyHash);
+  const tokens = utxoMessage.value.assets.getTokens(
+    ismMultiSig.mintingPolicyHash
+  );
   if (tokens.length === 0) {
-    throw new Error('No ISM auth tokens attached to the UTXO, skipping');
+    throw new Error("No ISM auth tokens attached to the UTXO, skipping");
   }
   const tokenName = tokens[0][0].bytes;
 
   tx.attachScript(ismMultiSig);
   tx.mintTokens(
     ismMultiSig.mintingPolicyHash,
-    [
-      [
-        tokenName,
-        BigInt(-1),
-      ],
-    ],
+    [[tokenName, BigInt(-1)]],
     new helios.ConstrData(2, [])
   );
 

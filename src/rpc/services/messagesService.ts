@@ -6,7 +6,7 @@ import { type IMessagesService } from "./IMessagesService";
 import {
   blockfrostPrefix,
   blockfrostProjectId,
-} from "../../offchain/indexer/blockfrost";
+} from "../../offchain/blockfrost/blockfrost";
 import { deserializeMessage, toJsonMessage } from "../../offchain/message";
 
 export class MessagesService implements IMessagesService {
