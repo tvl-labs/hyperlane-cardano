@@ -1,4 +1,4 @@
-import { hashConcat, type Hasher } from "./hasher";
+import { hashConcat, type Hasher } from "../offchain/hasher";
 import { H256 } from "../offchain/h256";
 import { MAX_LEAVES, TREE_DEPTH, zeroNode } from "./common.merkle";
 import assert from "assert";

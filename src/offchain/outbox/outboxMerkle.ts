@@ -1,6 +1,6 @@
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { H256 } from "../h256";
-import { blake2bHasher } from "../../merkle/hasher";
+import { blake2bHasher } from "../hasher";
 import * as helios from "@hyperionbt/helios";
 import type { UplcData } from "@hyperionbt/helios";
 import assert from "assert";

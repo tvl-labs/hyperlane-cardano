@@ -9,7 +9,7 @@ import {
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 
 import { type Wallet } from "../wallet";
-import { blake2bHasher } from "../../merkle/hasher";
+import { blake2bHasher } from "../hasher";
 import { HeliosMerkleTree } from "../../merkle/helios.merkle";
 import { serializeOutboxDatum } from "../outbox/outboxDatum";
 import type { IsmParamsHelios } from "../inbox/ismParams";

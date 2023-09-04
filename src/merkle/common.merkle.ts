@@ -1,6 +1,6 @@
 // Common constants for all Merkle Tree implementations.
 
-import { hashConcat, type Hasher } from "./hasher";
+import { hashConcat, type Hasher } from "../offchain/hasher";
 import { H256 } from "../offchain/h256";
 
 export const TREE_DEPTH = 32;

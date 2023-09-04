@@ -6,7 +6,7 @@ import {
   bufferToHeliosByteArray,
   convertNumberToHeliosByteArray,
 } from "./outbox/heliosByteArrayUtils";
-import { blake2bHasher } from "../merkle/hasher";
+import { blake2bHasher } from "./hasher";
 import { Address } from "./address";
 import { Buffer } from "buffer";
 import { MessagePayload } from "./messagePayload";

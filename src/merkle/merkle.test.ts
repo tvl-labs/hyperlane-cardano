@@ -1,4 +1,4 @@
-import { blake2bHasher, keccak256Hasher } from "./hasher";
+import { blake2bHasher, keccak256Hasher } from "../offchain/hasher";
 import { SolidityMerkleTree } from "./solidity.merkle";
 import expect from "expect";
 import { HeliosMerkleTree } from "./helios.merkle";
