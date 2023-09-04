@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import type { LastFinalizedBlockResponseType } from "../types";
-import { type ILastFinalizedBlockNumberService } from "./ILastFinalizedBlockNumberService";
+import { type ILastFinalizedBlockNumberService } from "./interfaces/ILastFinalizedBlockNumberService";
 import {
   blockfrostPrefix,
   blockfrostProjectId,

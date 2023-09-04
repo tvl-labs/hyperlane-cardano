@@ -2,7 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import { getProgramOutbox } from "../../onchain/programs";
 import type { MessagesByBlockRangeResponseType } from "../types";
-import { type IMessagesService } from "./IMessagesService";
+import { type IMessagesService } from "./interfaces/IMessagesService";
 import {
   blockfrostPrefix,
   blockfrostProjectId,

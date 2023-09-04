@@ -1,4 +1,4 @@
-import { type Address } from "../../offchain/address";
+import { type Address } from "../../../offchain/address";
 
 export interface IValidatorAnnouncement {
   getValidatorStorageLocations: (

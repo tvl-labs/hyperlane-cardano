@@ -1,7 +1,7 @@
 import {
   type IValidatorAnnouncement,
   type ValidatorStorageLocations,
-} from "./IValidatorAnnouncement";
+} from "./interfaces/IValidatorAnnouncement";
 import { type Address } from "../../offchain/address";
 import { getValidatorStorageLocation } from "../../offchain/indexer/getValidatorStorageLocation";
 

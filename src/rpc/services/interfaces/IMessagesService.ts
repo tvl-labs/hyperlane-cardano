@@ -1,4 +1,4 @@
-import { type MessagesByBlockRangeResponseType } from "../types";
+import { type MessagesByBlockRangeResponseType } from "../../types";
 
 export interface IMessagesService {
   getMessagesInBlockRange: (

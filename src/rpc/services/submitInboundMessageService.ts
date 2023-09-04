@@ -1,4 +1,4 @@
-import { type ISubmitInboundMessage } from "./ISubmitInboundMessageService";
+import { type ISubmitInboundMessage } from "./interfaces/ISubmitInboundMessageService";
 import type { SubmitInboundMessageResponseBody } from "../types";
 import { getIsmParamsHelios, createInboundMessage } from "../../offchain/inbox";
 import type { Checkpoint } from "../../offchain/checkpoint";

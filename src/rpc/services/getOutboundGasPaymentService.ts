@@ -1,5 +1,5 @@
 import type * as helios from "@hyperionbt/helios";
-import { type IGetOutboundGasPayment } from "./IGetOutboundGasPaymentService";
+import { type IGetOutboundGasPayment } from "./interfaces/IGetOutboundGasPaymentService";
 import { getOutboundGasPayment } from "../../offchain/indexer/getOutboundGasPayment";
 
 export class GetOutboundGasPaymentService implements IGetOutboundGasPayment {

@@ -1,5 +1,5 @@
 import type { InboxIsmParametersResponseType } from "../types";
-import { type IInboxIsmParametersService } from "./IInboxIsmParametersService";
+import { type IInboxIsmParametersService } from "./interfaces/IInboxIsmParametersService";
 import { getIsmParams } from "../../offchain/inbox";
 
 export class InboxIsmParametersService implements IInboxIsmParametersService {

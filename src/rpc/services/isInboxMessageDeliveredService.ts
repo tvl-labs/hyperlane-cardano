@@ -1,4 +1,4 @@
-import { type IIsInboxMessageDelivered } from "./IIsInboxMessageDelivered";
+import { type IIsInboxMessageDelivered } from "./interfaces/IIsInboxMessageDelivered";
 import {
   getIsmParamsHelios,
   isInboundMessageDelivered,

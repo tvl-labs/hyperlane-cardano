@@ -2,7 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
 import { getProgramOutbox } from "../../onchain/programs";
 import type { MerkleTreeResponseType } from "../types";
-import { type IMerkleTreeService } from "./IMerkleTreeService";
+import { type IMerkleTreeService } from "./interfaces/IMerkleTreeService";
 import {
   blockfrostPrefix,
   blockfrostProjectId,

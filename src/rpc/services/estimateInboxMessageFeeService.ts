@@ -1,4 +1,4 @@
-import { type IEstimateInboxMessageFee } from "./IEstimateInboxMessageFeeService";
+import { type IEstimateInboxMessageFee } from "./interfaces/IEstimateInboxMessageFeeService";
 import {
   getIsmParamsHelios,
   estimateInboundMessageFee,
