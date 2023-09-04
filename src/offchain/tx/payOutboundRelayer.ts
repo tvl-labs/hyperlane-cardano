@@ -2,7 +2,7 @@ import * as helios from "@hyperionbt/helios";
 import paramsPreprod from "../../../data/cardano-preprod-params.json";
 import { type Wallet } from "../wallet";
 
-export default async function payOutbounRelayer(
+export default async function payOutboundRelayer(
   wallet: Wallet,
   relayerAddress: helios.Address,
   feeLovelace: bigint,
