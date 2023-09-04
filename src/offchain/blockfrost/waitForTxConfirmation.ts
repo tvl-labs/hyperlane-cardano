@@ -1,21 +1,20 @@
 import type * as helios from "@hyperionbt/helios";
 import fetch from "node-fetch";
+import { blockfrostPrefix, blockfrostProjectId } from './blockfrost';
 
 const NO_CONFIRMATIONS = 3;
 
 // TODO: Give up after a certain number of tries
 export async function waitForTxConfirmation(txId: helios.TxId) {
   console.log("Waiting for confirmation...");
-  const blockfrostPrefix = process.env.BLOCKFROST_PREFIX ?? "";
-  const projectId = process.env.BLOCKFROST_PROJECT_ID ?? "";
   const block: any = await fetch(`${blockfrostPrefix}/blocks/latest`, {
     headers: {
-      project_id: projectId,
+      project_id: blockfrostProjectId,
     },
   }).then(async (r) => await r.json());
   const r = await fetch(`${blockfrostPrefix}/txs/${txId.hex}`, {
     headers: {
-      project_id: projectId,
+      project_id: blockfrostProjectId,
     },
   });
   if (r.status === 200) {
