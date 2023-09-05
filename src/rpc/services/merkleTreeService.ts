@@ -7,6 +7,7 @@ import {
   blockfrostPrefix,
   blockfrostProjectId,
 } from "../../offchain/blockfrost/blockfrost";
+import { getOutboxParams } from "../../offchain/outbox/outboxParams";
 
 export class MerkleTreeService implements IMerkleTreeService {
   // TODO: Better error handling
@@ -15,11 +16,11 @@ export class MerkleTreeService implements IMerkleTreeService {
       getProgramOutbox().validatorHash
     );
 
+    const { outboxAuthToken } = getOutboxParams();
+
     // NOTE: We assume only a single UTxO exists for an NFT auth token
     const [utxo]: any = await fetch(
-      `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos/${
-        process.env.OUTBOX_AUTH_TOKEN ?? ""
-      }`,
+      `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos/${outboxAuthToken}`,
       {
         headers: {
           project_id: blockfrostProjectId,

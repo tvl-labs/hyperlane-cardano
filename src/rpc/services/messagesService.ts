@@ -8,12 +8,14 @@ import {
   blockfrostProjectId,
 } from "../../offchain/blockfrost/blockfrost";
 import { deserializeMessage, toJsonMessage } from "../../offchain/message";
+import { getOutboxParams } from "../../offchain/outbox/outboxParams";
 
 export class MessagesService implements IMessagesService {
   async getMessagesInBlockRange(
     fromBlock: number,
     toBlock: number
   ): Promise<MessagesByBlockRangeResponseType> {
+    const { outboxAuthToken } = getOutboxParams();
     const addressOutbox = helios.Address.fromValidatorHash(
       getProgramOutbox().validatorHash
     );
@@ -45,7 +47,7 @@ export class MessagesService implements IMessagesService {
           const outbox = txUTxOs.outputs.find(
             (o) =>
               o.address === addressOutbox.toBech32() &&
-              o.amount.find((a) => a.unit === process.env.OUTBOX_AUTH_TOKEN)
+              o.amount.find((a) => a.unit === outboxAuthToken)
           );
           if (outbox == null) continue;
 

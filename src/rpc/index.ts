@@ -46,6 +46,7 @@ import {
   buildOutboundMessage,
 } from "../offchain/tx/createOutboundMessage";
 import { getIsmParamsHelios } from "../offchain/inbox";
+import { getOutboxParams } from "../offchain/outbox/outboxParams";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -89,7 +90,7 @@ app.post(
     next
   ) {
     try {
-      const outboxAuthToken = process.env.OUTBOX_AUTH_TOKEN ?? "";
+      const { outboxAuthToken } = getOutboxParams();
       const outboxUtxos = await getOutboxUtxos(outboxAuthToken);
       if (outboxUtxos.length !== 1) {
         throw new Error(
