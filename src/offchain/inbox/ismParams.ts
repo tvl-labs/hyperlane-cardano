@@ -3,10 +3,6 @@ import * as helios from "@hyperionbt/helios";
 import { Address } from "../address";
 import { getProgramInbox } from "../../onchain/programs";
 
-const addressInbox = helios.Address.fromValidatorHash(
-  getProgramInbox().validatorHash
-);
-
 // For relayers's offchain usage
 export interface IsmParams {
   validators: Address[];
@@ -49,6 +45,9 @@ export function getIsmParamsHelios(
       new helios.ByteArray(process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? "")
     );
   }
+  const addressInbox = helios.Address.fromValidatorHash(
+    getProgramInbox().validatorHash
+  );
   return {
     VALIDATOR_VKEYS,
     THRESHOLD: BigInt(process.env.ISM_THRESHOLD ?? 2),
