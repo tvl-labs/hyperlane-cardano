@@ -2,11 +2,11 @@ import * as helios from "@hyperionbt/helios";
 import secp256k1 from "secp256k1";
 import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import {
+  emulatedDappWallet,
   emulatedNetwork,
   emulatedRelayerWallet,
-  preprodRelayerWallet,
   preprodDappWallet,
-  emulatedDappWallet,
+  preprodRelayerWallet,
 } from "./index";
 import { Address } from "../offchain/address";
 import type { Wallet } from "../offchain/wallet";
@@ -16,9 +16,9 @@ import {
 } from "../offchain/messagePayload";
 import { DOMAIN_CARDANO, DOMAIN_FUJI } from "./testDomains";
 import {
-  isInboundMessageDelivered,
-  estimateInboundMessageFee,
   createInboundMessage,
+  estimateInboundMessageFee,
+  isInboundMessageDelivered,
   processInboundMessage,
 } from "../offchain/inbox";
 import { type Checkpoint, hashCheckpoint } from "../offchain/checkpoint";
@@ -30,18 +30,24 @@ import { getUsdcRequestUTxOs } from "../offchain/indexer/getUsdcRequestUTxOs";
 import { convertUtxoToJson } from "./debug";
 import { getProgramKhalani } from "../onchain/programs";
 import { CardanoTokenName } from "../offchain/cardanoTokenName";
+import { requireEnv } from "../offchain/env.utils";
 
 // TODO: Build several edge cases.
-
-const sender = Address.fromHex(`0x${process.env.KHALANI_SENDER ?? ""}`);
 
 function mockCheckpoint(
   ismParams: IsmParamsHelios,
   recipientAddress: helios.Address
 ): Checkpoint {
-  const recipientAddressHash = helios.bytesToHex(
-    helios.Crypto.blake2b(recipientAddress.bytes)
+  const recipientAddressHash = H256.from(
+    Buffer.from(
+      helios.bytesToHex(helios.Crypto.blake2b(recipientAddress.bytes)),
+      "hex"
+    )
   );
+  const khalaniSenderAddress = Address.fromHex(
+    `0x${requireEnv(process.env.KHALANI_SENDER)}`
+  );
+  const message = MessagePayload.fromHexString(`0x${recipientAddress.toHex()}`);
   return {
     originMailbox: Address.fromHex(
       "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730"
@@ -51,20 +57,18 @@ function mockCheckpoint(
       version: 0,
       nonce: 0,
       originDomain: DOMAIN_FUJI,
-      sender,
+      sender: khalaniSenderAddress,
       destinationDomain: DOMAIN_CARDANO,
       recipient: Address.fromValidatorHash(
         getProgramKhalani(ismParams).validatorHash
       ),
       body: createMessagePayloadMint({
         rootChainId: DOMAIN_FUJI,
-        rootSender: H256.from(sender.toBuffer()),
+        rootSender: H256.from(khalaniSenderAddress.toBuffer()),
         // USDC
         tokens: [[CardanoTokenName.fromTokenName("USDC"), 150_000_000]],
-        recipientAddressHash: H256.from(
-          Buffer.from(recipientAddressHash, "hex")
-        ),
-        message: MessagePayload.fromHexString(`0x${recipientAddress.toHex()}`),
+        recipientAddressHash,
+        message,
       }),
     },
   };
@@ -79,7 +83,7 @@ async function createInboundMsg(
   const checkpoint = mockCheckpoint(ismParams, recipientAddress);
   const checkpointHash = hashCheckpoint(checkpoint);
   const validatorPrivateKeys = [1, 2, 3].map((i) =>
-    Buffer.from(process.env[`PRIVATE_KEY_VALIDATOR_${i}`] ?? "", "hex")
+    Buffer.from(requireEnv(process.env[`PRIVATE_KEY_VALIDATOR_${i}`]), "hex")
   );
   const signatures = validatorPrivateKeys.map(
     (k) => secp256k1.ecdsaSign(checkpointHash.toBuffer(), k).signature

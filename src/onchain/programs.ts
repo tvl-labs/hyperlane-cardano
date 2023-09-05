@@ -11,6 +11,7 @@ import MintingPolicyIsmMultiSig from "./ismMultiSig.hl";
 import MintingPolicyKhalaniTokens from "./mpKhalaniTokens.hl";
 import MintingPolicyNFT from "./mpNFT.hl";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
+import { requireEnv } from "../offchain/env.utils";
 
 const TOKEN_NAME_AUTH = "auth";
 export const TOKEN_NAME_AUTH_BYTES = helios.textToBytes(TOKEN_NAME_AUTH);
@@ -44,7 +45,9 @@ export function getProgramKhalaniTokens(
   ismParams: IsmParamsHelios
 ): helios.UplcProgram {
   const ISM_KHALANI = getProgramIsmKhalani(ismParams).mintingPolicyHash;
-  const KHALANI_SENDER = new helios.ByteArray(process.env.KHALANI_SENDER ?? "");
+  const KHALANI_SENDER = new helios.ByteArray(
+    requireEnv(process.env.KHALANI_SENDER)
+  );
   const ADDRESS_OUTBOX = helios.Address.fromValidatorHash(
     getProgramOutbox().validatorHash
   );

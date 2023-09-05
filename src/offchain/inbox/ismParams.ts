@@ -1,5 +1,6 @@
 import * as helios from "@hyperionbt/helios";
 import { getProgramInbox } from "../../onchain/programs";
+import { requireEnv } from "../env.utils";
 
 export interface IsmParamsHelios {
   VALIDATOR_VKEYS: helios.ByteArray[];
@@ -10,13 +11,19 @@ export interface IsmParamsHelios {
 
 export function getIsmParamsHelios(
   OUTPUT_ID: helios.TxOutputId = new helios.TxOutputId(
-    process.env.ISM_OUTPUT_ID ?? ""
+    requireEnv(process.env.ISM_OUTPUT_ID)
   )
 ): IsmParamsHelios {
   const VALIDATOR_VKEYS: helios.ByteArray[] = [];
-  for (let i = 1; i <= parseInt(process.env.ISM_NUM_VALIDATORS ?? "1"); i++) {
+  for (
+    let i = 1;
+    i <= parseInt(requireEnv(process.env.ISM_NUM_VALIDATORS));
+    i++
+  ) {
     VALIDATOR_VKEYS.push(
-      new helios.ByteArray(process.env[`ISM_VALIDATOR_PUB_KEY_${i}`] ?? "")
+      new helios.ByteArray(
+        requireEnv(process.env[`ISM_VALIDATOR_PUB_KEY_${i}`])
+      )
     );
   }
   const addressInbox = helios.Address.fromValidatorHash(
@@ -24,7 +31,7 @@ export function getIsmParamsHelios(
   );
   return {
     VALIDATOR_VKEYS,
-    THRESHOLD: BigInt(process.env.ISM_THRESHOLD ?? 2),
+    THRESHOLD: BigInt(requireEnv(process.env.ISM_THRESHOLD)),
     OUTPUT_ID,
     INBOX_ADDRESS: addressInbox,
   };

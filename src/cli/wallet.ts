@@ -1,15 +1,16 @@
 import { Wallet } from "../offchain/wallet";
 import * as helios from "@hyperionbt/helios";
+import { requireEnv } from "../offchain/env.utils";
 
 export function createWallet(
-  walletAddress: string | undefined = process.env.WALLET_ADDRESS,
-  walletPrivateKey: string | undefined = process.env.WALLET_PRIVATE_KEY
+  walletAddress: string | undefined = undefined,
+  walletPrivateKey: string | undefined = undefined
 ): Wallet {
-  if (
-    typeof walletAddress !== "string" ||
-    typeof walletPrivateKey !== "string"
-  ) {
-    throw new Error("Invalid wallet");
+  if (walletAddress === undefined) {
+    walletAddress = requireEnv(process.env.WALLET_ADDRESS);
+  }
+  if (walletPrivateKey === undefined) {
+    walletPrivateKey = requireEnv(process.env.WALLET_PRIVATE_KEY);
   }
   return new Wallet(
     new helios.Address(walletAddress),

@@ -47,6 +47,8 @@ import {
 } from "../offchain/tx/createOutboundMessage";
 import { getIsmParamsHelios } from "../offchain/inbox";
 import { getOutboxParams } from "../offchain/outbox/outboxParams";
+import { requireEnv } from "../offchain/env.utils";
+import { createWallet } from "../cli/wallet";
 
 const openapiSpec = path.resolve(__dirname, "..", "openapi.yaml");
 
@@ -242,9 +244,12 @@ app.post(
     next
   ) {
     try {
+      const wallet = new Wallet(
+        new helios.Address(requireEnv(process.env.WALLET_ADDRESS))
+      );
       const feeLovelace =
         await estimateInboundMessageFee.estimateInboundMessageFee(
-          new Wallet(new helios.Address(process.env.WALLET_ADDRESS ?? "")),
+          wallet,
           {
             originMailbox: Address.fromHex(req.body.originMailbox),
             checkpointRoot: H256.fromHex(req.body.checkpointRoot),
@@ -277,11 +282,9 @@ app.post(
     next
   ) {
     try {
+      const wallet = createWallet();
       const txOutcome = await submitInboundMessage.submitInboundMessage(
-        new Wallet(
-          new helios.Address(process.env.WALLET_ADDRESS ?? ""),
-          new helios.PrivateKey(process.env.WALLET_PRIVATE_KEY ?? "")
-        ),
+        wallet,
         {
           originMailbox: Address.fromHex(req.body.originMailbox),
           checkpointRoot: H256.fromHex(req.body.checkpointRoot),

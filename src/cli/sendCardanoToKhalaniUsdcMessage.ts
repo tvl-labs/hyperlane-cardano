@@ -13,6 +13,7 @@ import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 import { waitForTxConfirmation } from "../offchain/blockfrost/waitForTxConfirmation";
 import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
 import { getOutboxParams } from "../offchain/outbox/outboxParams";
+import { requireEnv } from "../offchain/env.utils";
 
 interface UsdcUtxo {
   utxo: helios.UTxO;
@@ -40,8 +41,8 @@ async function sendCardanoToKhalaniUsdcMessage() {
   const ismParamsHelios = getIsmParamsHelios();
   const { outboxAuthToken } = getOutboxParams();
   const wallet = createWallet(
-    process.env.DAPP_WALLET_ADDRESS,
-    process.env.DAPP_WALLET_PRIVATE_KEY
+    requireEnv(process.env.DAPP_WALLET_ADDRESS),
+    requireEnv(process.env.DAPP_WALLET_PRIVATE_KEY)
   );
   const usdcUtxos = await findUsdcUtxos(wallet);
   const usdcBalance = usdcUtxos.reduce(
