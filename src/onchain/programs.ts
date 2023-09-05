@@ -10,7 +10,6 @@ import ScriptOutbox from "./scriptOutbox.hl";
 import MintingPolicyIsmMultiSig from "./ismMultiSig.hl";
 import MintingPolicyKhalaniTokens from "./mpKhalaniTokens.hl";
 import MintingPolicyNFT from "./mpNFT.hl";
-import { getIsmParamsHelios } from "../offchain/inbox";
 import type { IsmParamsHelios } from "../offchain/inbox/ismParams";
 
 const TOKEN_NAME_AUTH = "auth";
@@ -28,11 +27,8 @@ export function getProgramNFT(outputId: helios.TxOutputId): helios.UplcProgram {
 }
 
 export function getProgramIsmKhalani(
-  ismParams?: IsmParamsHelios
+  ismParams: IsmParamsHelios
 ): helios.UplcProgram {
-  if (ismParams == null) {
-    ismParams = getIsmParamsHelios();
-  }
   return new MintingPolicyIsmMultiSig(ismParams).compile(true);
 }
 
@@ -45,7 +41,7 @@ export function getProgramOutbox(): helios.UplcProgram {
 }
 
 export function getProgramKhalaniTokens(
-  ismParams?: IsmParamsHelios
+  ismParams: IsmParamsHelios
 ): helios.UplcProgram {
   const ISM_KHALANI = getProgramIsmKhalani(ismParams).mintingPolicyHash;
   const KHALANI_SENDER = new helios.ByteArray(process.env.KHALANI_SENDER ?? "");
@@ -60,7 +56,7 @@ export function getProgramKhalaniTokens(
 }
 
 export function getProgramKhalani(
-  ismParams?: IsmParamsHelios
+  ismParams: IsmParamsHelios
 ): helios.UplcProgram {
   const programKhalaniTokens = getProgramKhalaniTokens(ismParams);
   return new ScriptKhalani({

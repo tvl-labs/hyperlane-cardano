@@ -6,14 +6,17 @@ import {
   blockfrostProjectId,
 } from "../blockfrost/blockfrost";
 import { parseBlockfrostUtxo } from "./parseBlockfrostUtxos";
+import { type IsmParamsHelios } from "../inbox/ismParams";
 
 // TODO: Share with `createOutbox`
 const EXPECTED_DATUM = helios.Datum.hashed(new helios.ConstrData(0, []));
 
 // Return the oldest Khalani UTxO without an inline datum for outbound messages.
-export async function getOutboundKhalaniUTxO(): Promise<helios.UTxO> {
+export async function getOutboundKhalaniUTxO(
+  ismParamsHelios: IsmParamsHelios
+): Promise<helios.UTxO> {
   const addressKhalani = helios.Address.fromValidatorHash(
-    getProgramKhalani().validatorHash
+    getProgramKhalani(ismParamsHelios).validatorHash
   ).toBech32();
 
   for (let page = 1; true; page++) {

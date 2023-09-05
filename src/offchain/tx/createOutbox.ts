@@ -16,7 +16,7 @@ import type { IsmParamsHelios } from "../inbox/ismParams";
 
 export default async function createOutbox(
   wallet: Wallet,
-  ismParams?: IsmParamsHelios
+  ismParamsHelios: IsmParamsHelios
 ): Promise<{
   utxoOutbox: helios.UTxO;
   utxoKhalani: helios.UTxO;
@@ -58,7 +58,7 @@ export default async function createOutbox(
   // a Khalani burn message. This should be optional, but
   // the fee is indead small.
   const addressKhalani = helios.Address.fromValidatorHash(
-    getProgramKhalani(ismParams).validatorHash
+    getProgramKhalani(ismParamsHelios).validatorHash
   );
   tx.addOutput(
     new helios.TxOutput(

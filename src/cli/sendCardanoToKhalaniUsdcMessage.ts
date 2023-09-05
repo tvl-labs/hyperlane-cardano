@@ -57,8 +57,12 @@ async function sendCardanoToKhalaniUsdcMessage() {
     );
   }
   const outboxUtxo = outboxUtxos[0];
-  const message = await prepareOutboundMessage(outboxUtxo, wallet);
-  const khalaniUtxo = await getOutboundKhalaniUTxO();
+  const message = await prepareOutboundMessage(
+    ismParamsHelios,
+    outboxUtxo,
+    wallet
+  );
+  const khalaniUtxo = await getOutboundKhalaniUTxO(ismParamsHelios);
   const { utxoOutbox } = await createOutboundMessage(
     outboxUtxo.utxo,
     message,

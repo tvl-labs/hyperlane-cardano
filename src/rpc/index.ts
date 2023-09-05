@@ -65,9 +65,10 @@ interface ResponseMph {
 }
 app.get("/api/khalani/mph", function (_, res: Response<ResponseMph>, next) {
   try {
-    res
-      .status(200)
-      .json({ mph: getProgramKhalaniTokens().mintingPolicyHash.hex });
+    const ismParamsHelios = getIsmParamsHelios();
+    res.status(200).json({
+      mph: getProgramKhalaniTokens(ismParamsHelios).mintingPolicyHash.hex,
+    });
   } catch (e) {
     next(e);
   }
@@ -97,17 +98,19 @@ app.post(
       }
       const outboxUtxo = outboxUtxos[0];
       const wallet = new Wallet(new helios.Address(req.body.address));
+      const ismParamsHelios = getIsmParamsHelios();
       const message = await prepareOutboundMessage(
+        ismParamsHelios,
         outboxUtxo,
         wallet,
         req.body.redeemAmount
       );
-      const khalaniUtxo = await getOutboundKhalaniUTxO();
+      const khalaniUtxo = await getOutboundKhalaniUTxO(ismParamsHelios);
       const tx = await buildOutboundMessage(
         outboxUtxo.utxo,
         message,
         wallet,
-        getIsmParamsHelios(),
+        ismParamsHelios,
         khalaniUtxo
       );
       res.status(200).json({ tx: tx.toCborHex() });

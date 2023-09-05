@@ -35,12 +35,15 @@ const fujiRecipient = Address.fromHex(
 );
 
 export async function prepareOutboundMessage(
+  ismParamsHelios: IsmParamsHelios,
   outboxUtxo: OutboxUtxo,
   senderWallet: Wallet,
   redeemAmount = 2_000_000
 ): Promise<Message> {
   const nonce = outboxUtxo.message != null ? outboxUtxo.message.nonce + 1 : 0;
-  const sender = Address.fromValidatorHash(getProgramKhalani().validatorHash);
+  const sender = Address.fromValidatorHash(
+    getProgramKhalani(ismParamsHelios).validatorHash
+  );
   // TODO: this payload explicitly hard-codes 2.000.000 of klnUSDC to be swapped to USDC.fuji
   //  We will have a full fledged integration with Khalani SDK to allow for customizing this value.
   const interchainLiquidityHubPayload = MessagePayload.fromHexString(
@@ -75,7 +78,7 @@ export async function buildOutboundMessage(
   utxoOutbox: helios.UTxO,
   outboxMessage: Message,
   wallet: Wallet,
-  ismParams?: IsmParamsHelios,
+  ismParams: IsmParamsHelios,
   utxoKhalani?: helios.UTxO
 ): Promise<helios.Tx> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
@@ -135,7 +138,7 @@ export async function createOutboundMessage(
   utxoOutbox: helios.UTxO,
   outboxMessage: Message,
   wallet: Wallet,
-  ismParams?: IsmParamsHelios,
+  ismParams: IsmParamsHelios,
   utxoKhalani?: helios.UTxO
 ): Promise<{
   utxoOutbox: helios.UTxO;
