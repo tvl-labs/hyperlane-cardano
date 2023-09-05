@@ -1,4 +1,4 @@
-import { getIsmParams, getIsmParamsHelios } from "./ismParams";
+import { getIsmParamsHelios } from "./ismParams";
 import { isInboundMessageDelivered } from "../indexer/isInboundMessageDelivered";
 import {
   estimateInboundMessageFee,
@@ -7,7 +7,6 @@ import {
 import { processInboundMessage } from "../tx/processInboundMessage";
 
 export {
-  getIsmParams,
   getIsmParamsHelios,
   isInboundMessageDelivered,
   estimateInboundMessageFee,

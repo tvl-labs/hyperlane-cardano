@@ -1,13 +1,23 @@
 import type { InboxIsmParametersResponseType } from "../types";
 import { type IInboxIsmParametersService } from "./interfaces/IInboxIsmParametersService";
-import { getIsmParams } from "../../offchain/inbox";
+import { getIsmParamsHelios } from "../../offchain/inbox";
+import { Address } from '../../offchain/address';
+import { ethers } from 'ethers';
 
 export class InboxIsmParametersService implements IInboxIsmParametersService {
   async getInboxIsmParameters(): Promise<InboxIsmParametersResponseType> {
-    const ismParams = getIsmParams();
+    const ismParamsHelios = getIsmParamsHelios();
+
+    const validators = ismParamsHelios.VALIDATOR_VKEYS.map((validatorKey) =>
+      Address.fromEvmAddress(
+        ethers.computeAddress(
+          `0x${validatorKey.hex}`
+        )
+      ));
+
     return {
-      validators: ismParams.validators.map((a) => a.toHex()),
-      threshold: Number(ismParams.threshold),
+      validators: validators.map((a) => a.toHex()),
+      threshold: Number(ismParamsHelios.THRESHOLD),
     };
   }
 }
