@@ -38,7 +38,7 @@ import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
 import { Wallet } from "../offchain/wallet";
 import { H256 } from "../offchain/h256";
-import { getProgramKhalaniTokens } from "../onchain/programs";
+import { getProgramInbox, getProgramKhalani, getProgramKhalaniTokens } from "../onchain/programs";
 import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
 import {
@@ -338,4 +338,27 @@ app.use((err, req, res, _) => {
 
 const PORT = process.env.PORT ?? 3000;
 console.log(`Starting RPC on port ${PORT}`);
+const ismParamsHelios = getIsmParamsHelios();
+console.log('ISM Parameters', {
+  validatorVkeys: ismParamsHelios.VALIDATOR_VKEYS.map((vkey) => '0x' + vkey.hex),
+  threshold: ismParamsHelios.THRESHOLD.toString(),
+  inboxOutputId: ismParamsHelios.OUTPUT_ID.txId.hex + "#" + ismParamsHelios.OUTPUT_ID.utxoIdx.toString(),
+  inboxAddressBech32: ismParamsHelios.INBOX_ADDRESS.toBech32(),
+  inboxAddress: '0x' + ismParamsHelios.INBOX_ADDRESS.toHex(),
+})
+
+const outboxParams = getOutboxParams();
+console.log('Outbox Parameters', {
+  outboxAuthToken: outboxParams.outboxAuthToken
+})
+
+const programKhalaniTokens = getProgramKhalaniTokens(ismParamsHelios);
+console.log('Program Khalani tokens MPH', programKhalaniTokens.mintingPolicyHash.toBech32())
+
+const programInbox = getProgramInbox();
+console.log('Program Inbox address', '0x' + programInbox.validatorHash.hex)
+
+const programKhalani = getProgramKhalani(ismParamsHelios);
+console.log('Program Khalani', '0x' + programKhalani.validatorHash.hex)
+
 http.createServer(app).listen(PORT);
