@@ -2,6 +2,7 @@ import { Buffer } from "buffer";
 import { ethers } from "ethers";
 import { H256 } from "./h256";
 import { CardanoTokenName } from "./cardanoTokenName";
+import assert from "assert";
 
 export class MessagePayload {
   private readonly bytes: Buffer;
@@ -15,6 +16,7 @@ export class MessagePayload {
   }
 
   static fromHexString(hexString: string) {
+    assert(hexString.startsWith("0x"), `Invalid hex string ${hexString}`);
     return new MessagePayload(Buffer.from(hexString.substring(2), "hex"));
   }
 

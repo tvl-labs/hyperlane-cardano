@@ -46,8 +46,8 @@ import {
 import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
 import {
-  prepareOutboundMessage,
   buildOutboundMessage,
+  prepareOutboundMessage,
 } from "../offchain/tx/createOutboundMessage";
 import { getIsmParamsHelios } from "../offchain/inbox";
 import { getOutboxParams } from "../offchain/outbox/outboxParams";
@@ -70,6 +70,7 @@ app.use("/spec", express.static(openapiSpec));
 interface ResponseMph {
   mph: string;
 }
+
 app.get("/api/khalani/mph", function (_, res: Response<ResponseMph>, next) {
   try {
     const ismParamsHelios = getIsmParamsHelios();
@@ -85,9 +86,11 @@ interface RequestOutbound {
   address: string; // Bech32
   redeemAmount: number;
 }
+
 interface ResponseTx {
   tx: string; // CBOR
 }
+
 app.post(
   "/api/khalani/buildOutboundTx",
   async function (
@@ -297,9 +300,7 @@ app.post(
           sender: Address.fromHex(req.body.message.sender),
           destinationDomain: req.body.message.destinationDomain,
           recipient: Address.fromHex(req.body.message.recipient),
-          body: MessagePayload.fromHexString(
-            `0x${req.body.message.message as string}`
-          ),
+          body: MessagePayload.fromHexString(req.body.message.message),
         },
       };
       const signatures: Buffer[] = req.body.signatures.map((s) =>
