@@ -387,9 +387,9 @@ console.log(
 );
 
 const programInbox = getProgramInbox();
-console.log("Program Inbox address", "0x" + programInbox.validatorHash.hex);
+console.log("Program Inbox address", Address.fromValidatorHash(programInbox.validatorHash).toHex());
 
 const programKhalani = getProgramKhalani(ismParamsHelios);
-console.log("Program Khalani", "0x" + programKhalani.validatorHash.hex);
+console.log("Program Khalani", Address.fromValidatorHash(programKhalani.validatorHash).toHex());
 
 http.createServer(app).listen(PORT);
