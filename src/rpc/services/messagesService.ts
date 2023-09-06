@@ -34,9 +34,10 @@ export class MessagesService implements IMessagesService {
       if (txs.length === 0) break;
 
       for (const tx of txs) {
+        const txHash = tx.tx_hash as string;
         try {
           const txUTxOs: any = await fetch(
-            `${blockfrostPrefix}/txs/${tx.tx_hash as string}/utxos`,
+            `${blockfrostPrefix}/txs/${txHash}/utxos`,
             {
               headers: {
                 project_id: blockfrostProjectId,
@@ -51,17 +52,23 @@ export class MessagesService implements IMessagesService {
           );
           if (outbox == null) continue;
 
-          const message = new helios.ListData(
-            helios.ListData.fromCbor(
-              helios.hexToBytes(outbox.inline_datum)
-            ).list[1].fields[0].list
+          const listData = helios.ListData.fromCbor(
+            helios.hexToBytes(outbox.inline_datum)
           );
+
+          if (listData.list.length < 2) {
+            // Empty Outbox has no message.
+            //  TODO: reuse the UTXO parser functions.
+            continue;
+          }
+
+          const message = new helios.ListData(listData.list[1].fields[0].list);
           messages.push({
             block: tx.block_height,
             message: toJsonMessage(deserializeMessage(message)),
           });
         } catch (e) {
-          console.warn(e);
+          console.warn(`Unable to parse tx ${txHash}`, e);
         }
       }
     }
