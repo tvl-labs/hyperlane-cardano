@@ -38,7 +38,11 @@ import { Address } from "../offchain/address";
 import { MessagePayload } from "../offchain/messagePayload";
 import { Wallet } from "../offchain/wallet";
 import { H256 } from "../offchain/h256";
-import { getProgramInbox, getProgramKhalani, getProgramKhalaniTokens } from "../onchain/programs";
+import {
+  getProgramInbox,
+  getProgramKhalani,
+  getProgramKhalaniTokens,
+} from "../onchain/programs";
 import { getOutboxUtxos } from "../offchain/indexer/getOutboxUtxos";
 import { getOutboundKhalaniUTxO } from "../offchain/indexer/getOutboundKhalaniUTxO";
 import {
@@ -283,24 +287,42 @@ app.post(
   ) {
     try {
       const wallet = createWallet();
-      const txOutcome = await submitInboundMessage.submitInboundMessage(
-        wallet,
-        {
-          originMailbox: Address.fromHex(req.body.originMailbox),
-          checkpointRoot: H256.fromHex(req.body.checkpointRoot),
-          message: {
-            version: req.body.message.version,
-            nonce: req.body.message.nonce,
-            originDomain: req.body.message.originDomain,
-            sender: Address.fromHex(req.body.message.sender),
-            destinationDomain: req.body.message.destinationDomain,
-            recipient: Address.fromHex(req.body.message.recipient),
-            body: MessagePayload.fromHexString(
-              `0x${req.body.message.message as string}`
+      const checkpoint = {
+        originMailbox: Address.fromHex(req.body.originMailbox),
+        checkpointRoot: H256.fromHex(req.body.checkpointRoot),
+        message: {
+          version: req.body.message.version,
+          nonce: req.body.message.nonce,
+          originDomain: req.body.message.originDomain,
+          sender: Address.fromHex(req.body.message.sender),
+          destinationDomain: req.body.message.destinationDomain,
+          recipient: Address.fromHex(req.body.message.recipient),
+          body: MessagePayload.fromHexString(
+            `0x${req.body.message.message as string}`
+          ),
+        },
+      };
+      const signatures: Buffer[] = req.body.signatures.map((s) =>
+        Buffer.from(s, "hex")
+      );
+      console.log(
+        "Submitting message",
+        JSON.stringify(
+          {
+            relayerWallet: wallet.address.toBech32(),
+            message: req.body,
+            signatures: signatures.map((signature) =>
+              new MessagePayload(signature).toHex()
             ),
           },
-        },
-        req.body.signatures.map((s) => Buffer.from(s, "hex"))
+          null,
+          2
+        )
+      );
+      const txOutcome = await submitInboundMessage.submitInboundMessage(
+        wallet,
+        checkpoint,
+        signatures
       );
       res.status(200).json(txOutcome);
     } catch (e) {
@@ -339,26 +361,34 @@ app.use((err, req, res, _) => {
 const PORT = process.env.PORT ?? 3000;
 console.log(`Starting RPC on port ${PORT}`);
 const ismParamsHelios = getIsmParamsHelios();
-console.log('ISM Parameters', {
-  validatorVkeys: ismParamsHelios.VALIDATOR_VKEYS.map((vkey) => '0x' + vkey.hex),
+console.log("ISM Parameters", {
+  validatorVkeys: ismParamsHelios.VALIDATOR_VKEYS.map(
+    (vkey) => "0x" + vkey.hex
+  ),
   threshold: ismParamsHelios.THRESHOLD.toString(),
-  inboxOutputId: ismParamsHelios.OUTPUT_ID.txId.hex + "#" + ismParamsHelios.OUTPUT_ID.utxoIdx.toString(),
+  inboxOutputId:
+    ismParamsHelios.OUTPUT_ID.txId.hex +
+    "#" +
+    ismParamsHelios.OUTPUT_ID.utxoIdx.toString(),
   inboxAddressBech32: ismParamsHelios.INBOX_ADDRESS.toBech32(),
-  inboxAddress: '0x' + ismParamsHelios.INBOX_ADDRESS.toHex(),
-})
+  inboxAddress: "0x" + ismParamsHelios.INBOX_ADDRESS.toHex(),
+});
 
 const outboxParams = getOutboxParams();
-console.log('Outbox Parameters', {
-  outboxAuthToken: outboxParams.outboxAuthToken
-})
+console.log("Outbox Parameters", {
+  outboxAuthToken: outboxParams.outboxAuthToken,
+});
 
 const programKhalaniTokens = getProgramKhalaniTokens(ismParamsHelios);
-console.log('Program Khalani tokens MPH', programKhalaniTokens.mintingPolicyHash.toBech32())
+console.log(
+  "Program Khalani tokens MPH",
+  programKhalaniTokens.mintingPolicyHash.toBech32()
+);
 
 const programInbox = getProgramInbox();
-console.log('Program Inbox address', '0x' + programInbox.validatorHash.hex)
+console.log("Program Inbox address", "0x" + programInbox.validatorHash.hex);
 
 const programKhalani = getProgramKhalani(ismParamsHelios);
-console.log('Program Khalani', '0x' + programKhalani.validatorHash.hex)
+console.log("Program Khalani", "0x" + programKhalani.validatorHash.hex);
 
 http.createServer(app).listen(PORT);
