@@ -17,7 +17,7 @@ import {
 import { DOMAIN_CARDANO, DOMAIN_FUJI } from "./testDomains";
 import {
   createInboundMessage,
-  estimateInboundMessageFee,
+  estimateFeeInboundMessage,
   isInboundMessageDelivered,
   processInboundMessage,
 } from "../offchain/inbox";
@@ -97,14 +97,14 @@ async function createInboundMsg(
     throw new Error("Message must not be delivered already");
   }
 
-  const fee = await estimateInboundMessageFee(
+  const { fee } = await estimateFeeInboundMessage(
     ismParams,
     utxoInbox,
     checkpoint,
     signatures,
     wallet
   );
-  if (fee < 300_000n) {
+  if (fee < 2_000_000n) {
     throw new Error("Invalid fee? Fee too low.");
   }
 

@@ -61,7 +61,7 @@ export class Address {
     if (this.bytes[0] === 2) {
       return helios.Address.fromValidatorHash(this.toValidatorHash());
     }
-    throw new Error("Unsopported Cardano address");
+    throw new Error("Unsupported Cardano address");
   }
 
   toString() {

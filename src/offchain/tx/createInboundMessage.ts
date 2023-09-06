@@ -6,13 +6,18 @@ import type { IsmParamsHelios } from "../inbox/ismParams";
 import { calculateMessageId, serializeMessage } from "../message";
 import { serializeCheckpoint, type Checkpoint } from "../checkpoint";
 
-async function buildInboundMessageTx(
+interface BuiltTxInboundMessage {
+  tx: helios.Tx;
+  outputMessage: helios.TxOutput;
+}
+
+async function buildTxInboundMessage(
   ismParams: IsmParamsHelios,
   utxoInbox: helios.UTxO,
   checkpoint: Checkpoint,
   signatures: Buffer[],
   wallet: Wallet
-): Promise<helios.Tx> {
+): Promise<BuiltTxInboundMessage> {
   const tx = new helios.Tx();
 
   const utxos = await wallet.getUtxos();
@@ -46,43 +51,59 @@ async function buildInboundMessageTx(
   );
 
   // Recipient
-  tx.addOutput(
-    new helios.TxOutput(
-      // Support: Stake credentials
-      checkpoint.message.recipient.toCardanoAddress(),
-      new helios.Value(
-        0n, // Let Helios calculate the min ADA!
-        new helios.Assets([
-          [ismMultiSig.mintingPolicyHash, [[messageHash, BigInt(1)]]],
-        ])
-      ),
-      helios.Datum.inline(serializeMessage(checkpoint.message))
-    )
+  const outputMessage = new helios.TxOutput(
+    // Support: Stake credentials
+    checkpoint.message.recipient.toCardanoAddress(),
+    new helios.Value(
+      0n, // Let Helios calculate the min ADA!
+      new helios.Assets([
+        [ismMultiSig.mintingPolicyHash, [[messageHash, BigInt(1)]]],
+      ])
+    ),
+    helios.Datum.inline(serializeMessage(checkpoint.message))
   );
+  tx.addOutput(outputMessage);
 
   await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
 
-  return tx;
+  return { tx, outputMessage };
+}
+
+interface EstimatedFeeInboundMessage {
+  fee: bigint;
+  outputMessage: helios.TxOutput;
 }
 
 // Fee in lovelace.
 // Note that fee is also dynamic and changes with
 // the relayer's UTxO set.
-export async function estimateInboundMessageFee(
+export async function estimateFeeInboundMessage(
   ismParams: IsmParamsHelios,
   utxoInbox: helios.UTxO,
   checkpoint: Checkpoint,
   signatures: Buffer[],
   wallet: Wallet
-): Promise<bigint> {
-  const tx = await buildInboundMessageTx(
+): Promise<EstimatedFeeInboundMessage> {
+  const { tx, outputMessage } = await buildTxInboundMessage(
     ismParams,
     utxoInbox,
     checkpoint,
     signatures,
     wallet
   );
-  return tx.body.fee;
+  const inputLovelace = tx.body.inputs.reduce((sum, input) => {
+    if (input.address === wallet.address) {
+      return sum + input.value.lovelace;
+    }
+    return sum;
+  }, 0n);
+  const outputLovelace = tx.body.outputs.reduce((sum, output) => {
+    if (output.address === wallet.address) {
+      return sum + output.value.lovelace;
+    }
+    return sum;
+  }, 0n);
+  return { fee: inputLovelace - outputLovelace, outputMessage };
 }
 
 interface TxOutcome {
@@ -97,7 +118,7 @@ export async function createInboundMessage(
   signatures: Buffer[],
   wallet: Wallet
 ): Promise<TxOutcome> {
-  const tx = await buildInboundMessageTx(
+  const { tx, outputMessage } = await buildTxInboundMessage(
     ismParams,
     utxoInbox,
     checkpoint,
@@ -108,7 +129,7 @@ export async function createInboundMessage(
   const txId = await wallet.submitTx(tx);
 
   return {
-    utxoMessage: new helios.UTxO(txId, BigInt(1), tx.body.outputs[1]),
+    utxoMessage: new helios.UTxO(txId, BigInt(1), outputMessage),
     feeLovelace: Number(tx.body.fee),
   };
 }

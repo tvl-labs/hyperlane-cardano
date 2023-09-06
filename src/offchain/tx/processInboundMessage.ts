@@ -10,11 +10,11 @@ import {
   getProgramKhalaniTokens,
 } from "../../onchain/programs";
 
-export async function processInboundMessage(
+export async function buildTxProcessInboundMessage(
   ismParams: IsmParamsHelios,
   utxoMessage: helios.UTxO,
   wallet: Wallet
-): Promise<helios.TxId> {
+): Promise<helios.Tx> {
   const tx = new helios.Tx();
 
   const utxos = await wallet.getUtxos();
@@ -55,8 +55,8 @@ export async function processInboundMessage(
     new helios.ConstrData(0, [])
   );
   tx.addInput(utxoMessage, new helios.ConstrData(0, []));
-  const scriptKhalani = getProgramKhalani(ismParams);
-  tx.attachScript(scriptKhalani);
+  const programKhalani = getProgramKhalani(ismParams);
+  tx.attachScript(programKhalani);
 
   tx.addOutput(
     new helios.TxOutput(
@@ -71,6 +71,38 @@ export async function processInboundMessage(
   );
 
   await tx.finalize(new helios.NetworkParams(paramsPreprod), wallet.address);
+  return tx;
+}
+
+export async function estimateFeeProcessInboundMessage(
+  ismParams: IsmParamsHelios,
+  utxoMessage: helios.UTxO,
+  wallet: Wallet
+): Promise<bigint> {
+  const tx = await buildTxProcessInboundMessage(ismParams, utxoMessage, wallet);
+  console.log(wallet.address.toBech32());
+  const inputLovelace = tx.body.inputs.reduce((sum, input) => {
+    if (input.address === wallet.address) {
+      return sum + input.value.lovelace;
+    }
+    return sum;
+  }, 0n);
+  const outputLovelace = tx.body.outputs.reduce((sum, output) => {
+    if (output.address === wallet.address) {
+      return sum + output.value.lovelace;
+    }
+    return sum;
+  }, 0n);
+  console.log(inputLovelace, outputLovelace);
+  return inputLovelace - outputLovelace;
+}
+
+export async function processInboundMessage(
+  ismParams: IsmParamsHelios,
+  utxoMessage: helios.UTxO,
+  wallet: Wallet
+): Promise<helios.TxId> {
+  const tx = await buildTxProcessInboundMessage(ismParams, utxoMessage, wallet);
 
   tx.addSignatures(await wallet.signTx(tx));
 
