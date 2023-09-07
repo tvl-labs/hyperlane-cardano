@@ -23,7 +23,7 @@ export function getProgramLockForever(): helios.UplcProgram {
 
 export function getProgramNFT(outputId: helios.TxOutputId): helios.UplcProgram {
   return new MintingPolicyNFT({
-    OUTPUT_ID: new helios.TxOutputId([outputId.txId, outputId.utxoIdx]),
+    OUTPUT_ID: outputId,
   }).compile(true);
 }
 
@@ -48,7 +48,7 @@ export function getProgramKhalaniTokens(
   const KHALANI_SENDER = new helios.ByteArray(
     requireEnv(process.env.KHALANI_SENDER)
   );
-  const ADDRESS_OUTBOX = helios.Address.fromValidatorHash(
+  const ADDRESS_OUTBOX = helios.Address.fromHash(
     getProgramOutbox().validatorHash
   );
   return new MintingPolicyKhalaniTokens({

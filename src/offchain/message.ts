@@ -79,26 +79,25 @@ export function calculateMessageId(message: Message) {
 
 export function serializeMessage(message: Message) {
   return new helios.ListData([
-    convertNumberToHeliosByteArray(message.version, 1)._toUplcData(),
-    convertNumberToHeliosByteArray(message.nonce, 4)._toUplcData(),
-    convertNumberToHeliosByteArray(message.originDomain, 4)._toUplcData(),
-    bufferToHeliosByteArray(message.sender.toBuffer())._toUplcData(),
-    convertNumberToHeliosByteArray(message.destinationDomain, 4)._toUplcData(),
-    bufferToHeliosByteArray(message.recipient.toBuffer())._toUplcData(),
-    bufferToHeliosByteArray(message.body.toBuffer())._toUplcData(),
+    convertNumberToHeliosByteArray(message.version, 1),
+    convertNumberToHeliosByteArray(message.nonce, 4),
+    convertNumberToHeliosByteArray(message.originDomain, 4),
+    bufferToHeliosByteArray(message.sender.toBuffer()),
+    convertNumberToHeliosByteArray(message.destinationDomain, 4),
+    bufferToHeliosByteArray(message.recipient.toBuffer()),
+    bufferToHeliosByteArray(message.body.toBuffer()),
   ]);
 }
 
-export function deserializeMessage(message: helios.ListData): Message {
-  const list = message.list;
+export function deserializeMessage(message: any): Message {
   return {
-    version: parseInt(helios.bytesToHex(list[0].bytes), 16),
-    nonce: parseInt(helios.bytesToHex(list[1].bytes), 16),
-    originDomain: parseInt(helios.bytesToHex(list[2].bytes), 16),
-    sender: Address.fromHex(`0x${helios.bytesToHex(list[3].bytes)}`),
-    destinationDomain: parseInt(helios.bytesToHex(list[4].bytes), 16),
-    recipient: Address.fromHex(`0x${helios.bytesToHex(list[5].bytes)}`),
-    body: MessagePayload.fromHexString(`0x${helios.bytesToHex(list[6].bytes)}`),
+    version: parseInt(message[0].bytes, 16),
+    nonce: parseInt(message[1].bytes, 16),
+    originDomain: parseInt(message[2].bytes, 16),
+    sender: Address.fromHex(`0x${message[3].bytes as string}`),
+    destinationDomain: parseInt(message[4].bytes, 16),
+    recipient: Address.fromHex(`0x${message[5].bytes as string}`),
+    body: MessagePayload.fromHexString(`0x${message[6].bytes as string}`),
   };
 }
 

@@ -39,11 +39,13 @@ export class EstimateInboxMessageFeeService
       parseMessagePayloadMint(checkpoint.message.body);
       fee += await estimateFeeProcessInboundMessage(
         ismParams,
-        new helios.UTxO(
-          new helios.TxId(
-            "0000000000000000000000000000000000000000000000000000000000000000"
+        new helios.TxInput(
+          new helios.TxOutputId(
+            new helios.TxId(
+              "0000000000000000000000000000000000000000000000000000000000000000"
+            ),
+            0
           ),
-          0,
           outputMessage
         ),
         wallet

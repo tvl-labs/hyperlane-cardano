@@ -9,7 +9,7 @@ import {
 // custom caching/indexing.
 export async function getOutboundGasPayment(
   relayerAddress: helios.Address,
-  messageId: helios.ByteArray
+  messageId: helios.ByteArrayData
 ): Promise<bigint> {
   const messageIdDatum = messageId.toCborHex();
   let total = BigInt(0);
@@ -23,7 +23,7 @@ export async function getOutboundGasPayment(
       }
     ).then(async (r) => await r.json());
 
-    if (txs.length === 0) break;
+    if (!Array.isArray(txs) || txs.length === 0) break;
 
     for (const tx of txs) {
       const txUTxOs: any = await fetch(

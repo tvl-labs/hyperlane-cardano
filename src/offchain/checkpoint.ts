@@ -44,10 +44,10 @@ export function serializeCheckpoint(
   signatures: Buffer[] // TODO: Define a 64-byte type for signatures
 ): helios.UplcData[] {
   return [
-    bufferToHeliosByteArray(checkpoint.originMailbox.toBuffer())._toUplcData(),
-    bufferToHeliosByteArray(checkpoint.checkpointRoot.toBuffer())._toUplcData(),
+    bufferToHeliosByteArray(checkpoint.originMailbox.toBuffer()),
+    bufferToHeliosByteArray(checkpoint.checkpointRoot.toBuffer()),
     new helios.ListData(
-      signatures.map((s) => new helios.ByteArray([...s.values()])._toUplcData())
+      signatures.map((s) => new helios.ByteArrayData([...s.values()]))
     ),
   ];
 }

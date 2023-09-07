@@ -18,8 +18,8 @@ export default async function createOutbox(
   wallet: Wallet,
   ismParamsHelios: IsmParamsHelios
 ): Promise<{
-  utxoOutbox: helios.UTxO;
-  utxoKhalani: helios.UTxO;
+  utxoOutbox: helios.TxInput;
+  utxoKhalani: helios.TxInput;
   outboxAuthToken: string;
 }> {
   const tx = new helios.Tx();
@@ -38,7 +38,7 @@ export default async function createOutbox(
   // TODO: add a class for "auth" token, can CardanoTokenName be reused?
   const outboxAuthToken = mpNFT.mintingPolicyHash.hex + TOKEN_NAME_AUTH_HEX;
 
-  const addressOutbox = helios.Address.fromValidatorHash(
+  const addressOutbox = helios.Address.fromHash(
     getProgramOutbox().validatorHash
   );
   const merkleTree = new HeliosMerkleTree(blake2bHasher);
@@ -57,7 +57,7 @@ export default async function createOutbox(
   // Create an empty UTxO at Script Khalani to validate
   // a Khalani burn message. This should be optional, but
   // the fee is indead small.
-  const addressKhalani = helios.Address.fromValidatorHash(
+  const addressKhalani = helios.Address.fromHash(
     getProgramKhalani(ismParamsHelios).validatorHash
   );
   tx.addOutput(
@@ -76,8 +76,14 @@ export default async function createOutbox(
   const txId = await wallet.submitTx(tx);
 
   return {
-    utxoOutbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
-    utxoKhalani: new helios.UTxO(txId, 1n, tx.body.outputs[1]),
+    utxoOutbox: new helios.TxInput(
+      new helios.TxOutputId(txId, 0),
+      tx.body.outputs[0]
+    ),
+    utxoKhalani: new helios.TxInput(
+      new helios.TxOutputId(txId, 1),
+      tx.body.outputs[1]
+    ),
     outboxAuthToken,
   };
 }

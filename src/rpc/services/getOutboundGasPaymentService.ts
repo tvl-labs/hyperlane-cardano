@@ -5,7 +5,7 @@ import { getOutboundGasPayment } from "../../offchain/indexer/getOutboundGasPaym
 export class GetOutboundGasPaymentService implements IGetOutboundGasPayment {
   async getOutboundGasPayment(
     relayerAddress: helios.Address,
-    messageId: helios.ByteArray
+    messageId: helios.ByteArrayData
   ): Promise<number> {
     const fee = await getOutboundGasPayment(relayerAddress, messageId);
     return Number(fee);

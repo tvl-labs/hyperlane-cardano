@@ -14,11 +14,15 @@ export function serializeOutboxDatum(
   return new helios.ListData(datum);
 }
 
-export function deserializeOutboxDatum(utxoOutbox: helios.UTxO): {
+export function deserializeOutboxDatum(utxoOutbox: helios.TxInput): {
   merkleTree: HeliosMerkleTree;
 } {
-  const datumOutbox = utxoOutbox.origOutput.datum.data;
-  const datumMerkleTree = datumOutbox.list[0];
-  const merkleTree = deserializeMerkleTree(datumMerkleTree);
-  return { merkleTree };
+  if (utxoOutbox.origOutput.datum?.data == null) {
+    throw new Error("Missing datum");
+  }
+  return {
+    merkleTree: deserializeMerkleTree(
+      JSON.parse(utxoOutbox.origOutput.datum.data.toSchemaJson()).list[0].list
+    ),
+  };
 }

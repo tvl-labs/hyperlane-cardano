@@ -1,15 +1,15 @@
 import * as helios from "@hyperionbt/helios";
 import { Buffer } from "buffer";
 
-export function bufferToHeliosByteArray(buffer: Buffer): helios.ByteArray {
+export function bufferToHeliosByteArray(buffer: Buffer): helios.ByteArrayData {
   const numbers = [...buffer.valueOf()];
-  return new helios.ByteArray(numbers);
+  return new helios.ByteArrayData(numbers);
 }
 
 export function convertNumberToHeliosByteArray(
   x: number,
   size: 1 | 4
-): helios.ByteArray {
+): helios.ByteArrayData {
   const buf = Buffer.alloc(size);
   if (size === 1) {
     buf.writeUint8(x);

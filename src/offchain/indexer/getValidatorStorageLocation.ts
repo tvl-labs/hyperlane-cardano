@@ -16,13 +16,13 @@ import { getProgramLockForever } from "../../onchain/programs";
 export async function getValidatorStorageLocation(
   validator: Address
 ): Promise<ValidatorStorageLocation | undefined> {
-  const addressLockForever = helios.Address.fromValidatorHash(
+  const addressLockForever = helios.Address.fromHash(
     getProgramLockForever().validatorHash
-  );
+  ).toBech32();
 
   for (let page = 1; true; page++) {
     const txs: any = await fetch(
-      `${blockfrostPrefix}/addresses/${addressLockForever.toBech32()}/transactions?order=desc&page=${page}`,
+      `${blockfrostPrefix}/addresses/${addressLockForever}/transactions?order=desc&page=${page}`,
       {
         headers: {
           project_id: blockfrostProjectId,
@@ -44,7 +44,7 @@ export async function getValidatorStorageLocation(
         ).then(async (r) => await r.json());
 
         const utxos = txUTxOs.outputs.filter(
-          (o) => o.address === addressLockForever.toBech32()
+          (o) => o.address === addressLockForever
         );
         if (utxos.length !== 1) continue;
 

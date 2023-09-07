@@ -14,8 +14,8 @@ const EXPECTED_DATUM = helios.Datum.hashed(new helios.ConstrData(0, []));
 // Return the oldest Khalani UTxO without an inline datum for outbound messages.
 export async function getOutboundKhalaniUTxO(
   ismParamsHelios: IsmParamsHelios
-): Promise<helios.UTxO> {
-  const addressKhalani = helios.Address.fromValidatorHash(
+): Promise<helios.TxInput> {
+  const addressKhalani = helios.Address.fromHash(
     getProgramKhalani(ismParamsHelios).validatorHash
   ).toBech32();
 

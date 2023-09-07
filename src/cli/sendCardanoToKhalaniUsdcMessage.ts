@@ -16,7 +16,7 @@ import { getOutboxParams } from "../offchain/outbox/outboxParams";
 import { requireEnv } from "../offchain/env.utils";
 
 interface UsdcUtxo {
-  utxo: helios.UTxO;
+  utxo: helios.TxInput;
   amount: bigint;
 }
 

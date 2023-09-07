@@ -12,7 +12,7 @@ import {
 
 export async function buildTxProcessInboundMessage(
   ismParams: IsmParamsHelios,
-  utxoMessage: helios.UTxO,
+  utxoMessage: helios.TxInput,
   wallet: Wallet
 ): Promise<helios.Tx> {
   const tx = new helios.Tx();
@@ -37,8 +37,11 @@ export async function buildTxProcessInboundMessage(
     new helios.ConstrData(2, [])
   );
 
+  if (utxoMessage.origOutput.datum?.data == null) {
+    throw new Error("Missing datum");
+  }
   const message = deserializeMessage(
-    helios.ListData.fromCbor(utxoMessage.origOutput.datum.data.toCbor())
+    JSON.parse(utxoMessage.origOutput.datum.data.toSchemaJson()).list
   );
 
   // TODO: Specific processing depending on the message
@@ -76,30 +79,16 @@ export async function buildTxProcessInboundMessage(
 
 export async function estimateFeeProcessInboundMessage(
   ismParams: IsmParamsHelios,
-  utxoMessage: helios.UTxO,
+  utxoMessage: helios.TxInput,
   wallet: Wallet
 ): Promise<bigint> {
   const tx = await buildTxProcessInboundMessage(ismParams, utxoMessage, wallet);
-  console.log(wallet.address.toBech32());
-  const inputLovelace = tx.body.inputs.reduce((sum, input) => {
-    if (input.address === wallet.address) {
-      return sum + input.value.lovelace;
-    }
-    return sum;
-  }, 0n);
-  const outputLovelace = tx.body.outputs.reduce((sum, output) => {
-    if (output.address === wallet.address) {
-      return sum + output.value.lovelace;
-    }
-    return sum;
-  }, 0n);
-  console.log(inputLovelace, outputLovelace);
-  return inputLovelace - outputLovelace;
+  return wallet.calcTxFee(tx);
 }
 
 export async function processInboundMessage(
   ismParams: IsmParamsHelios,
-  utxoMessage: helios.UTxO,
+  utxoMessage: helios.TxInput,
   wallet: Wallet
 ): Promise<helios.TxId> {
   const tx = await buildTxProcessInboundMessage(ismParams, utxoMessage, wallet);

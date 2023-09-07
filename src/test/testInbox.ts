@@ -77,7 +77,7 @@ function mockCheckpoint(
 async function createInboundMsg(
   ismParams: IsmParamsHelios,
   recipientAddress: helios.Address,
-  utxoInbox: helios.UTxO,
+  utxoInbox: helios.TxInput,
   wallet: Wallet
 ) {
   const checkpoint = mockCheckpoint(ismParams, recipientAddress);

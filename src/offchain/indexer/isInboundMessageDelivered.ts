@@ -1,4 +1,3 @@
-import * as helios from "@hyperionbt/helios";
 import type { IsmParamsHelios } from "../inbox/ismParams";
 import { getInboxUTxO } from "./getInboxUTxO";
 import type { H256 } from "../h256";
@@ -9,8 +8,9 @@ export async function isInboundMessageDelivered(
 ): Promise<boolean> {
   const inboxUTxO = await getInboxUTxO(ismParams);
   if (inboxUTxO == null) return false;
-  const deliveredMessages = inboxUTxO.origOutput.datum.data.list.map((ba) =>
-    helios.bytesToHex(ba.bytes)
-  );
-  return deliveredMessages.includes(messageId.hex().substring(2));
+  if (inboxUTxO.origOutput.datum?.data == null) return false;
+  const messages = JSON.parse(
+    inboxUTxO.origOutput.datum.data.toSchemaJson()
+  ).list.map((ba) => ba.bytes);
+  return messages.includes(messageId.hex().substring(2));
 }

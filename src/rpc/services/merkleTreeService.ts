@@ -12,15 +12,15 @@ import { getOutboxParams } from "../../offchain/outbox/outboxParams";
 export class MerkleTreeService implements IMerkleTreeService {
   // TODO: Better error handling
   async getLatestMerkleTree(): Promise<MerkleTreeResponseType> {
-    const addressOutbox = helios.Address.fromValidatorHash(
+    const addressOutbox = helios.Address.fromHash(
       getProgramOutbox().validatorHash
-    );
+    ).toBech32();
 
     const { outboxAuthToken } = getOutboxParams();
 
     // NOTE: We assume only a single UTxO exists for an NFT auth token
     const [utxo]: any = await fetch(
-      `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/utxos/${outboxAuthToken}`,
+      `${blockfrostPrefix}/addresses/${addressOutbox}/utxos/${outboxAuthToken}`,
       {
         headers: {
           project_id: blockfrostProjectId,
@@ -37,17 +37,17 @@ export class MerkleTreeService implements IMerkleTreeService {
       }
     ).then(async (r) => await r.json());
 
-    const merkleTree = helios.ListData.fromCbor(
-      helios.hexToBytes(utxo.inline_datum)
-    ).list[0];
+    const merkleTree = JSON.parse(
+      helios.ListData.fromCbor(
+        helios.hexToBytes(utxo.inline_datum)
+      ).toSchemaJson()
+    ).list[0].list;
 
     return {
       blockNumber: block.height,
       merkleTree: {
-        count: Number(merkleTree.list[1].int),
-        branches: merkleTree.list[0].list.map((b) =>
-          helios.bytesToHex(b.bytes)
-        ),
+        count: merkleTree[1].int,
+        branches: merkleTree[0].list.map((b) => b.bytes),
       },
     };
   }

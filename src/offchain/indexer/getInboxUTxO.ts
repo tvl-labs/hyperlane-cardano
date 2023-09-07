@@ -14,14 +14,14 @@ import { parseBlockfrostUtxo } from "./parseBlockfrostUtxos";
 
 export async function getInboxUTxO(
   ismParams: IsmParamsHelios
-): Promise<helios.UTxO | null> {
-  const addressInbox = helios.Address.fromValidatorHash(
+): Promise<helios.TxInput | null> {
+  const addressInbox = helios.Address.fromHash(
     getProgramInbox().validatorHash
-  );
+  ).toBech32();
   const mphISM = getProgramIsmKhalani(ismParams).mintingPolicyHash.hex;
 
   const utxos: any = await fetch(
-    `${blockfrostPrefix}/addresses/${addressInbox.toBech32()}/utxos/${mphISM}${TOKEN_NAME_AUTH_HEX}`,
+    `${blockfrostPrefix}/addresses/${addressInbox}/utxos/${mphISM}${TOKEN_NAME_AUTH_HEX}`,
     {
       headers: {
         project_id: blockfrostProjectId,

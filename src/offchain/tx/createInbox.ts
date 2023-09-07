@@ -11,7 +11,7 @@ import { type Wallet } from "../wallet";
 
 interface Inbox {
   ismParams: IsmParamsHelios;
-  utxoInbox: helios.UTxO;
+  utxoInbox: helios.TxInput;
   inboxOutputId: helios.TxOutputId;
 }
 
@@ -21,7 +21,7 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
-  const outputId = new helios.TxOutputId([utxos[0].txId, utxos[0].utxoIdx]);
+  const outputId = utxos[0].outputId;
   console.log(`Inbox output id: ${outputId.txId.hex}#${outputId.utxoIdx}`);
   const ismParams = getIsmParamsHelios(outputId);
 
@@ -37,7 +37,7 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
 
   tx.addOutput(
     new helios.TxOutput(
-      helios.Address.fromValidatorHash(getProgramInbox().validatorHash),
+      helios.Address.fromHash(getProgramInbox().validatorHash),
       new helios.Value(
         BigInt(0),
         new helios.Assets([[mpISM.mintingPolicyHash, authToken]])
@@ -53,7 +53,10 @@ export default async function createInbox(wallet: Wallet): Promise<Inbox> {
 
   return {
     ismParams,
-    utxoInbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
+    utxoInbox: new helios.TxInput(
+      new helios.TxOutputId(txId, 0n),
+      tx.body.outputs[0]
+    ),
     inboxOutputId: outputId,
   };
 }

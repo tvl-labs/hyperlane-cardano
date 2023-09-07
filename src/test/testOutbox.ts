@@ -31,17 +31,17 @@ const recipient = Address.fromHex(
 let lastOutboundMsg: Message;
 
 interface OutboundMessageRes {
-  messageId: helios.ByteArray;
-  utxoOutbox: helios.UTxO;
-  utxoKhalani?: helios.UTxO;
+  messageId: helios.ByteArrayData;
+  utxoOutbox: helios.TxInput;
+  utxoKhalani?: helios.TxInput;
 }
 
 async function createOutboundMsg(
   ismParams: IsmParamsHelios,
   nonce: number,
-  utxoOutbox: helios.UTxO,
+  utxoOutbox: helios.TxInput,
   wallet: Wallet,
-  utxoKhalani?: helios.UTxO
+  utxoKhalani?: helios.TxInput
 ): Promise<OutboundMessageRes> {
   lastOutboundMsg = {
     version: 0,
@@ -79,7 +79,7 @@ async function createOutboundMsg(
     utxoKhalani
   );
   return {
-    messageId: new helios.ByteArray(
+    messageId: new helios.ByteArrayData(
       calculateMessageId(lastOutboundMsg).toByteArray()
     ),
     ...utxos,

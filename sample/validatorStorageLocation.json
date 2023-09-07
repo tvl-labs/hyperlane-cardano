@@ -1,0 +1,9 @@
+{
+  "value": {
+    "validator": "0x268a18f088f32567ae70e7dd74dc658ac98f322f",
+    "mailbox_address": "0x000000000000000000000000d8e78417e8c8d672258bbcb8ec078e15eb419730",
+    "mailbox_domain": 112233,
+    "storage_location": "s3://khala-validator-signatures-1694156202464/us-east-1"
+  },
+  "serialized_signature": "70c2017df32caf98ddaca6705a66b47e07713556c13ea14f3c0c1d1dc0919de755a57facfc3eba8b98c83d69500000c7abc3baf5ddf57b3259b4dce8a7e924c31c"
+}

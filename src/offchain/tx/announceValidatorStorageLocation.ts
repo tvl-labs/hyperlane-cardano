@@ -17,7 +17,7 @@ export default async function announceValidatorStorageLocation(
   const utxos = await wallet.getUtxos();
   tx.addInputs(utxos);
 
-  const addressLockForever = helios.Address.fromValidatorHash(
+  const addressLockForever = helios.Address.fromHash(
     getProgramLockForever().validatorHash
   );
 

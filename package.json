@@ -21,7 +21,7 @@
     "publish-rpc-rust-client": "cd generated-sources/hyperlane-cardano-rpc-rust-client && cargo publish"
   },
   "dependencies": {
-    "@hyperionbt/helios": "https://github.com/kreate-community/Helios#dc1f353329a3d6e00006dc7d961ef7ad9b546b27",
+    "@hyperionbt/helios": "https://github.com/kreate-community/Helios#5b3f0cd4dc7944f15fa64114a284927d5d800d16",
     "bufferutil": "^4.0.7",
     "cors": "^2.8.5",
     "ethers": "^6.6.4",

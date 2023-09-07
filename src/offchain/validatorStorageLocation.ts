@@ -49,30 +49,27 @@ export function serializeValidatorStorageLocation(
     throw new Error("Unsigned validator storage location");
   }
   return new helios.ListData([
-    new helios.ByteArray(location.validator.toHex().substring(2))._toUplcData(),
+    new helios.ByteArrayData(location.validator.toByteArray()),
     new helios.IntData(BigInt(location.mailboxDomain)),
-    new helios.ByteArray(
-      location.mailboxAddress.toHex().substring(2)
-    )._toUplcData(),
-    new helios.ByteArray(
-      helios.textToBytes(location.storageLocation)
-    )._toUplcData(),
-    new helios.ByteArray(location.signature.substring(2))._toUplcData(),
+    new helios.ByteArrayData(location.mailboxAddress.toByteArray()),
+    new helios.ByteArrayData(helios.textToBytes(location.storageLocation)),
+    new helios.ByteArrayData(
+      helios.hexToBytes(location.signature.substring(2))
+    ),
   ]);
 }
 
 export function deserializeValidatorStorageLocation(
   location: helios.ListData
 ): ValidatorStorageLocation {
+  const locationDatum = JSON.parse(location.toSchemaJson()).list;
   return {
-    validator: Address.fromHex(
-      `0x${helios.bytesToHex(location.list[0].bytes)}`
+    validator: Address.fromHex(`0x${locationDatum[0].bytes as string}`),
+    mailboxDomain: locationDatum[1].int,
+    mailboxAddress: Address.fromHex(`0x${locationDatum[2].bytes as string}`),
+    storageLocation: helios.bytesToText(
+      helios.hexToBytes(locationDatum[3].bytes)
     ),
-    mailboxDomain: Number(location.list[1].int),
-    mailboxAddress: Address.fromHex(
-      `0x${helios.bytesToHex(location.list[2].bytes)}`
-    ),
-    storageLocation: helios.bytesToText(location.list[3].bytes),
-    signature: `0x${helios.bytesToHex(location.list[4].bytes)}`,
+    signature: `0x${locationDatum[4].bytes as string}`,
   };
 }

@@ -16,14 +16,14 @@ export class MessagesService implements IMessagesService {
     toBlock: number
   ): Promise<MessagesByBlockRangeResponseType> {
     const { outboxAuthToken } = getOutboxParams();
-    const addressOutbox = helios.Address.fromValidatorHash(
+    const addressOutbox = helios.Address.fromHash(
       getProgramOutbox().validatorHash
-    );
+    ).toBech32();
     const messages: any = [];
 
     for (let page = 1; true; page++) {
       const txs: any = await fetch(
-        `${blockfrostPrefix}/addresses/${addressOutbox.toBech32()}/transactions?from=${fromBlock}&to=${toBlock}&page=${page}`,
+        `${blockfrostPrefix}/addresses/${addressOutbox}/transactions?from=${fromBlock}&to=${toBlock}&page=${page}`,
         {
           headers: {
             project_id: blockfrostProjectId,
@@ -31,7 +31,7 @@ export class MessagesService implements IMessagesService {
         }
       ).then(async (r) => await r.json());
 
-      if (txs.length === 0) break;
+      if (!Array.isArray(txs) || txs.length === 0) break;
 
       for (const tx of txs) {
         const txHash = tx.tx_hash as string;
@@ -47,25 +47,26 @@ export class MessagesService implements IMessagesService {
 
           const outbox = txUTxOs.outputs.find(
             (o) =>
-              o.address === addressOutbox.toBech32() &&
+              o.address === addressOutbox &&
               o.amount.find((a) => a.unit === outboxAuthToken)
           );
           if (outbox == null) continue;
 
-          const listData = helios.ListData.fromCbor(
-            helios.hexToBytes(outbox.inline_datum)
-          );
+          const datum = JSON.parse(
+            helios.ListData.fromCbor(
+              helios.hexToBytes(outbox.inline_datum)
+            ).toSchemaJson()
+          ).list;
 
-          if (listData.list.length < 2) {
+          if (datum.length < 2) {
             // Empty Outbox has no message.
             //  TODO: reuse the UTXO parser functions.
             continue;
           }
 
-          const message = new helios.ListData(listData.list[1].fields[0].list);
           messages.push({
             block: tx.block_height,
-            message: toJsonMessage(deserializeMessage(message)),
+            message: toJsonMessage(deserializeMessage(datum[1].fields[0].list)),
           });
         } catch (e) {
           console.warn(`Unable to parse tx ${txHash}`, e);

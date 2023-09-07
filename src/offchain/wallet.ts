@@ -14,8 +14,11 @@ export class Wallet {
     privateKey?: helios.PrivateKey,
     emulatedWallet?: helios.Wallet
   ) {
+    if (address.pubKeyHash == null) {
+      throw new Error("Unsupported wallet");
+    }
     this.address = address;
-    this.addressPubKeyOnly = helios.Address.fromHashes(this.address.pubKeyHash);
+    this.addressPubKeyOnly = helios.Address.fromHashes(address.pubKeyHash);
     this.privateKey = privateKey;
     this.emulatedWallet = emulatedWallet;
   }
@@ -28,10 +31,26 @@ export class Wallet {
     );
   }
 
-  async getUtxos(): Promise<helios.UTxO[]> {
+  async getUtxos(): Promise<helios.TxInput[]> {
     return await (this.emulatedWallet != null
       ? this.emulatedWallet.utxos
       : blockfrost.getUtxos(this.address));
+  }
+
+  calcTxFee(tx: helios.Tx): bigint {
+    const inputLovelace = tx.body.inputs.reduce((sum, input) => {
+      if (input.address.eq(this.address)) {
+        return sum + input.value.lovelace;
+      }
+      return sum;
+    }, 0n);
+    const outputLovelace = tx.body.outputs.reduce((sum, output) => {
+      if (output.address.eq(this.address)) {
+        return sum + output.value.lovelace;
+      }
+      return sum;
+    }, 0n);
+    return inputLovelace - outputLovelace;
   }
 
   async signTx(tx: helios.Tx): Promise<helios.Signature[]> {

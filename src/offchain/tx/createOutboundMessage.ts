@@ -75,11 +75,11 @@ export async function prepareOutboundMessage(
 }
 
 export async function buildOutboundMessage(
-  utxoOutbox: helios.UTxO,
+  utxoOutbox: helios.TxInput,
   outboxMessage: Message,
   wallet: Wallet,
   ismParams: IsmParamsHelios,
-  utxoKhalani?: helios.UTxO
+  utxoKhalani?: helios.TxInput
 ): Promise<helios.Tx> {
   const { merkleTree } = deserializeOutboxDatum(utxoOutbox);
 
@@ -103,7 +103,7 @@ export async function buildOutboundMessage(
   tx.attachScript(scriptOutbox);
   tx.addOutput(
     new helios.TxOutput(
-      helios.Address.fromValidatorHash(scriptOutbox.validatorHash),
+      helios.Address.fromHash(scriptOutbox.validatorHash),
       helios.Value.fromCbor(utxoOutbox.origOutput.value.toCbor()),
       helios.Datum.inline(serializeOutboxDatum(merkleTree, outboxMessage))
     )
@@ -135,14 +135,14 @@ export async function buildOutboundMessage(
 }
 
 export async function createOutboundMessage(
-  utxoOutbox: helios.UTxO,
+  utxoOutbox: helios.TxInput,
   outboxMessage: Message,
   wallet: Wallet,
   ismParams: IsmParamsHelios,
-  utxoKhalani?: helios.UTxO
+  utxoKhalani?: helios.TxInput
 ): Promise<{
-  utxoOutbox: helios.UTxO;
-  utxoKhalani?: helios.UTxO;
+  utxoOutbox: helios.TxInput;
+  utxoKhalani?: helios.TxInput;
 }> {
   const tx = await buildOutboundMessage(
     utxoOutbox,
@@ -155,10 +155,16 @@ export async function createOutboundMessage(
   const txId = await wallet.submitTx(tx);
 
   return {
-    utxoOutbox: new helios.UTxO(txId, 0n, tx.body.outputs[0]),
+    utxoOutbox: new helios.TxInput(
+      new helios.TxOutputId(txId, 0n),
+      tx.body.outputs[0]
+    ),
     utxoKhalani:
       utxoKhalani != null
-        ? new helios.UTxO(txId, 1n, utxoKhalani.origOutput)
+        ? new helios.TxInput(
+            new helios.TxOutputId(txId, 1n),
+            utxoKhalani.origOutput
+          )
         : undefined,
   };
 }

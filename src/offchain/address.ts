@@ -28,6 +28,10 @@ export class Address {
     return Buffer.from(this.bytes);
   }
 
+  toByteArray(): number[] {
+    return [...this.bytes];
+  }
+
   toJSON() {
     return this.toHex();
   }
@@ -59,7 +63,7 @@ export class Address {
   // TODO: Support stake crendentials & mainnet
   toCardanoAddress(): helios.Address {
     if (this.bytes[0] === 2) {
-      return helios.Address.fromValidatorHash(this.toValidatorHash());
+      return helios.Address.fromHash(this.toValidatorHash());
     }
     throw new Error("Unsupported Cardano address");
   }

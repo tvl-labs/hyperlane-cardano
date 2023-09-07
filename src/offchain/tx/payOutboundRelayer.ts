@@ -6,7 +6,7 @@ export default async function payOutboundRelayer(
   wallet: Wallet,
   relayerAddress: helios.Address,
   feeLovelace: bigint,
-  messageId: helios.ByteArray
+  messageId: helios.ByteArrayData
 ): Promise<helios.TxId> {
   const tx = new helios.Tx();
 
@@ -17,7 +17,7 @@ export default async function payOutboundRelayer(
     new helios.TxOutput(
       relayerAddress,
       new helios.Value(BigInt(feeLovelace)),
-      helios.Datum.inline(messageId._toUplcData())
+      helios.Datum.inline(messageId)
     )
   );
 

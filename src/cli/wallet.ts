@@ -14,6 +14,6 @@ export function createWallet(
   }
   return new Wallet(
     new helios.Address(walletAddress),
-    new helios.PrivateKey(walletPrivateKey)
+    new helios.Ed25519PrivateKey(walletPrivateKey)
   );
 }

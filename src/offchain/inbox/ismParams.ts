@@ -26,9 +26,7 @@ export function getIsmParamsHelios(
       )
     );
   }
-  const addressInbox = helios.Address.fromValidatorHash(
-    getProgramInbox().validatorHash
-  );
+  const addressInbox = helios.Address.fromHash(getProgramInbox().validatorHash);
   return {
     VALIDATOR_VKEYS,
     THRESHOLD: BigInt(requireEnv(process.env.ISM_THRESHOLD)),
