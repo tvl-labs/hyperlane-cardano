@@ -16,6 +16,8 @@ declare global {
   }
 }
 
+export const CARDANO_RPC_URL = "http://localhost:63231"
+
 export default function Home() {
   const [selectedWallet, setSelectedWallet] =
     React.useState<CardanoWallet>("nami");
@@ -23,17 +25,22 @@ export default function Home() {
     React.useState<helios.Cip30Wallet | null>(null);
   const [usdcBalance, setUsdcBalance] = React.useState(0);
   const [redeemAmount, setRedeemAmount] = React.useState(0);
+  const [address, setAddress] = React.useState<helios.Address>();
 
   async function connectWallet() {
     const rawWallet = await window.cardano[selectedWallet].enable();
     const heliosWallet = new helios.Cip30Wallet(rawWallet);
     setHeliosWallet(heliosWallet);
     refreshBalance(heliosWallet);
+    const addresses = await heliosWallet.usedAddresses;
+    if (addresses.length > 0) {
+      setAddress(addresses[0])
+    }
   }
 
   async function refreshBalance(heliosWallet: helios.Cip30Wallet) {
     const mphKhalani = await fetch(
-      "http://localhost:3001/api/khalani/mph"
+      `${CARDANO_RPC_URL}/api/khalani/mph`
     ).then((r) => r.json());
     const utxos = await heliosWallet.utxos;
     let balance = 0;
@@ -57,7 +64,7 @@ export default function Home() {
     }
     const usedAddresses = await heliosWallet.usedAddresses;
     const { tx } = await fetch(
-      "http://localhost:3001/api/khalani/buildOutboundTx",
+      `${CARDANO_RPC_URL}/api/khalani/buildOutboundTx`,
       {
         method: "POST",
         headers: {
@@ -89,6 +96,13 @@ export default function Home() {
       <button id="btn-connect-wallet" onClick={connectWallet}>
         Connect
       </button>
+      {address && (
+        <>
+          <h2>Connected wallet</h2>
+          <div>{address.toBech32()}</div>
+          <div>As hex: 0x{address.hex}</div>
+        </>
+      )}
       <h2>Balance</h2>
       <div>
         USDC: <span>{usdcBalance}</span>
