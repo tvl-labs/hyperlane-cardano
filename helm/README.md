@@ -1,12 +1,17 @@
-### Development
-In order to locally develop Hyperlane x Cardano integration, we need to deploy at least the following services:
-- Cardano RPC service, from this repository.
-- Validator agent, from the TVL [hyperlane-monorepo](https://github.com/tvl-labs/hyperlane-monorepo/tree/cardano)
-- Relayer agent (coming soon), from the TVL [hyperlane-monorepo](https://github.com/tvl-labs/hyperlane-monorepo/tree/cardano)
+### Deployment
+Hyperlane x Cardano integration consists of the following services:
+- [Cardano RPC](cardano-rpc)
+  - Indexing of the Cardano  Outbox
+  - Querying UTXO, building transactions
+  - Processing Cardano USDC minting requests
+- [Hyperlane Validator](hyperlane-validator)
+  - Validators of the `Cardano -> Khalani Chain` messages
+  - Validators of the `Khalani Chain -> Cardano` messages
+- [Hyperlane Relayer](hyperlane-relayer)
+  - Relayer of the `Cardano -> Khalani Chain` messages
+  - Relayer of the `Khalani Chain -> Cardano` messages
 
-This folder contains the following Helm charts:
-- [cardano-rpc](cardano-rpc) — to deploy the Cardano RPC
-- [hyperlane-validator](hyperlane-validator) — to deploy the Hyperlane validator
+![agents.png](..%2Fdocs%2Fagents.png)
 
 ### Images built on GitHub CI
 By default, the Docker images built on GitHub CI are used:
@@ -37,6 +42,8 @@ make install-local-docker-registry
 - `hyperlane-validator` [values.yaml](hyperlane-validator%2Fvalues.yaml)
 
 ##### Install the local persistent volume for checkpoints
+Checkpoints are saved at `$HOME/.local-hyperlane-checkpoints/<validator address>/`
+
 ```shell
 make install-local-checkpoints-storage
 ```
@@ -52,25 +59,22 @@ That config is referenced by validators and relayers via `ConfigMap`
 make create-cardano-test-config
 ```
 
-### Cardano -> EVM
-
-##### Deploy Cardano validator
+##### (Cardano -> EVM) Deploy Cardano validators
 ```shell
-make install-validator
+make install-cardano-validators
 ```
 
-##### Deploy Cardano -> EVM relayer
+##### (Cardano -> EVM) Deploy Cardano -> EVM relayer
 ```shell
 make install-cardano-relayer
 ```
 
-### EVM -> Cardano
-##### Deploy 3 EVM validators
+##### (EVM -> Cardano) Deploy 3 EVM validators
 ```shell
 make install-evm-validators
 ```
 
-##### Announce storage locations of the 3 validators
+##### (EVM -> Cardano) Announce storage locations of the 3 validators
 > Note: this step is one-time per validator, and can be skipped if the validator has already been announced.
 
 Validator saves `announcement.json` file at `$HOME/.local-hyperlane-checkpoints/<validator>/announcement.json`.
@@ -81,7 +85,21 @@ That file contains a signed storage announcement that needs to be submitted to [
 - Update the file at `<hyperlane-deploy>/config/announcement.json`
 - Run `announce-validator.sh` script
 
-##### Deploy EVM -> Cardano relayer
+##### (EVM -> Cardano) Deploy EVM -> Cardano relayer
 ```shell
 make install-evm-relayer
 ```
+
+### Bridge some USDC tokens from Arbitrum Fuji to Cardano
+Checkout `cardano` branch of the `khalani-sdk` and run the test [cardano.bridge.e2e.test](https://github.com/tvl-labs/khalani-sdk/blob/cardano/src/e2e/cardano.bridge.e2e.test.ts).
+
+After several minutes, this [address](https://preprod.cexplorer.io/address/addr_test1vpcvg34l9ngamtytg3ex5mxgcczgtu78dh3m3uxdk7cf5dg0scvn5) on Cardano preprod network will receive the test USDC tokens.
+
+### Bridge Cardano USDC from Cardano to Fuji
+Execute the following test script sending 2 USDC tokens from Cardano to this [address](https://testnet.snowtrace.io/address/0x2064dfa3a7dc4F6Bb6523B56Fa6C46611799058A) on Fuji. 
+```shell
+yarn sendCardanoToKhalaniUsdcMessage
+```
+
+### Demo
+See the [demo](https://drive.google.com/file/d/1yC4fffr4d75NoN6YyrpU7SxcETPxLv4J/view?usp=drive_link)
